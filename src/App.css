@@ -1,0 +1,104 @@
+.App {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  background-color: #007bff;
+  color: white;
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+}
+
+h1 {
+  margin: 0;
+}
+
+.list-group-item {
+  transition: background-color 0.3s;
+}
+
+.list-group-item:hover {
+  background-color: #e9ecef;
+}
+
+footer {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 0 0 8px 8px;
+}
+
+/* App.css */
+
+/* Light Theme */
+.light-theme {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Dark Theme */
+.dark-theme {
+  background-color: #343a40;
+  color: #f8f9fa;
+}
+
+header {
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+  position: relative; /* Ensure header is positioned relative for absolute positioning of button */
+}
+
+h1 {
+  margin: 0;
+}
+
+.list-group-item {
+  transition: background-color 0.3s;
+}
+
+.list-group-item:hover {
+  background-color: #e9ecef;
+}
+
+.dark-theme .list-group-item:hover {
+  background-color: #495057;
+}
+
+footer {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 0 0 8px 8px;
+}
+
+footer {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Button Styles */
+.btn {
+  padding: 10px 20px; /* Default padding for buttons */
+}
+
+.theme-switch-button {
+  width: 40px; /* Set a fixed width */
+  height: 40px; /* Set a fixed height */
+  font-size: 16px; /* Adjust font size */
+  display: flex; /* Use flexbox for centering */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  border-radius: 50%; /* Make it circular */
+}
+
+/* Theme Switch Container */
+.theme-switch-container {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Center items vertically */
+}

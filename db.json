@@ -1,0 +1,6 @@
+{
+    "injuries": [
+      { "id": 1, "description": "Ankle Sprain" },
+      { "id": 2, "description": "Knee Injury" }
+    ]
+  }
