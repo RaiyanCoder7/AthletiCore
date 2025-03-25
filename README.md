@@ -51,14 +51,6 @@ AthletiCore is a powerful, intuitive athlete management platform designed to str
 
 ----------------------------------------------------------------------
 
-## 🔧 Installation & Setup  
-
-1️⃣ **Clone the repository:**  
-```bash
-git clone https://github.com/yourusername/AthletiCore.git
-
-----------------------------------------------------------------------
-
 ## 💪 Contributors  
 👨‍💻 **[MD RAIYAN RAZA KHAN](https://github.com/RaiyanCoder7)**  – Project Lead & Developer 
 
@@ -67,3 +59,11 @@ git clone https://github.com/yourusername/AthletiCore.git
 ## 📲 Contact  
 📧 Email: (mailto:mdraiyanrazakhan123@gmail.com)  
 🔗 LinkedIn: (https://www.linkedin.com/in/mdraiyanrazakhan)
+
+----------------------------------------------------------------------
+
+## 🔧 Installation & Setup  
+
+1️⃣ **Clone the repository:**  
+```bash
+git clone https://github.com/yourusername/AthletiCore.git
