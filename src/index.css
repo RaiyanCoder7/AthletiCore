@@ -33,3 +33,15 @@ footer {
   background-color: #333;
   color: #fff;
 }
+
+/* Light Mode (Default) */
+body {
+  background-color: white;
+  color: black;
+}
+
+/* Dark Mode */
+.dark body {
+  background-color: #121212;
+  color: white;
+}
