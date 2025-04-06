@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ErrorBoundary from "./ErrorBoundary";
 
+
 // Lazy load pages and components
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const Login = React.lazy(() => import("./components/Login"));
