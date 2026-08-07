@@ -1,0 +1,55 @@
+import type { ReactNode } from "react";
+import { motion } from "framer-motion";
+
+type DashboardCardProps = {
+  children: ReactNode;
+  className?: string;
+  hover?: boolean;
+  id?: string;
+};
+
+export default function DashboardCard({
+  children,
+  className = "",
+  hover = true,
+  id,
+}: DashboardCardProps) {
+  return (
+    <motion.div
+      id={id}
+      whileHover={
+        hover
+          ? {
+              y: -4,
+              scale: 1.01,
+            }
+          : {}
+      }
+      transition={{
+        duration: 0.2,
+      }}
+      className={`
+        flex
+        flex-col
+        rounded-3xl
+        border
+        border-zinc-800
+        bg-zinc-900/80
+        backdrop-blur-xl
+        p-6
+        shadow-lg
+        shadow-black/20
+        transition-all
+        duration-300
+        ${
+          hover
+            ? "hover:border-blue-500/40 hover:shadow-blue-500/10"
+            : ""
+        }
+        ${className}
+      `}
+    >
+      {children}
+    </motion.div>
+  );
+}
