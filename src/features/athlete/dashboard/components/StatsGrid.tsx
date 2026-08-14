@@ -10,15 +10,17 @@ import StatsCard from "./StatsCard";
 
 import { auth } from "@/services/firebase/firebase";
 import { getTrainingSessions } from "@/services/firebase/training";
+import { getTodayRecovery } from "@/services/firebase/recovery";
 
 import type { TrainingSession } from "@/services/firebase/training";
 
 export default function StatsGrid() {
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
+  const [recovery, setRecovery] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadTrainingData = async () => {
+    const loadDashboardData = async () => {
       const user = auth.currentUser;
 
       if (!user) {
@@ -27,12 +29,22 @@ export default function StatsGrid() {
       }
 
       try {
-        const data = await getTrainingSessions(user.uid);
+        const [trainingData, todayRecovery] =
+          await Promise.all([
+            getTrainingSessions(user.uid),
+            getTodayRecovery(user.uid),
+          ]);
 
-        setSessions(data);
+        setSessions(trainingData);
+
+        if (todayRecovery) {
+          setRecovery(todayRecovery.recoveryScore);
+        } else {
+          setRecovery(null);
+        }
       } catch (error) {
         console.error(
-          "Failed to load dashboard training data:",
+          "Failed to load dashboard data:",
           error
         );
       } finally {
@@ -40,7 +52,7 @@ export default function StatsGrid() {
       }
     };
 
-    loadTrainingData();
+    loadDashboardData();
   }, []);
 
   /* --------------------------------
@@ -58,6 +70,7 @@ export default function StatsGrid() {
   startOfWeek.setDate(
     startOfWeek.getDate() - difference
   );
+
   startOfWeek.setHours(0, 0, 0, 0);
 
   const endOfWeek = new Date(startOfWeek);
@@ -65,6 +78,7 @@ export default function StatsGrid() {
   endOfWeek.setDate(
     endOfWeek.getDate() + 6
   );
+
   endOfWeek.setHours(23, 59, 59, 999);
 
   /* --------------------------------
@@ -121,6 +135,17 @@ export default function StatsGrid() {
     ? "..."
     : String(completedSessions.length);
 
+  const recoveryDisplay = loading
+    ? "..."
+    : recovery !== null
+    ? `${recovery}%`
+    : "—";
+
+  const recoverySubtitle =
+    recovery !== null
+      ? "Today's recovery"
+      : "No recovery data";
+
   return (
     <section className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
@@ -147,8 +172,8 @@ export default function StatsGrid() {
       {/* Recovery */}
       <StatsCard
         title="Recovery"
-        value="—"
-        subtitle="Recovery data unavailable"
+        value={recoveryDisplay}
+        subtitle={recoverySubtitle}
         icon={<HeartPulse size={24} />}
       />
 

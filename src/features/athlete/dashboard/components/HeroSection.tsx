@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   Trophy,
   Activity,
@@ -12,6 +13,7 @@ import Button from "@/components/ui/Button";
 import { auth } from "@/services/firebase/firebase";
 import { getUserProfile } from "@/services/firebase/users";
 import { getTrainingSessions } from "@/services/firebase/training";
+import { getTodayRecovery } from "@/services/firebase/recovery";
 
 import type { TrainingSession } from "@/services/firebase/training";
 
@@ -38,6 +40,9 @@ export default function HeroSection() {
     TrainingSession[]
   >([]);
 
+  const [recovery, setRecovery] =
+    useState<number | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,17 +55,29 @@ export default function HeroSection() {
       }
 
       try {
-        const [profileData, trainingData] =
-          await Promise.all([
-            getUserProfile(user.uid),
-            getTrainingSessions(user.uid),
-          ]);
+        const [
+          profileData,
+          trainingData,
+          recoveryData,
+        ] = await Promise.all([
+          getUserProfile(user.uid),
+          getTrainingSessions(user.uid),
+          getTodayRecovery(user.uid),
+        ]);
 
         setProfile(
           profileData as UserProfile | null
         );
 
         setSessions(trainingData);
+
+        if (recoveryData) {
+          setRecovery(
+            recoveryData.recoveryScore
+          );
+        } else {
+          setRecovery(null);
+        }
       } catch (error) {
         console.error(
           "Failed to load dashboard data:",
@@ -78,7 +95,8 @@ export default function HeroSection() {
      Greeting
   -------------------------------- */
 
-  const currentHour = new Date().getHours();
+  const currentHour =
+    new Date().getHours();
 
   let greeting = "Good Evening";
 
@@ -96,79 +114,122 @@ export default function HeroSection() {
   -------------------------------- */
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
-  const startOfWeek = new Date(today);
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
 
-  const day = startOfWeek.getDay();
+  const startOfWeek =
+    new Date(today);
+
+  const day =
+    startOfWeek.getDay();
 
   const difference =
     day === 0 ? 6 : day - 1;
 
   startOfWeek.setDate(
-    startOfWeek.getDate() - difference
+    startOfWeek.getDate() -
+      difference
   );
 
-  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setHours(
+    0,
+    0,
+    0,
+    0
+  );
 
-  const endOfWeek = new Date(startOfWeek);
+  const endOfWeek =
+    new Date(startOfWeek);
 
   endOfWeek.setDate(
     endOfWeek.getDate() + 6
   );
 
-  endOfWeek.setHours(23, 59, 59, 999);
+  endOfWeek.setHours(
+    23,
+    59,
+    59,
+    999
+  );
 
   /* --------------------------------
      Weekly Training
   -------------------------------- */
 
-  const weeklySessions = sessions.filter(
-    (session) => {
-      const sessionDate = new Date(
-        `${session.date}T00:00:00`
-      );
+  const weeklySessions =
+    sessions.filter(
+      (session) => {
+        const sessionDate =
+          new Date(
+            `${session.date}T00:00:00`
+          );
 
-      return (
-        sessionDate >= startOfWeek &&
-        sessionDate <= endOfWeek &&
-        session.status !== "Rest"
-      );
-    }
-  );
+        return (
+          sessionDate >= startOfWeek &&
+          sessionDate <= endOfWeek &&
+          session.status !== "Rest"
+        );
+      }
+    );
 
   const completedSessions =
     weeklySessions.filter(
       (session) =>
-        session.status === "Completed"
+        session.status ===
+        "Completed"
     );
 
   const weeklyGoal = 6;
 
-  const weeklyProgress = Math.min(
-    Math.round(
-      (completedSessions.length /
-        weeklyGoal) *
-        100
-    ),
-    100
-  );
+  const weeklyProgress =
+    Math.min(
+      Math.round(
+        (completedSessions.length /
+          weeklyGoal) *
+          100
+      ),
+      100
+    );
 
   /* --------------------------------
      Display values
   -------------------------------- */
 
-  const trainingDisplay = loading
-    ? "..."
-    : String(weeklySessions.length);
+  const trainingDisplay =
+    loading
+      ? "..."
+      : String(
+          weeklySessions.length
+        );
 
-  const performanceDisplay = loading
-    ? "..."
-    : String(weeklyProgress);
+  const performanceDisplay =
+    loading
+      ? "..."
+      : String(
+          weeklyProgress
+        );
 
-  const completedDisplay = loading
-    ? "..."
-    : `${completedSessions.length}/${weeklyGoal}`;
+  const completedDisplay =
+    loading
+      ? "..."
+      : `${completedSessions.length}/${weeklyGoal}`;
+
+  const recoveryDisplay =
+    loading
+      ? "..."
+      : recovery !== null
+      ? `${recovery}%`
+      : "—";
+
+  const recoverySubtitle =
+    recovery !== null
+      ? "Today's recovery"
+      : "No recovery data";
 
   return (
     <section className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white">
@@ -210,7 +271,9 @@ export default function HeroSection() {
           <div className="mt-8 flex gap-4">
 
             <Button
-              onClick={() => navigate("/training")}
+              onClick={() =>
+                navigate("/training")
+              }
             >
               Start Training
             </Button>
@@ -231,7 +294,6 @@ export default function HeroSection() {
             </Button>
 
           </div>
-
         </div>
 
         {/* RIGHT */}
@@ -281,11 +343,11 @@ export default function HeroSection() {
             </p>
 
             <h2 className="mt-2 text-4xl font-bold">
-              —
+              {recoveryDisplay}
             </h2>
 
             <p className="mt-1 text-xs text-blue-200">
-              Recovery data unavailable
+              {recoverySubtitle}
             </p>
           </div>
 
@@ -307,9 +369,7 @@ export default function HeroSection() {
           </div>
 
         </div>
-
       </div>
-
     </section>
   );
 }
