@@ -149,8 +149,6 @@ src/
 
 ## 📸 Screenshots
 
-## 📸 Screenshots
-
 ### 🔐 Login
 
 ![Login](./screenshots/login.png)
