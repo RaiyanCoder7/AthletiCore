@@ -17,12 +17,20 @@ import { auth } from "@/services/firebase/firebase";
 import { getTrainingSessions } from "@/services/firebase/training";
 import type { TrainingSession } from "@/services/firebase/training";
 
+import type { AnalyticsRange } from "../AnalyticsPage";
+
+interface TrainingLoadChartProps {
+  range: AnalyticsRange;
+}
+
 interface TrainingLoadData {
   day: string;
   load: number;
 }
 
-export default function TrainingLoadChart() {
+export default function TrainingLoadChart({
+  range,
+}: TrainingLoadChartProps) {
   const [data, setData] = useState<TrainingLoadData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,6 +43,8 @@ export default function TrainingLoadChart() {
         return;
       }
 
+      setLoading(true);
+
       try {
         const sessions =
           await getTrainingSessions(user.uid);
@@ -43,81 +53,217 @@ export default function TrainingLoadChart() {
 
         today.setHours(0, 0, 0, 0);
 
-        // Monday of current week
-        const startOfWeek = new Date(today);
+        const startDate = new Date(today);
 
-        const day = startOfWeek.getDay();
+        let numberOfDays = 7;
 
-        const difference =
-          day === 0 ? 6 : day - 1;
+        if (range === "7D") {
+          startDate.setDate(
+            today.getDate() - 6
+          );
 
-        startOfWeek.setDate(
-          startOfWeek.getDate() - difference
-        );
+          numberOfDays = 7;
+        }
+
+        if (range === "30D") {
+          startDate.setDate(
+            today.getDate() - 29
+          );
+
+          numberOfDays = 30;
+        }
+
+        if (range === "SEASON") {
+          startDate.setMonth(0);
+          startDate.setDate(1);
+
+          numberOfDays =
+            Math.floor(
+              (today.getTime() -
+                startDate.getTime()) /
+                (1000 * 60 * 60 * 24)
+            ) + 1;
+        }
 
         const trainingLoadData: TrainingLoadData[] = [];
 
-        for (let i = 0; i < 7; i++) {
-          const date = new Date(startOfWeek);
+        /*
+         * For longer ranges, group the data by week.
+         * This keeps the chart readable instead of
+         * displaying dozens or hundreds of bars.
+         */
 
-          date.setDate(
-            startOfWeek.getDate() + i
-          );
+        if (range === "SEASON") {
+          const weeklyData: Record<
+            string,
+            number
+          > = {};
 
-          const dateString = [
-            date.getFullYear(),
-            String(
-              date.getMonth() + 1
-            ).padStart(2, "0"),
-            String(
-              date.getDate()
-            ).padStart(2, "0"),
-          ].join("-");
-
-          const daySessions =
-            sessions.filter(
-              (session: TrainingSession) =>
-                session.date === dateString &&
-                session.status === "Completed"
-            );
-
-          const totalMinutes =
-            daySessions.reduce(
-              (total, session) => {
-                const match =
-                  session.duration.match(
-                    /\d+/
-                  );
-
-                if (!match) {
-                  return total;
-                }
-
-                return (
-                  total +
-                  Number(match[0])
-                );
-              },
-              0
-            );
-
-          // 60 minutes = 100% daily training load
-          const load = Math.min(
-            Math.round(
-              (totalMinutes / 60) * 100
-            ),
-            100
-          );
-
-          trainingLoadData.push({
-            day: date.toLocaleDateString(
-              "en-US",
-              {
-                weekday: "short",
+          sessions.forEach(
+            (session: TrainingSession) => {
+              if (
+                session.status !==
+                "Completed"
+              ) {
+                return;
               }
-            ),
-            load,
-          });
+
+              const sessionDate =
+                new Date(
+                  `${session.date}T00:00:00`
+                );
+
+              if (
+                sessionDate < startDate ||
+                sessionDate > today
+              ) {
+                return;
+              }
+
+              const day =
+                sessionDate.getDay();
+
+              const difference =
+                day === 0 ? 6 : day - 1;
+
+              const weekStart =
+                new Date(sessionDate);
+
+              weekStart.setDate(
+                sessionDate.getDate() -
+                  difference
+              );
+
+              const weekKey = [
+                weekStart.getFullYear(),
+                String(
+                  weekStart.getMonth() + 1
+                ).padStart(2, "0"),
+                String(
+                  weekStart.getDate()
+                ).padStart(2, "0"),
+              ].join("-");
+
+              const match =
+                session.duration.match(
+                  /\d+/
+                );
+
+              if (!match) {
+                return;
+              }
+
+              weeklyData[weekKey] =
+                (weeklyData[weekKey] || 0) +
+                Number(match[0]);
+            }
+          );
+
+          Object.entries(weeklyData)
+            .sort(([a], [b]) =>
+              a.localeCompare(b)
+            )
+            .forEach(
+              ([week, minutes]) => {
+                trainingLoadData.push({
+                  day: new Date(
+                    `${week}T00:00:00`
+                  ).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                    }
+                  ),
+                  load: Math.min(
+                    Math.round(
+                      (minutes / 300) * 100
+                    ),
+                    100
+                  ),
+                });
+              }
+            );
+        } else {
+          for (
+            let i = 0;
+            i < numberOfDays;
+            i++
+          ) {
+            const date =
+              new Date(startDate);
+
+            date.setDate(
+              startDate.getDate() + i
+            );
+
+            const dateString = [
+              date.getFullYear(),
+              String(
+                date.getMonth() + 1
+              ).padStart(2, "0"),
+              String(
+                date.getDate()
+              ).padStart(2, "0"),
+            ].join("-");
+
+            const daySessions =
+              sessions.filter(
+                (
+                  session: TrainingSession
+                ) =>
+                  session.date ===
+                    dateString &&
+                  session.status ===
+                    "Completed"
+              );
+
+            const totalMinutes =
+              daySessions.reduce(
+                (total, session) => {
+                  const match =
+                    session.duration.match(
+                      /\d+/
+                    );
+
+                  if (!match) {
+                    return total;
+                  }
+
+                  return (
+                    total +
+                    Number(match[0])
+                  );
+                },
+                0
+              );
+
+            const load = Math.min(
+              Math.round(
+                (totalMinutes / 60) * 100
+              ),
+              100
+            );
+
+            trainingLoadData.push({
+              day:
+                range === "7D"
+                  ? date.toLocaleDateString(
+                      "en-US",
+                      {
+                        weekday: "short",
+                      }
+                    )
+                  : date.toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                      }
+                    ),
+              load,
+            });
+          }
         }
 
         setData(trainingLoadData);
@@ -126,19 +272,28 @@ export default function TrainingLoadChart() {
           "Failed to load training load:",
           error
         );
+
+        setData([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadTrainingData();
-  }, []);
+  }, [range]);
+
+  const rangeLabel =
+    range === "7D"
+      ? "Last 7 days"
+      : range === "30D"
+      ? "Last 30 days"
+      : "Current season";
 
   return (
     <DashboardCard>
       <SectionHeading
         title="Training Load"
-        subtitle="Daily completed training intensity"
+        subtitle={`${rangeLabel} training intensity`}
       />
 
       <div className="mt-8 h-80">

@@ -16,12 +16,20 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { auth } from "@/services/firebase/firebase";
 import { getPerformanceTests } from "@/services/firebase/performance";
 
+import type { AnalyticsRange } from "../AnalyticsPage";
+
+interface PerformanceTrendChartProps {
+  range: AnalyticsRange;
+}
+
 interface PerformanceData {
   date: string;
   performance: number;
 }
 
-export default function PerformanceTrendChart() {
+export default function PerformanceTrendChart({
+  range,
+}: PerformanceTrendChartProps) {
   const [data, setData] = useState<PerformanceData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,12 +42,51 @@ export default function PerformanceTrendChart() {
         return;
       }
 
+      setLoading(true);
+
       try {
         const tests =
           await getPerformanceTests(user.uid);
 
+        const today = new Date();
+
+        today.setHours(0, 0, 0, 0);
+
+        const startDate = new Date(today);
+
+        if (range === "7D") {
+          startDate.setDate(
+            today.getDate() - 6
+          );
+        }
+
+        if (range === "30D") {
+          startDate.setDate(
+            today.getDate() - 29
+          );
+        }
+
+        if (range === "SEASON") {
+          // Current year season
+          startDate.setMonth(0);
+          startDate.setDate(1);
+        }
+
+        const filteredTests = tests.filter(
+          (test) => {
+            const testDate = new Date(
+              `${test.date}T00:00:00`
+            );
+
+            return (
+              testDate >= startDate &&
+              testDate <= today
+            );
+          }
+        );
+
         const performanceData =
-          tests.map((test) => {
+          filteredTests.map((test) => {
             const average =
               (
                 test.sprintSpeed +
@@ -75,19 +122,28 @@ export default function PerformanceTrendChart() {
           "Failed to load performance trend:",
           error
         );
+
+        setData([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadPerformanceTrend();
-  }, []);
+  }, [range]);
+
+  const rangeLabel =
+    range === "7D"
+      ? "Last 7 days"
+      : range === "30D"
+      ? "Last 30 days"
+      : "Current season";
 
   return (
     <DashboardCard>
       <SectionHeading
         title="Performance Trend"
-        subtitle="Performance progression over time"
+        subtitle={`${rangeLabel} performance progression`}
       />
 
       <div className="mt-8 h-80">
@@ -105,7 +161,7 @@ export default function PerformanceTrendChart() {
               </p>
 
               <p className="mt-1 text-sm text-zinc-500">
-                Add performance tests to see your progress.
+                No performance tests found for this period.
               </p>
             </div>
           </div>

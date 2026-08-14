@@ -1,22 +1,31 @@
+import { useState } from "react";
+
 import AnalyticsHero from "./components/AnalyticsHero";
 import AnalyticsStatsGrid from "./components/AnalyticsStatsGrid";
 import PerformanceTrendChart from "./components/PerformanceTrendChart";
 import TrainingLoadChart from "./components/TrainingLoadChart";
 import SkillDistributionChart from "./components/SkillDistributionChart";
 import RecoveryAnalysisCard from "./components/RecoveryAnalysisCard";
-import AIPerformanceInsights from "./components/AIPerformanceInsights";
+import AIPerformanceCard from "./components/AIPerformanceCard";
+
+export type AnalyticsRange = "7D" | "30D" | "SEASON";
 
 export default function AnalyticsPage() {
+  const [range, setRange] =
+    useState<AnalyticsRange>("7D");
+
   return (
     <div className="space-y-8">
+      <AnalyticsHero
+        range={range}
+        onRangeChange={setRange}
+      />
 
-      <AnalyticsHero />
-
-      <AnalyticsStatsGrid />
+      <AnalyticsStatsGrid range={range} />
 
       <section className="grid gap-6 xl:grid-cols-2">
-        <PerformanceTrendChart />
-        <TrainingLoadChart />
+        <PerformanceTrendChart range={range} />
+        <TrainingLoadChart range={range} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-2">
@@ -25,9 +34,8 @@ export default function AnalyticsPage() {
       </section>
 
       <section>
-        <AIPerformanceInsights />
+        <AIPerformanceCard />
       </section>
-
     </div>
   );
 }

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
 import {
-  PieChart,
-  Pie,
-  Cell,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
   ResponsiveContainer,
   Tooltip,
-  Legend,
 } from "recharts";
 
 import DashboardCard from "@/components/ui/DashboardCard";
@@ -19,15 +20,6 @@ interface SkillData {
   name: string;
   value: number;
 }
-
-const COLORS = [
-  "#3b82f6",
-  "#06b6d4",
-  "#10b981",
-  "#8b5cf6",
-  "#f59e0b",
-  "#ef4444",
-];
 
 export default function SkillDistributionChart() {
   const [data, setData] = useState<SkillData[]>([]);
@@ -44,9 +36,7 @@ export default function SkillDistributionChart() {
 
       try {
         const performance =
-          await getLatestPerformanceTest(
-            user.uid
-          );
+          await getLatestPerformanceTest(user.uid);
 
         if (!performance) {
           setData([]);
@@ -123,37 +113,56 @@ export default function SkillDistributionChart() {
             width="100%"
             height="100%"
           >
-            <PieChart>
-              <Pie
-                data={data}
+            <RadarChart
+              data={data}
+              cx="50%"
+              cy="50%"
+              outerRadius="75%"
+            >
+              <PolarGrid
+                stroke="#27272a"
+              />
+
+              <PolarAngleAxis
+                dataKey="name"
+                stroke="#a1a1aa"
+                tick={{
+                  fill: "#a1a1aa",
+                  fontSize: 12,
+                }}
+              />
+
+              <PolarRadiusAxis
+                angle={90}
+                domain={[0, 100]}
+                tick={{
+                  fill: "#71717a",
+                  fontSize: 10,
+                }}
+                axisLine={false}
+              />
+
+              <Radar
+                name="Performance"
                 dataKey="value"
-                nameKey="name"
-                innerRadius={65}
-                outerRadius={110}
-                paddingAngle={4}
-              >
-                {data.map((_, index) => (
-                  <Cell
-                    key={index}
-                    fill={
-                      COLORS[
-                        index %
-                          COLORS.length
-                      ]
-                    }
-                  />
-                ))}
-              </Pie>
+                stroke="#3b82f6"
+                fill="#3b82f6"
+                fillOpacity={0.25}
+                strokeWidth={3}
+              />
 
               <Tooltip
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #3f3f46",
+                  borderRadius: "12px",
+                }}
                 formatter={(value) => [
                   `${value}%`,
                   "Score",
                 ]}
               />
-
-              <Legend />
-            </PieChart>
+            </RadarChart>
           </ResponsiveContainer>
         )}
       </div>
