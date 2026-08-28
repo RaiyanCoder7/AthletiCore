@@ -36,14 +36,14 @@ export default function HeroSection() {
   const [profile, setProfile] =
     useState<UserProfile | null>(null);
 
-  const [sessions, setSessions] = useState<
-    TrainingSession[]
-  >([]);
+  const [sessions, setSessions] =
+    useState<TrainingSession[]>([]);
 
   const [recovery, setRecovery] =
     useState<number | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -71,13 +71,9 @@ export default function HeroSection() {
 
         setSessions(trainingData);
 
-        if (recoveryData) {
-          setRecovery(
-            recoveryData.recoveryScore
-          );
-        } else {
-          setRecovery(null);
-        }
+        setRecovery(
+          recoveryData?.recoveryScore ?? null
+        );
       } catch (error) {
         console.error(
           "Failed to load dashboard data:",
@@ -95,8 +91,7 @@ export default function HeroSection() {
      Greeting
   -------------------------------- */
 
-  const currentHour =
-    new Date().getHours();
+  const currentHour = new Date().getHours();
 
   let greeting = "Good Evening";
 
@@ -115,116 +110,91 @@ export default function HeroSection() {
 
   const today = new Date();
 
-  today.setHours(
-    0,
-    0,
-    0,
-    0
-  );
+  today.setHours(0, 0, 0, 0);
 
-  const startOfWeek =
-    new Date(today);
+  const startOfWeek = new Date(today);
 
-  const day =
-    startOfWeek.getDay();
-
-  const difference =
-    day === 0 ? 6 : day - 1;
+  const day = startOfWeek.getDay();
+  const difference = day === 0 ? 6 : day - 1;
 
   startOfWeek.setDate(
-    startOfWeek.getDate() -
-      difference
+    startOfWeek.getDate() - difference
   );
 
-  startOfWeek.setHours(
-    0,
-    0,
-    0,
-    0
-  );
+  startOfWeek.setHours(0, 0, 0, 0);
 
-  const endOfWeek =
-    new Date(startOfWeek);
+  const endOfWeek = new Date(startOfWeek);
 
   endOfWeek.setDate(
     endOfWeek.getDate() + 6
   );
 
-  endOfWeek.setHours(
-    23,
-    59,
-    59,
-    999
-  );
+  endOfWeek.setHours(23, 59, 59, 999);
 
   /* --------------------------------
      Weekly Training
   -------------------------------- */
 
-  const weeklySessions =
-    sessions.filter(
-      (session) => {
-        const sessionDate =
-          new Date(
-            `${session.date}T00:00:00`
-          );
+  const weeklySessions = sessions.filter(
+    (session) => {
+      const sessionDate = new Date(
+        `${session.date}T00:00:00`
+      );
 
-        return (
-          sessionDate >= startOfWeek &&
-          sessionDate <= endOfWeek &&
-          session.status !== "Rest"
-        );
-      }
-    );
+      return (
+        sessionDate >= startOfWeek &&
+        sessionDate <= endOfWeek &&
+        session.status !== "Rest"
+      );
+    }
+  );
+
+  /* --------------------------------
+     Completed Sessions
+  -------------------------------- */
 
   const completedSessions =
     weeklySessions.filter(
       (session) =>
-        session.status ===
-        "Completed"
-    );
-
-  const weeklyGoal = 6;
-
-  const weeklyProgress =
-    Math.min(
-      Math.round(
-        (completedSessions.length /
-          weeklyGoal) *
-          100
-      ),
-      100
+        session.status === "Completed"
     );
 
   /* --------------------------------
-     Display values
+     Weekly Goal
   -------------------------------- */
 
-  const trainingDisplay =
-    loading
-      ? "..."
-      : String(
-          weeklySessions.length
-        );
+  const weeklyGoal = 6;
 
-  const performanceDisplay =
-    loading
-      ? "..."
-      : String(
-          weeklyProgress
-        );
+  const weeklyProgress = Math.min(
+    Math.round(
+      (completedSessions.length /
+        weeklyGoal) *
+        100
+    ),
+    100
+  );
 
-  const completedDisplay =
-    loading
-      ? "..."
-      : `${completedSessions.length}/${weeklyGoal}`;
+  /* --------------------------------
+     Display Values
+  -------------------------------- */
 
-  const recoveryDisplay =
-    loading
-      ? "..."
-      : recovery !== null
-      ? `${recovery}%`
-      : "—";
+  const trainingDisplay = loading
+    ? "..."
+    : String(weeklySessions.length);
+
+  const performanceDisplay = loading
+    ? "..."
+    : `${weeklyProgress}%`;
+
+  const completedDisplay = loading
+    ? "..."
+    : `${completedSessions.length}/${weeklyGoal}`;
+
+  const recoveryDisplay = loading
+    ? "..."
+    : recovery !== null
+    ? `${recovery}%`
+    : "—";
 
   const recoverySubtitle =
     recovery !== null
@@ -252,7 +222,7 @@ export default function HeroSection() {
 
           {/* Greeting */}
           <p className="text-lg text-blue-100">
-            {greeting}, {userName} 👋
+            {greeting}, {userName}
           </p>
 
           {/* Heading */}
@@ -326,7 +296,6 @@ export default function HeroSection() {
 
             <h2 className="mt-2 text-4xl font-bold">
               {performanceDisplay}
-              {loading ? "" : "%"}
             </h2>
 
             <p className="mt-1 text-xs text-blue-200">

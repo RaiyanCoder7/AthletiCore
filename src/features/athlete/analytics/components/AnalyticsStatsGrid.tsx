@@ -35,8 +35,7 @@ export default function AnalyticsStatsGrid({
   const [sessions, setSessions] =
     useState<number | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadAnalyticsStats = async () => {
@@ -50,19 +49,58 @@ export default function AnalyticsStatsGrid({
       setLoading(true);
 
       try {
-        const [
-          trainingSessions,
-          latestPerformance,
-          todayRecovery,
-        ] = await Promise.all([
-          getTrainingSessions(user.uid),
-          getLatestPerformanceTest(user.uid),
-          getTodayRecovery(user.uid),
-        ]);
+        /*
+         * --------------------------------
+         * Load Training Sessions
+         * --------------------------------
+         */
 
-        /* -----------------------------
-           Overall Rating
-        ----------------------------- */
+        const trainingSessions =
+          await getTrainingSessions(user.uid);
+
+        /*
+         * --------------------------------
+         * Load Latest Performance
+         * --------------------------------
+         */
+
+        let latestPerformance = null;
+
+        try {
+          latestPerformance =
+            await getLatestPerformanceTest(
+              user.uid
+            );
+        } catch (error) {
+          console.error(
+            "Failed to load performance data:",
+            error
+          );
+        }
+
+        /*
+         * --------------------------------
+         * Load Today's Recovery
+         * --------------------------------
+         */
+
+        let todayRecovery = null;
+
+        try {
+          todayRecovery =
+            await getTodayRecovery(user.uid);
+        } catch (error) {
+          console.error(
+            "Failed to load recovery data:",
+            error
+          );
+        }
+
+        /*
+         * --------------------------------
+         * Overall Rating
+         * --------------------------------
+         */
 
         if (latestPerformance) {
           const average =
@@ -82,9 +120,11 @@ export default function AnalyticsStatsGrid({
           setOverallRating(null);
         }
 
-        /* -----------------------------
-           Today's Recovery
-        ----------------------------- */
+        /*
+         * --------------------------------
+         * Recovery
+         * --------------------------------
+         */
 
         if (todayRecovery) {
           setRecovery(
@@ -94,17 +134,19 @@ export default function AnalyticsStatsGrid({
           setRecovery(null);
         }
 
-        /* -----------------------------
-           Date Range
-        ----------------------------- */
+        /*
+         * --------------------------------
+         * Date Range
+         * --------------------------------
+         */
 
         const today = new Date();
 
         today.setHours(
-          0,
-          0,
-          0,
-          0
+          23,
+          59,
+          59,
+          999
         );
 
         const startDate =
@@ -127,11 +169,20 @@ export default function AnalyticsStatsGrid({
           startDate.setDate(1);
         }
 
-        /* -----------------------------
-           Completed Sessions
-        ----------------------------- */
+        startDate.setHours(
+          0,
+          0,
+          0,
+          0
+        );
 
-        const filteredSessions =
+        /*
+         * --------------------------------
+         * Completed Sessions
+         * --------------------------------
+         */
+
+        const completedSessions =
           trainingSessions.filter(
             (session) => {
               if (
@@ -154,87 +205,70 @@ export default function AnalyticsStatsGrid({
           );
 
         setSessions(
-          filteredSessions.length
+          completedSessions.length
         );
 
-        /* -----------------------------
-          Training Load
-        ----------------------------- */
+        /*
+         * --------------------------------
+         * Training Load
+         * --------------------------------
+         */
 
-        const completedSessions =
-          trainingSessions.filter(
-            (session) => {
-              if (
-                session.status !== "Completed"
-              ) {
-                return false;
-              }
-
-              const sessionDate =
-                new Date(
-                  `${session.date}T00:00:00`
+        const totalMinutes =
+          completedSessions.reduce(
+            (total, session) => {
+              const match =
+                session.duration.match(
+                  /\d+/
                 );
 
-                return (
-                  sessionDate >= startDate &&
-                  sessionDate <= today
-                );
+              if (!match) {
+                return total;
               }
+
+              return (
+                total +
+                Number(match[0])
+              );
+            },
+            0
+          );
+
+        let calculatedTrainingLoad = 0;
+
+        if (range === "7D") {
+          calculatedTrainingLoad =
+            Math.min(
+              Math.round(
+                (totalMinutes / 300) * 100
+              ),
+              100
             );
+        }
 
-            const totalMinutes =
-              completedSessions.reduce(
-                (total, session) => {
-                  const match =
-                    session.duration.match(/\d+/);
+        if (range === "30D") {
+          calculatedTrainingLoad =
+            Math.min(
+              Math.round(
+                (totalMinutes / 1200) * 100
+              ),
+              100
+            );
+        }
 
-                  if (!match) {
-                    return total;
-                  }
+        if (range === "SEASON") {
+          calculatedTrainingLoad =
+            Math.min(
+              Math.round(
+                (totalMinutes / 5000) * 100
+              ),
+              100
+            );
+        }
 
-                  return (
-                    total +
-                    Number(match[0])
-                  );
-                },
-                0
-              );
-
-            let trainingLoad = 0;
-
-            if (range === "7D") {
-              // 300 minutes = 100% for a 7-day period
-              trainingLoad = Math.min(
-                Math.round(
-                  (totalMinutes / 300) * 100
-                ),
-                100
-              );
-            }
-
-            if (range === "30D") {
-              // 1200 minutes = 100% for 30 days
-              trainingLoad = Math.min(
-                Math.round(
-                  (totalMinutes / 1200) * 100
-                ),
-                100
-              );
-            }
-
-            if (range === "SEASON") {
-              // 5000 minutes = 100% for the season
-              trainingLoad = Math.min(
-                Math.round(
-                  (totalMinutes / 5000) * 100
-                ),
-                100
-              );
-            }
-
-            setTrainingLoad(trainingLoad);
-
-        
+        setTrainingLoad(
+          calculatedTrainingLoad
+        );
       } catch (error) {
         console.error(
           "Failed to load analytics stats:",
@@ -257,6 +291,7 @@ export default function AnalyticsStatsGrid({
 
   return (
     <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
       {/* Overall Rating */}
 
       <StatsCard
@@ -338,6 +373,7 @@ export default function AnalyticsStatsGrid({
           <Activity size={22} />
         }
       />
+
     </section>
   );
 }

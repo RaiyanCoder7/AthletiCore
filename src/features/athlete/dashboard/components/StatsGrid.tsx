@@ -29,7 +29,7 @@ export default function StatsGrid() {
       }
 
       try {
-        const [trainingData, todayRecovery] =
+        const [trainingData, recoveryData] =
           await Promise.all([
             getTrainingSessions(user.uid),
             getTodayRecovery(user.uid),
@@ -37,11 +37,9 @@ export default function StatsGrid() {
 
         setSessions(trainingData);
 
-        if (todayRecovery) {
-          setRecovery(todayRecovery.recoveryScore);
-        } else {
-          setRecovery(null);
-        }
+        setRecovery(
+          recoveryData?.recoveryScore ?? null
+        );
       } catch (error) {
         console.error(
           "Failed to load dashboard data:",
@@ -63,8 +61,8 @@ export default function StatsGrid() {
   today.setHours(0, 0, 0, 0);
 
   const startOfWeek = new Date(today);
-  const day = startOfWeek.getDay();
 
+  const day = startOfWeek.getDay();
   const difference = day === 0 ? 6 : day - 1;
 
   startOfWeek.setDate(
@@ -102,12 +100,11 @@ export default function StatsGrid() {
   -------------------------------- */
 
   const completedSessions = weeklySessions.filter(
-    (session) =>
-      session.status === "Completed"
+    (session) => session.status === "Completed"
   );
 
   /* --------------------------------
-     Training Progress
+     Weekly Performance
   -------------------------------- */
 
   const weeklyGoal = 6;

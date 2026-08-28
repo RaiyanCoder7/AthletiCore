@@ -8,12 +8,28 @@ import {
 
 import { db } from "./firebase";
 
+/* --------------------------------
+   Create User Profile
+-------------------------------- */
+
 export async function createUserProfile(
   uid: string,
   name: string,
   email: string
 ) {
-  const userRef = doc(db, "users", uid);
+  const userRef = doc(
+    db,
+    "users",
+    uid
+  );
+
+  const existingProfile =
+    await getDoc(userRef);
+
+  // Don't overwrite an existing profile
+  if (existingProfile.exists()) {
+    return;
+  }
 
   await setDoc(userRef, {
     name,
@@ -23,10 +39,21 @@ export async function createUserProfile(
   });
 }
 
-export async function getUserProfile(uid: string) {
-  const userRef = doc(db, "users", uid);
+/* --------------------------------
+   Get User Profile
+-------------------------------- */
 
-  const snapshot = await getDoc(userRef);
+export async function getUserProfile(
+  uid: string
+) {
+  const userRef = doc(
+    db,
+    "users",
+    uid
+  );
+
+  const snapshot =
+    await getDoc(userRef);
 
   if (!snapshot.exists()) {
     return null;
@@ -34,6 +61,10 @@ export async function getUserProfile(uid: string) {
 
   return snapshot.data();
 }
+
+/* --------------------------------
+   Update User Profile
+-------------------------------- */
 
 export async function updateUserProfile(
   uid: string,
@@ -66,7 +97,14 @@ export async function updateUserProfile(
     appearance?: "Dark" | "Light" | "System";
   }
 ) {
-  const userRef = doc(db, "users", uid);
+  const userRef = doc(
+    db,
+    "users",
+    uid
+  );
 
-  await updateDoc(userRef, data);
+  await updateDoc(
+    userRef,
+    data
+  );
 }
