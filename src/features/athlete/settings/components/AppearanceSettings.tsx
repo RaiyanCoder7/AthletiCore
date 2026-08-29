@@ -15,7 +15,11 @@ import {
   updateUserProfile,
 } from "@/services/firebase/users";
 
-type Theme = "Dark" | "Light" | "System";
+import {
+  applyTheme,
+  getStoredTheme,
+  type Theme,
+} from "@/services/theme";
 
 const themes: {
   name: Theme;
@@ -41,15 +45,15 @@ const themes: {
 
 export default function AppearanceSettings() {
   const [selectedTheme, setSelectedTheme] =
-    useState<Theme>("Dark");
+    useState<Theme>(getStoredTheme());
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  /* -----------------------------
+  /* --------------------------------
      Load Appearance Preference
-  ----------------------------- */
+  -------------------------------- */
 
   useEffect(() => {
     const loadAppearance = async () => {
@@ -57,24 +61,33 @@ export default function AppearanceSettings() {
 
       if (!user) {
         setLoading(false);
+        applyTheme(getStoredTheme());
         return;
       }
 
       try {
         const profile = await getUserProfile(user.uid);
 
+        const savedTheme =
+          profile?.appearance;
+
         if (
-          profile?.appearance === "Dark" ||
-          profile?.appearance === "Light" ||
-          profile?.appearance === "System"
+          savedTheme === "Dark" ||
+          savedTheme === "Light" ||
+          savedTheme === "System"
         ) {
-          setSelectedTheme(profile.appearance);
+          setSelectedTheme(savedTheme);
+          applyTheme(savedTheme);
+        } else {
+          applyTheme(getStoredTheme());
         }
       } catch (error) {
         console.error(
           "Failed to load appearance preference:",
           error
         );
+
+        applyTheme(getStoredTheme());
       } finally {
         setLoading(false);
       }
@@ -83,15 +96,38 @@ export default function AppearanceSettings() {
     loadAppearance();
   }, []);
 
-  /* -----------------------------
-     Save Appearance Preference
-  ----------------------------- */
+  /* --------------------------------
+     Select Theme
+  -------------------------------- */
+
+  const handleThemeSelect = (
+    theme: Theme
+  ) => {
+    setSelectedTheme(theme);
+    setMessage("");
+
+    // Preview immediately
+    applyTheme(theme);
+
+    // Tell Navbar / other components
+    window.dispatchEvent(
+      new CustomEvent("athleticore-theme-change", {
+        detail: theme,
+      })
+    );
+  };
+
+  /* --------------------------------
+     Save Appearance
+  -------------------------------- */
 
   const handleSave = async () => {
     const user = auth.currentUser;
 
     if (!user) {
-      setMessage("You must be logged in to save settings.");
+      setMessage(
+        "You must be logged in to save settings."
+      );
       return;
     }
 
@@ -103,7 +139,20 @@ export default function AppearanceSettings() {
         appearance: selectedTheme,
       });
 
-      setMessage("Appearance settings saved successfully.");
+      applyTheme(selectedTheme);
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "athleticore-theme-change",
+          {
+            detail: selectedTheme,
+          }
+        )
+      );
+
+      setMessage(
+        "Appearance settings saved successfully."
+      );
     } catch (error) {
       console.error(
         "Failed to save appearance settings:",
@@ -141,6 +190,7 @@ export default function AppearanceSettings() {
             <div className="grid gap-4 md:grid-cols-3">
               {themes.map((theme) => {
                 const Icon = theme.icon;
+
                 const isSelected =
                   selectedTheme === theme.name;
 
@@ -149,7 +199,9 @@ export default function AppearanceSettings() {
                     key={theme.name}
                     type="button"
                     onClick={() =>
-                      setSelectedTheme(theme.name)
+                      handleThemeSelect(
+                        theme.name
+                      )
                     }
                     className={`relative rounded-2xl border p-5 text-left transition ${
                       isSelected
@@ -157,7 +209,6 @@ export default function AppearanceSettings() {
                         : "border-zinc-800 bg-zinc-800/30 hover:border-zinc-700"
                     }`}
                   >
-                    {/* Selected */}
                     {isSelected && (
                       <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white">
                         <Check size={14} />
@@ -186,7 +237,6 @@ export default function AppearanceSettings() {
               })}
             </div>
 
-            {/* Save */}
             <div className="mt-6 flex justify-end">
               <button
                 type="button"
