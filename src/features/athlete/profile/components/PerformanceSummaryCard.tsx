@@ -37,12 +37,17 @@ import {
 
 import { db } from "@/services/firebase/firebase";
 
+import {
+  getAthleteMatches,
+} from "@/services/firebase/profile";
+
 interface PerformanceStats {
   fitness: number | null;
   goals: number | null;
   recovery: number | null;
   trainingHours: number;
   sessions: number;
+  matches: number;
 }
 
 export default function PerformanceSummaryCard() {
@@ -53,6 +58,7 @@ export default function PerformanceSummaryCard() {
       recovery: null,
       trainingHours: 0,
       sessions: 0,
+      matches: 0,
     });
 
   const [loading, setLoading] =
@@ -78,6 +84,7 @@ export default function PerformanceSummaryCard() {
             latestPerformance,
             todayRecovery,
             goalsSnapshot,
+            matches,
           ] = await Promise.all([
             getTrainingSessions(user.uid),
             getLatestPerformanceTest(
@@ -92,6 +99,7 @@ export default function PerformanceSummaryCard() {
                 "goals"
               )
             ),
+            getAthleteMatches(user.uid),
           ]);
 
           /* -----------------------------
@@ -190,6 +198,7 @@ export default function PerformanceSummaryCard() {
               ),
             sessions:
               completedSessions.length,
+            matches: matches.length,
           });
         } catch (error) {
           console.error(
@@ -225,11 +234,14 @@ export default function PerformanceSummaryCard() {
 
     {
       title: "Matches",
-      value: "—",
-      subtitle: "No match data",
-      icon: (
-        <Trophy size={20} />
-      ),
+      value: loading
+        ? "..."
+        : String(stats.matches),
+      subtitle:
+        stats.matches === 0
+          ? "No matches recorded"
+          : "Matches played",
+      icon: <Trophy size={20} />,
       color:
         "text-yellow-400 bg-yellow-500/10",
     },

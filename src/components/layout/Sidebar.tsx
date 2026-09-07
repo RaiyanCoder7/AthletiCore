@@ -23,10 +23,9 @@ const menu = [
 
 export default function Sidebar() {
   return (
-    <aside className="sticky top-0 flex h-screen w-72 flex-col border-r border-zinc-800 bg-zinc-900">
-      
+    <aside className="sticky top-0 flex h-screen w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       {/* Logo */}
-      <div className="flex h-16 items-center border-b border-zinc-800 px-6">
+      <div className="flex h-16 items-center border-b border-sidebar-border px-6">
         <div className="flex items-center gap-3">
           <img
             src={athleticoreLogo}
@@ -34,7 +33,7 @@ export default function Sidebar() {
             className="h-8 w-8 object-contain"
           />
 
-          <h1 className="text-xl font-semibold text-white">
+          <h1 className="text-xl font-semibold text-sidebar-foreground">
             Athleticore
           </h1>
         </div>
@@ -50,10 +49,10 @@ export default function Sidebar() {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                `flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                   isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 }`
               }
             >

@@ -206,11 +206,6 @@ export default function ProfileSettings() {
                     className="w-full cursor-not-allowed rounded-xl border border-zinc-800 bg-zinc-900/60 py-3 pl-11 pr-4 text-sm text-zinc-500 outline-none"
                   />
                 </div>
-
-                <p className="mt-2 text-xs text-zinc-600">
-                  Email is managed by your Firebase
-                  account.
-                </p>
               </div>
 
               {/* Phone */}

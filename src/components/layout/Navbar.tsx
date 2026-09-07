@@ -27,6 +27,9 @@ import {
 interface UserProfile {
   name?: string;
   role?: string;
+  trainingReminders?: boolean;
+  performanceUpdates?: boolean;
+  recoveryTracking?: boolean;
 }
 
 interface NotificationItem {
@@ -185,7 +188,10 @@ export default function Navbar() {
 
       /* Today's Recovery */
 
-      if (todayRecovery) {
+      if (
+        todayRecovery &&
+        profile?.recoveryTracking !== false
+      ) {
         const recovery =
           todayRecovery.recoveryScore;
 
@@ -243,7 +249,10 @@ export default function Navbar() {
               ).getTime()
           )[0];
 
-      if (upcomingSession) {
+      if (
+        upcomingSession &&
+        profile?.trainingReminders !== false
+      ) {
         generated.push({
           id: `training-${upcomingSession.id}`,
           title: "Upcoming training",
@@ -272,7 +281,10 @@ export default function Navbar() {
               ).getTime()
           )[0];
 
-      if (completedSession) {
+      if (
+        completedSession &&
+        profile?.performanceUpdates !== false
+      ) {
         generated.push({
           id: `completed-${completedSession.id}`,
           title: "Workout completed",
@@ -340,7 +352,7 @@ export default function Navbar() {
         <input
           type="text"
           placeholder="Search athletes..."
-          className="w-full rounded-xl border border-border bg-card py-2 pl-10 pr-4 text-foreground placeholder:text-muted-foreground outline-none transition focus:border-blue-500"
+          className="w-full rounded-xl border border-border bg-card py-2 pl-10 pr-4 text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary"
         />
       </div>
 
@@ -363,7 +375,7 @@ export default function Navbar() {
 
             {notifications.length >
               0 && (
-              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
                 {notifications.length >
                 9
                   ? "9+"
@@ -438,7 +450,7 @@ export default function Navbar() {
                           }
                           className="flex gap-3 border-b border-border px-4 py-4 transition hover:bg-accent"
                         >
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                             <Icon size={18} />
                           </div>
 
@@ -494,7 +506,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2">
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-semibold text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground">
             {initial}
           </div>
 

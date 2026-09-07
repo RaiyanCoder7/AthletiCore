@@ -176,7 +176,7 @@ export default function AppearanceSettings() {
 
       <DashboardCard className="mt-6">
         {message && (
-          <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-800/30 px-4 py-3 text-sm text-zinc-300">
+          <div className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
             {message}
           </div>
         )}

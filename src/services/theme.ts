@@ -3,9 +3,7 @@ export type Theme = "Dark" | "Light" | "System";
 const THEME_STORAGE_KEY = "athleticore-theme";
 
 export function getStoredTheme(): Theme {
-  const stored = localStorage.getItem(
-    THEME_STORAGE_KEY
-  );
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
 
   if (
     stored === "Dark" ||
@@ -34,11 +32,10 @@ export function applyTheme(theme: Theme) {
       ? getSystemTheme()
       : theme;
 
-  if (effectiveTheme === "Dark") {
-    root.classList.add("dark");
-  } else {
-    root.classList.remove("dark");
-  }
+  root.classList.toggle(
+    "dark",
+    effectiveTheme === "Dark"
+  );
 
   localStorage.setItem(
     THEME_STORAGE_KEY,
@@ -51,27 +48,36 @@ export function initializeTheme() {
 
   applyTheme(theme);
 
-  if (theme === "System") {
-    const mediaQuery = window.matchMedia(
-      "(prefers-color-scheme: dark)"
+  if (theme !== "System") {
+    return undefined;
+  }
+
+  const mediaQuery = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  );
+
+  const handleChange = () => {
+    applyTheme("System");
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "athleticore-system-theme-change",
+        {
+          detail: getSystemTheme(),
+        }
+      )
     );
+  };
 
-    const handleChange = () => {
-      applyTheme("System");
-    };
+  mediaQuery.addEventListener(
+    "change",
+    handleChange
+  );
 
-    mediaQuery.addEventListener(
+  return () => {
+    mediaQuery.removeEventListener(
       "change",
       handleChange
     );
-
-    return () => {
-      mediaQuery.removeEventListener(
-        "change",
-        handleChange
-      );
-    };
-  }
-
-  return undefined;
+  };
 }
