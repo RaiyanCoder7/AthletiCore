@@ -1,8 +1,10 @@
 import {
+  addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
-  orderBy,
-  query,
+  updateDoc,
 } from "firebase/firestore";
 
 import { db } from "./firebase";
@@ -23,6 +25,10 @@ export interface AthleteAchievement {
   date?: string;
 }
 
+/* =========================
+   MATCHES
+========================= */
+
 export async function getAthleteMatches(
   uid: string
 ): Promise<AthleteMatch[]> {
@@ -33,15 +39,74 @@ export async function getAthleteMatches(
     "matches"
   );
 
-  const snapshot = await getDocs(
-    query(matchesRef, orderBy("date", "desc"))
+  const snapshot = await getDocs(matchesRef);
+
+  return snapshot.docs
+    .map((doc): AthleteMatch => ({
+      id: doc.id,
+      ...(doc.data() as Omit<AthleteMatch, "id">),
+    }))
+    .sort((a, b) => {
+      const dateA = a.date
+        ? new Date(a.date).getTime()
+        : 0;
+
+      const dateB = b.date
+        ? new Date(b.date).getTime()
+        : 0;
+
+      return dateB - dateA;
+    });
+}
+
+export async function createAthleteMatch(
+  uid: string,
+  data: Omit<AthleteMatch, "id">
+) {
+  const matchesRef = collection(
+    db,
+    "users",
+    uid,
+    "matches"
   );
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as AthleteMatch[];
+  await addDoc(matchesRef, data);
 }
+
+export async function updateAthleteMatch(
+  uid: string,
+  matchId: string,
+  data: Partial<Omit<AthleteMatch, "id">>
+) {
+  const matchRef = doc(
+    db,
+    "users",
+    uid,
+    "matches",
+    matchId
+  );
+
+  await updateDoc(matchRef, data);
+}
+
+export async function deleteAthleteMatch(
+  uid: string,
+  matchId: string
+) {
+  const matchRef = doc(
+    db,
+    "users",
+    uid,
+    "matches",
+    matchId
+  );
+
+  await deleteDoc(matchRef);
+}
+
+/* =========================
+   ACHIEVEMENTS
+========================= */
 
 export async function getAthleteAchievements(
   uid: string
@@ -53,12 +118,67 @@ export async function getAthleteAchievements(
     "achievements"
   );
 
-  const snapshot = await getDocs(
-    query(achievementsRef, orderBy("date", "desc"))
+  const snapshot = await getDocs(achievementsRef);
+
+  return snapshot.docs
+    .map((doc): AthleteAchievement => ({
+      id: doc.id,
+      ...(doc.data() as Omit<AthleteAchievement, "id">),
+    }))
+    .sort((a, b) => {
+      const dateA = a.date
+        ? new Date(a.date).getTime()
+        : 0;
+
+      const dateB = b.date
+        ? new Date(b.date).getTime()
+        : 0;
+
+      return dateB - dateA;
+    });
+}
+
+export async function createAthleteAchievement(
+  uid: string,
+  data: Omit<AthleteAchievement, "id">
+) {
+  const achievementsRef = collection(
+    db,
+    "users",
+    uid,
+    "achievements"
   );
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as AthleteAchievement[];
+  await addDoc(achievementsRef, data);
+}
+
+export async function updateAthleteAchievement(
+  uid: string,
+  achievementId: string,
+  data: Partial<Omit<AthleteAchievement, "id">>
+) {
+  const achievementRef = doc(
+    db,
+    "users",
+    uid,
+    "achievements",
+    achievementId
+  );
+
+  await updateDoc(achievementRef, data);
+}
+
+export async function deleteAthleteAchievement(
+  uid: string,
+  achievementId: string
+) {
+  const achievementRef = doc(
+    db,
+    "users",
+    uid,
+    "achievements",
+    achievementId
+  );
+
+  await deleteDoc(achievementRef);
 }
