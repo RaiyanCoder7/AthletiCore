@@ -14,12 +14,12 @@ export default function SectionHeading({
   return (
     <div className="mb-6 flex items-start justify-between">
       <div>
-        <h2 className="text-xl font-semibold text-white">
+        <h2 className="text-xl font-semibold text-foreground">
           {title}
         </h2>
 
         {subtitle && (
-          <p className="mt-1 text-sm text-zinc-400">
+          <p className="mt-1 text-sm text-muted-foreground">
             {subtitle}
           </p>
         )}

@@ -1,21 +1,12 @@
 import { useEffect, useState } from "react";
 
-import {
-  Trophy,
-  Activity,
-  Flame,
-  HeartPulse,
-} from "lucide-react";
+import { Sun, Zap } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/ui/Button";
 
 import { auth } from "@/services/firebase/firebase";
 import { getUserProfile } from "@/services/firebase/users";
-import { getTrainingSessions } from "@/services/firebase/training";
-import { getTodayRecovery } from "@/services/firebase/recovery";
-
-import type { TrainingSession } from "@/services/firebase/training";
 
 interface UserProfile {
   name?: string;
@@ -36,55 +27,25 @@ export default function HeroSection() {
   const [profile, setProfile] =
     useState<UserProfile | null>(null);
 
-  const [sessions, setSessions] =
-    useState<TrainingSession[]>([]);
-
-  const [recovery, setRecovery] =
-    useState<number | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
   useEffect(() => {
-    const loadDashboardData = async () => {
+    const loadProfile = async () => {
       const user = auth.currentUser;
 
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+      if (!user) return;
 
       try {
-        const [
-          profileData,
-          trainingData,
-          recoveryData,
-        ] = await Promise.all([
-          getUserProfile(user.uid),
-          getTrainingSessions(user.uid),
-          getTodayRecovery(user.uid),
-        ]);
+        const data = await getUserProfile(user.uid);
 
-        setProfile(
-          profileData as UserProfile | null
-        );
-
-        setSessions(trainingData);
-
-        setRecovery(
-          recoveryData?.recoveryScore ?? null
-        );
+        setProfile(data as UserProfile | null);
       } catch (error) {
         console.error(
-          "Failed to load dashboard data:",
+          "Failed to load hero profile:",
           error
         );
-      } finally {
-        setLoading(false);
       }
     };
 
-    loadDashboardData();
+    loadProfile();
   }, []);
 
   /* --------------------------------
@@ -93,249 +54,97 @@ export default function HeroSection() {
 
   const currentHour = new Date().getHours();
 
-  let greeting = "Good Evening";
+  let greeting = "Good evening";
 
   if (currentHour < 12) {
-    greeting = "Good Morning";
+    greeting = "Good morning";
   } else if (currentHour < 17) {
-    greeting = "Good Afternoon";
+    greeting = "Good afternoon";
   }
 
   const userName =
     profile?.name?.trim() || "Athlete";
 
-  /* --------------------------------
-     Current Week
-  -------------------------------- */
-
-  const today = new Date();
-
-  today.setHours(0, 0, 0, 0);
-
-  const startOfWeek = new Date(today);
-
-  const day = startOfWeek.getDay();
-  const difference = day === 0 ? 6 : day - 1;
-
-  startOfWeek.setDate(
-    startOfWeek.getDate() - difference
-  );
-
-  startOfWeek.setHours(0, 0, 0, 0);
-
-  const endOfWeek = new Date(startOfWeek);
-
-  endOfWeek.setDate(
-    endOfWeek.getDate() + 6
-  );
-
-  endOfWeek.setHours(23, 59, 59, 999);
-
-  /* --------------------------------
-     Weekly Training
-  -------------------------------- */
-
-  const weeklySessions = sessions.filter(
-    (session) => {
-      const sessionDate = new Date(
-        `${session.date}T00:00:00`
-      );
-
-      return (
-        sessionDate >= startOfWeek &&
-        sessionDate <= endOfWeek &&
-        session.status !== "Rest"
-      );
-    }
-  );
-
-  /* --------------------------------
-     Completed Sessions
-  -------------------------------- */
-
-  const completedSessions =
-    weeklySessions.filter(
-      (session) =>
-        session.status === "Completed"
-    );
-
-  /* --------------------------------
-     Weekly Goal
-  -------------------------------- */
-
-  const weeklyGoal = 6;
-
-  const weeklyProgress = Math.min(
-    Math.round(
-      (completedSessions.length /
-        weeklyGoal) *
-        100
-    ),
-    100
-  );
-
-  /* --------------------------------
-     Display Values
-  -------------------------------- */
-
-  const trainingDisplay = loading
-    ? "..."
-    : String(weeklySessions.length);
-
-  const performanceDisplay = loading
-    ? "..."
-    : `${weeklyProgress}%`;
-
-  const completedDisplay = loading
-    ? "..."
-    : `${completedSessions.length}/${weeklyGoal}`;
-
-  const recoveryDisplay = loading
-    ? "..."
-    : recovery !== null
-    ? `${recovery}%`
-    : "—";
-
-  const recoverySubtitle =
-    recovery !== null
-      ? "Today's recovery"
-      : "No recovery data";
-
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white">
+    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white lg:p-10">
+
+      {/* Diagonal texture */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            id="hero-diagonal"
+            width="24"
+            height="24"
+            patternTransform="rotate(35)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line x1="0" y1="0" x2="0" y2="24" stroke="white" strokeWidth="8" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hero-diagonal)" />
+      </svg>
+
+      {/* Watermark icon */}
+      <Zap
+        aria-hidden="true"
+        strokeWidth={1}
+        className="pointer-events-none absolute -bottom-10 -right-6 h-56 w-56 text-white/[0.06]"
+      />
 
       {/* Background Glow */}
-      <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/15 blur-3xl" />
 
-      <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-blue-400/10 blur-3xl" />
+      <div className="relative max-w-2xl">
 
-      <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
-
-        {/* LEFT */}
-        <div className="max-w-2xl">
-
-          {/* Badge */}
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur">
-            <Trophy size={16} />
-            Athlete Dashboard
-          </div>
-
-          {/* Greeting */}
-          <p className="text-lg text-blue-100">
-            {greeting}, {userName}
-          </p>
-
-          {/* Heading */}
-          <h1 className="mt-4 text-6xl font-bold leading-tight">
-            Welcome Back.
-          </h1>
-
-          {/* Description */}
-          <p className="mt-6 max-w-xl text-lg leading-8 text-blue-100">
-            Track every workout, monitor recovery,
-            analyse your performance, improve your
-            fitness and achieve your next personal best.
-          </p>
-
-          {/* Actions */}
-          <div className="mt-8 flex gap-4">
-
-            <Button
-              onClick={() =>
-                navigate("/training")
-              }
-            >
-              Start Training
-            </Button>
-
-            <Button
-              onClick={() => {
-                document
-                  .getElementById(
-                    "dashboard-performance"
-                  )
-                  ?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  });
-              }}
-            >
-              View Progress
-            </Button>
-
-          </div>
+        {/* Greeting pill */}
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-blue-100 backdrop-blur">
+          <Sun size={13} />
+          {greeting}, {userName}
         </div>
 
-        {/* RIGHT */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Heading */}
+        <h1 className="text-3xl font-bold leading-tight lg:text-5xl">
+          Ready to train?
+        </h1>
 
-          {/* Training */}
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <Flame className="mb-4 text-orange-200" />
+        {/* Description */}
+        <p className="mt-4 max-w-lg text-sm leading-6 text-blue-100 lg:text-base">
+          Track every workout, monitor your recovery, and see how
+          your performance trends week over week. Stay on pace with
+          your goals and keep pushing toward your next personal
+          best.
+        </p>
 
-            <p className="text-sm text-blue-100">
-              Training
-            </p>
+        {/* Actions */}
+        <div className="mt-8 flex gap-3">
 
-            <h2 className="mt-2 text-4xl font-bold">
-              {trainingDisplay}
-            </h2>
+          <Button
+            onClick={() =>
+              navigate("/training")
+            }
+          >
+            Start Training
+          </Button>
 
-            <p className="mt-1 text-xs text-blue-200">
-              Sessions this week
-            </p>
-          </div>
-
-          {/* Performance */}
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <Activity className="mb-4 text-blue-100" />
-
-            <p className="text-sm text-blue-100">
-              Performance
-            </p>
-
-            <h2 className="mt-2 text-4xl font-bold">
-              {performanceDisplay}
-            </h2>
-
-            <p className="mt-1 text-xs text-blue-200">
-              Weekly completion
-            </p>
-          </div>
-
-          {/* Recovery */}
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <HeartPulse className="mb-4 text-pink-200" />
-
-            <p className="text-sm text-blue-100">
-              Recovery
-            </p>
-
-            <h2 className="mt-2 text-4xl font-bold">
-              {recoveryDisplay}
-            </h2>
-
-            <p className="mt-1 text-xs text-blue-200">
-              {recoverySubtitle}
-            </p>
-          </div>
-
-          {/* Weekly Goal */}
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <Trophy className="mb-4 text-yellow-200" />
-
-            <p className="text-sm text-blue-100">
-              Weekly Goal
-            </p>
-
-            <h2 className="mt-2 text-4xl font-bold">
-              {completedDisplay}
-            </h2>
-
-            <p className="mt-1 text-xs text-blue-200">
-              Completed workouts
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              document
+                .getElementById(
+                  "dashboard-performance"
+                )
+                ?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+            }}
+            className="rounded-2xl border border-white/20 bg-white/10 px-6 py-3 font-semibold text-white backdrop-blur transition hover:bg-white/20"
+          >
+            View Progress
+          </button>
 
         </div>
       </div>

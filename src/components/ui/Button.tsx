@@ -23,13 +23,13 @@ export default function Button({
       disabled={disabled}
       className="
         rounded-2xl
-        bg-blue-600
+        bg-primary
         px-6
         py-3
         font-semibold
-        text-white
+        text-primary-foreground
         transition-colors
-        hover:bg-blue-500
+        hover:bg-primary/90
         disabled:cursor-not-allowed
         disabled:opacity-50
       "

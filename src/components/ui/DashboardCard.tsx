@@ -33,17 +33,18 @@ export default function DashboardCard({
         flex-col
         rounded-3xl
         border
-        border-zinc-800
-        bg-zinc-900/80
+        border-border
+        bg-card/80
         backdrop-blur-xl
         p-6
         shadow-lg
-        shadow-black/20
+        shadow-black/5
+        dark:shadow-black/20
         transition-all
         duration-300
         ${
           hover
-            ? "hover:border-blue-500/40 hover:shadow-blue-500/10"
+            ? "hover:border-primary/40 hover:shadow-primary/10"
             : ""
         }
         ${className}
