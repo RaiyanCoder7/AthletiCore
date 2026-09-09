@@ -117,7 +117,7 @@ export default function RecentActivityCard() {
   }, []);
 
   return (
-    <DashboardCard className="group" hover>
+    <DashboardCard className="group" hover accent="blue">
       <SectionHeading
         title="Recent Activity"
         subtitle="Your latest fitness updates"
@@ -127,7 +127,7 @@ export default function RecentActivityCard() {
         {/* Loading */}
         {loading && (
           <div className="flex h-32 items-center justify-center">
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-muted-foreground">
               Loading recent activity...
             </p>
           </div>
@@ -135,17 +135,19 @@ export default function RecentActivityCard() {
 
         {/* Empty */}
         {!loading && activities.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/50 p-6 text-center">
-            <Dumbbell
-              size={28}
-              className="mx-auto text-zinc-600"
-            />
+          <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-6 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Dumbbell
+                size={22}
+                className="text-primary"
+              />
+            </div>
 
-            <p className="mt-3 font-medium text-white">
+            <p className="mt-3 font-medium text-foreground">
               No recent activity
             </p>
 
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Your training activity will appear here.
             </p>
           </div>
@@ -163,10 +165,10 @@ export default function RecentActivityCard() {
                 className="flex items-start gap-4"
               >
                 <div
-                  className={`rounded-xl p-3 ${
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
                     isCompleted
-                      ? "bg-blue-500/10 text-blue-400"
-                      : "bg-indigo-500/10 text-indigo-400"
+                      ? "bg-emerald-500/10 text-emerald-500"
+                      : "bg-primary/10 text-primary"
                   }`}
                 >
                   {isCompleted ? (
@@ -177,11 +179,11 @@ export default function RecentActivityCard() {
                 </div>
 
                 <div>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-foreground">
                     {activity.title}
                   </p>
 
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {activity.time}
                   </p>
                 </div>

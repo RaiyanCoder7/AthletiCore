@@ -10,6 +10,7 @@ import {
   Trash2,
   X,
   Check,
+  CalendarDays,
 } from "lucide-react";
 
 import { auth } from "@/services/firebase/firebase";
@@ -152,13 +153,25 @@ export default function MatchesCard() {
     }
   };
 
+  const wins = matches.filter(
+    (match) => match.result === "Win"
+  ).length;
+
+  const draws = matches.filter(
+    (match) => match.result === "Draw"
+  ).length;
+
+  const losses = matches.filter(
+    (match) => match.result === "Loss"
+  ).length;
+
   return (
     <>
-      <DashboardCard hover>
+      <DashboardCard hover accent="blue">
         <div className="flex items-start justify-between gap-4">
           <SectionHeading
             title="Matches"
-            subtitle="Match history"
+            subtitle="Match history and results"
           />
 
           <button
@@ -171,7 +184,41 @@ export default function MatchesCard() {
           </button>
         </div>
 
-        <div className="mt-8">
+        {!loading && matches.length > 0 && (
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <p className="text-xs text-muted-foreground">
+                Wins
+              </p>
+
+              <p className="mt-1 text-2xl font-bold text-emerald-500">
+                {wins}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <p className="text-xs text-muted-foreground">
+                Draws
+              </p>
+
+              <p className="mt-1 text-2xl font-bold text-yellow-500">
+                {draws}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <p className="text-xs text-muted-foreground">
+                Losses
+              </p>
+
+              <p className="mt-1 text-2xl font-bold text-red-500">
+                {losses}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6">
           {loading ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
               <p className="text-sm text-muted-foreground">
@@ -189,7 +236,8 @@ export default function MatchesCard() {
               </h4>
 
               <p className="mt-2 text-sm text-muted-foreground">
-                Add your first match to start building your match history.
+                Add your first match to start building your
+                match history.
               </p>
 
               <button
@@ -202,61 +250,80 @@ export default function MatchesCard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {matches.map((match) => (
-                <div
-                  key={match.id}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40"
-                >
-                  <div className="flex min-w-0 items-center gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <Trophy size={19} />
+              {matches.map((match) => {
+                const resultClass =
+                  match.result === "Win"
+                    ? "bg-emerald-500/10 text-emerald-500"
+                    : match.result === "Loss"
+                    ? "bg-red-500/10 text-red-500"
+                    : "bg-yellow-500/10 text-yellow-500";
+
+                return (
+                  <div
+                    key={match.id}
+                    className="group flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40"
+                  >
+                    <div className="flex min-w-0 items-center gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <Trophy size={20} />
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="truncate font-semibold text-card-foreground">
+                            vs {match.opponent}
+                          </h4>
+
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${resultClass}`}
+                          >
+                            {match.result}
+                          </span>
+                        </div>
+
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          {match.competition && (
+                            <span>
+                              {match.competition}
+                            </span>
+                          )}
+
+                          {match.date && (
+                            <span className="flex items-center gap-1">
+                              <CalendarDays size={12} />
+                              {match.date}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="min-w-0">
-                      <h4 className="font-semibold text-card-foreground">
-                        vs {match.opponent}
-                      </h4>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openEditModal(match)
+                        }
+                        aria-label="Edit match"
+                        className="rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                      >
+                        <Pencil size={16} />
+                      </button>
 
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {match.competition || "Match"}
-                        {match.date && ` • ${match.date}`}
-                      </p>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDelete(match.id)
+                        }
+                        aria-label="Delete match"
+                        className="rounded-lg p-2 text-muted-foreground transition hover:bg-red-500/10 hover:text-red-500"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
-
-                  <div className="flex shrink-0 items-center gap-3">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        match.result === "Win"
-                          ? "bg-emerald-500/10 text-emerald-500"
-                          : match.result === "Loss"
-                          ? "bg-red-500/10 text-red-500"
-                          : "bg-yellow-500/10 text-yellow-500"
-                      }`}
-                    >
-                      {match.result || "—"}
-                    </span>
-
-                    <button
-                      type="button"
-                      onClick={() => openEditModal(match)}
-                      aria-label="Edit match"
-                      className="rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
-                    >
-                      <Pencil size={16} />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(match.id)}
-                      aria-label="Delete match"
-                      className="rounded-lg p-2 text-muted-foreground transition hover:bg-red-500/10 hover:text-red-500"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -268,7 +335,9 @@ export default function MatchesCard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-foreground">
-                  {editingMatch ? "Edit Match" : "Add Match"}
+                  {editingMatch
+                    ? "Edit Match"
+                    : "Add Match"}
                 </h3>
 
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -387,7 +456,11 @@ export default function MatchesCard() {
                 className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Check size={17} />
-                {saving ? "Saving..." : "Save Match"}
+                {saving
+                  ? "Saving..."
+                  : editingMatch
+                  ? "Update Match"
+                  : "Save Match"}
               </button>
             </div>
           </div>

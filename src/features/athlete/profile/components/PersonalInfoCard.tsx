@@ -69,32 +69,42 @@ export default function PersonalInfoCard({
   ];
 
   return (
-    <DashboardCard hover>
+    <DashboardCard hover accent="blue">
       <SectionHeading
         title="Personal Information"
         subtitle="Basic athlete information"
         action={
-          <div className="rounded-xl bg-blue-500/10 p-3 text-blue-400">
+          <div className="rounded-xl bg-primary/10 p-3 text-primary">
             <User size={20} />
           </div>
         }
       />
 
       <div className="mt-8 space-y-5">
-        {personalInfo.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center justify-between border-b border-zinc-800 pb-3 last:border-none"
-          >
-            <span className="text-zinc-400">
-              {item.label}
-            </span>
+        {personalInfo.map((item) => {
+          const isUnset = item.value === "Not set";
 
-            <span className="font-semibold text-white">
-              {item.value}
-            </span>
-          </div>
-        ))}
+          return (
+            <div
+              key={item.label}
+              className="flex items-center justify-between border-b border-border pb-3 last:border-none"
+            >
+              <span className="text-muted-foreground">
+                {item.label}
+              </span>
+
+              <span
+                className={
+                  isUnset
+                    ? "italic text-muted-foreground"
+                    : "font-semibold text-foreground"
+                }
+              >
+                {item.value}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </DashboardCard>
   );

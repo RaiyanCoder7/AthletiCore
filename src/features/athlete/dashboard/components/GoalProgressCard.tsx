@@ -170,7 +170,7 @@ export default function GoalProgressCard() {
   }, []);
 
   return (
-    <DashboardCard className="group" hover>
+    <DashboardCard className="group" hover accent="emerald">
       <SectionHeading
         title="Goal Progress"
         subtitle="Track your current objectives"
@@ -178,13 +178,13 @@ export default function GoalProgressCard() {
 
       {loading ? (
         <div className="flex h-48 items-center justify-center">
-          <p className="text-zinc-500">
+          <p className="text-muted-foreground">
             Loading goals...
           </p>
         </div>
       ) : goals.length === 0 ? (
         <div className="flex h-48 items-center justify-center">
-          <p className="text-zinc-500">
+          <p className="text-muted-foreground">
             No training data available.
           </p>
         </div>
@@ -194,22 +194,22 @@ export default function GoalProgressCard() {
             <div key={goal.title}>
               <div className="mb-2 flex justify-between gap-4">
                 <div>
-                  <span className="text-sm text-zinc-300">
+                  <span className="text-sm text-foreground">
                     {goal.title}
                   </span>
 
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {goal.current} / {goal.target}{" "}
                     {goal.unit}
                   </p>
                 </div>
 
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-foreground">
                   {goal.progress}%
                 </span>
               </div>
 
-              <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+              <div className="h-2 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-700"
                   style={{

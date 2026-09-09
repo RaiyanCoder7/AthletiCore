@@ -125,16 +125,16 @@ export default function EditProfileModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl">
+      <div className="w-full max-w-2xl rounded-2xl border border-border bg-background shadow-2xl">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-5">
+        <div className="flex items-center justify-between border-b border-border px-6 py-5">
           <div>
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold text-foreground">
               Edit Profile
             </h2>
 
-            <p className="mt-1 text-sm text-zinc-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               Update your athlete information
             </p>
           </div>
@@ -142,7 +142,7 @@ export default function EditProfileModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+            className="rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
           >
             <X size={20} />
           </button>
@@ -152,7 +152,7 @@ export default function EditProfileModal({
         <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto p-6">
 
           {error && (
-            <div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            <div className="mb-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               {error}
             </div>
           )}
@@ -161,7 +161,7 @@ export default function EditProfileModal({
 
             {/* Name */}
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Full Name
               </label>
 
@@ -170,13 +170,13 @@ export default function EditProfileModal({
                 value={form.name}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>
 
             {/* Age */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Age
               </label>
 
@@ -188,13 +188,13 @@ export default function EditProfileModal({
                 value={form.age}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>
 
             {/* Height */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Height (cm)
               </label>
 
@@ -206,13 +206,13 @@ export default function EditProfileModal({
                 value={form.height}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>
 
             {/* Weight */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Weight (kg)
               </label>
 
@@ -224,13 +224,13 @@ export default function EditProfileModal({
                 value={form.weight}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>
 
             {/* Position */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Position
               </label>
 
@@ -239,7 +239,7 @@ export default function EditProfileModal({
                 value={form.position}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               >
                 <option value="">Select position</option>
                 <option value="Goalkeeper">Goalkeeper</option>
@@ -252,7 +252,7 @@ export default function EditProfileModal({
 
             {/* Team */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Team
               </label>
 
@@ -261,13 +261,13 @@ export default function EditProfileModal({
                 value={form.team}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>
 
             {/* Dominant Foot */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Dominant Foot
               </label>
 
@@ -276,7 +276,7 @@ export default function EditProfileModal({
                 value={form.dominantFoot}
                 onChange={handleChange}
                 required
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               >
                 <option value="">Select foot</option>
                 <option value="Right">Right</option>
@@ -287,7 +287,7 @@ export default function EditProfileModal({
 
             {/* Location */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Location
               </label>
 
@@ -297,19 +297,19 @@ export default function EditProfileModal({
                 onChange={handleChange}
                 required
                 placeholder="City, Country"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>
 
           </div>
 
           {/* Actions */}
-          <div className="mt-8 flex justify-end gap-3 border-t border-zinc-800 pt-5">
+          <div className="mt-8 flex justify-end gap-3 border-t border-border pt-5">
 
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
+              className="rounded-xl border border-border px-5 py-2.5 text-sm font-medium text-foreground transition hover:bg-accent"
             >
               Cancel
             </button>

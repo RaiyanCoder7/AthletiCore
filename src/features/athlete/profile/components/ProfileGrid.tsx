@@ -21,7 +21,9 @@ export default function ProfileGrid({
 
       <AchievementsCard />
 
-      <PersonalBestCard />
+      <div className="xl:col-span-2">
+        <PersonalBestCard />
+      </div>
     </div>
   );
 }

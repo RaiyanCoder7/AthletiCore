@@ -229,7 +229,7 @@ export default function PerformanceSummaryCard() {
         <Activity size={20} />
       ),
       color:
-        "text-green-400 bg-green-500/10",
+        "text-green-600 dark:text-green-400 bg-green-500/10",
     },
 
     {
@@ -243,7 +243,7 @@ export default function PerformanceSummaryCard() {
           : "Matches played",
       icon: <Trophy size={20} />,
       color:
-        "text-yellow-400 bg-yellow-500/10",
+        "text-yellow-600 dark:text-yellow-400 bg-yellow-500/10",
     },
 
     {
@@ -259,7 +259,7 @@ export default function PerformanceSummaryCard() {
         <Target size={20} />
       ),
       color:
-        "text-blue-400 bg-blue-500/10",
+        "text-blue-600 dark:text-blue-400 bg-blue-500/10",
     },
 
     {
@@ -277,7 +277,7 @@ export default function PerformanceSummaryCard() {
         <HeartPulse size={20} />
       ),
       color:
-        "text-red-400 bg-red-500/10",
+        "text-red-600 dark:text-red-400 bg-red-500/10",
     },
 
     {
@@ -291,7 +291,7 @@ export default function PerformanceSummaryCard() {
         <Clock size={20} />
       ),
       color:
-        "text-purple-400 bg-purple-500/10",
+        "text-purple-600 dark:text-purple-400 bg-purple-500/10",
     },
 
     {
@@ -305,12 +305,12 @@ export default function PerformanceSummaryCard() {
         <Dumbbell size={20} />
       ),
       color:
-        "text-cyan-400 bg-cyan-500/10",
+        "text-cyan-600 dark:text-cyan-400 bg-cyan-500/10",
     },
   ];
 
   return (
-    <DashboardCard hover>
+    <DashboardCard hover accent="blue">
       <SectionHeading
         title="Performance Summary"
         subtitle="Overall athlete performance"
@@ -321,7 +321,7 @@ export default function PerformanceSummaryCard() {
           (item) => (
             <div
               key={item.title}
-              className="rounded-2xl border border-zinc-800 bg-zinc-800/60 p-4 transition hover:border-blue-500/40"
+              className="rounded-2xl border border-border bg-muted/60 p-4 transition hover:border-primary/40"
             >
               <div
                 className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${item.color}`}
@@ -329,15 +329,15 @@ export default function PerformanceSummaryCard() {
                 {item.icon}
               </div>
 
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 {item.title}
               </p>
 
-              <h3 className="mt-2 text-2xl font-bold text-white">
+              <h3 className="mt-2 text-2xl font-bold text-foreground">
                 {item.value}
               </h3>
 
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {item.subtitle}
               </p>
             </div>

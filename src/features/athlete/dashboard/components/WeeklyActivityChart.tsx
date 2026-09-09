@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BarChart3 } from "lucide-react";
 import SectionHeading from "@/components/ui/SectionHeading";
 
 import { auth } from "@/services/firebase/firebase";
@@ -119,6 +120,10 @@ export default function WeeklyActivityChart() {
     loadWeeklyActivity();
   }, []);
 
+  const hasActivity = data.some(
+    (item) => item.sessions > 0
+  );
+
   return (
     <div className="flex h-full flex-col justify-between">
       {/* Header */}
@@ -132,8 +137,24 @@ export default function WeeklyActivityChart() {
       {/* Loading */}
       {loading ? (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted-foreground">
             Loading weekly activity...
+          </p>
+        </div>
+      ) : !hasActivity ? (
+        /* Empty state — no flat zero-bar chart, an actual message */
+        <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/50 p-6 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <BarChart3 size={22} className="text-primary" />
+          </div>
+
+          <p className="mt-3 font-medium text-foreground">
+            No training sessions yet this week
+          </p>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your weekly activity will show up here once you log a
+            session.
           </p>
         </div>
       ) : (
@@ -145,7 +166,7 @@ export default function WeeklyActivityChart() {
               className="flex h-full flex-1 flex-col items-center justify-end"
             >
               {/* Session count */}
-              <span className="mb-2 text-xs font-medium text-zinc-400">
+              <span className="mb-2 text-xs font-medium text-muted-foreground">
                 {item.sessions}
               </span>
 
@@ -164,7 +185,7 @@ export default function WeeklyActivityChart() {
               />
 
               {/* Day */}
-              <span className="mt-3 text-sm text-zinc-500">
+              <span className="mt-3 text-sm text-muted-foreground">
                 {item.day}
               </span>
             </div>

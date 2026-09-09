@@ -116,6 +116,13 @@ export default function StatsGrid() {
     100
   );
 
+  const trainingLoadPercent = Math.min(
+    Math.round(
+      (weeklySessions.length / weeklyGoal) * 100
+    ),
+    100
+  );
+
   /* --------------------------------
      Display Values
   -------------------------------- */
@@ -146,7 +153,7 @@ export default function StatsGrid() {
   return (
     <section className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
-      {/* Performance */}
+      {/* Performance — score-based, ring, primary accent */}
       <StatsCard
         title="Performance"
         value={performanceDisplay}
@@ -155,31 +162,44 @@ export default function StatsGrid() {
             ? "Loading"
             : "Weekly completion"
         }
-        icon={<Trophy size={24} />}
+        icon={<Trophy size={18} />}
+        accentBg="bg-primary/10"
+        accentText="text-primary"
+        indicator={{ type: "ring", percent: performance }}
       />
 
-      {/* Training Sessions */}
+      {/* Training Sessions — count-based, bar, orange accent */}
       <StatsCard
         title="Training Sessions"
         value={trainingDisplay}
         subtitle="This week"
-        icon={<Dumbbell size={24} />}
+        icon={<Dumbbell size={18} />}
+        accentBg="bg-orange-500/10"
+        accentText="text-orange-500"
+        indicator={{ type: "bar", percent: trainingLoadPercent }}
       />
 
-      {/* Recovery */}
+      {/* Recovery — score-based, ring, rose accent */}
       <StatsCard
         title="Recovery"
         value={recoveryDisplay}
         subtitle={recoverySubtitle}
-        icon={<HeartPulse size={24} />}
+        icon={<HeartPulse size={18} />}
+        accentBg="bg-rose-500/10"
+        accentText="text-rose-500"
+        indicator={{ type: "ring", percent: recovery ?? 0 }}
+        subtitleTone={recovery !== null ? "positive" : "neutral"}
       />
 
-      {/* Goals Completed */}
+      {/* Goals Completed — count-based, bar, emerald accent */}
       <StatsCard
         title="Goals Completed"
         value={completedDisplay}
         subtitle="Completed workouts"
-        icon={<Target size={24} />}
+        icon={<Target size={18} />}
+        accentBg="bg-emerald-500/10"
+        accentText="text-emerald-500"
+        indicator={{ type: "bar", percent: performance }}
       />
 
     </section>

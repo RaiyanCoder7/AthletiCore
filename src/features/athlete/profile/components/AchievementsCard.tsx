@@ -197,7 +197,7 @@ export default function AchievementsCard() {
 
   return (
     <>
-      <DashboardCard hover>
+      <DashboardCard hover accent="blue">
         <div className="flex items-start justify-between gap-4">
           <SectionHeading
             title="Achievements"

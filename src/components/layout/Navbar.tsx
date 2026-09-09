@@ -1,6 +1,7 @@
 import {
   Bell,
   CheckCircle2,
+  Menu,
   Moon,
   Search,
   Sun,
@@ -40,7 +41,13 @@ interface NotificationItem {
   icon: typeof Bell;
 }
 
-export default function Navbar() {
+type NavbarProps = {
+  onMenuClick: () => void;
+};
+
+export default function Navbar({
+  onMenuClick,
+}: NavbarProps) {
   const [profile, setProfile] =
     useState<UserProfile | null>(null);
 
@@ -341,19 +348,32 @@ export default function Navbar() {
   return (
     <header className="relative flex h-16 items-center justify-between border-b border-border bg-background px-6 text-foreground">
 
-      {/* Search */}
+      {/* Left side: menu button + search */}
+      <div className="flex items-center gap-4">
 
-      <div className="relative w-96">
-        <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-          size={18}
-        />
+        {/* Hamburger menu */}
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          className="rounded-xl border border-border bg-card p-2 text-foreground transition hover:bg-accent"
+        >
+          <Menu size={20} />
+        </button>
 
-        <input
-          type="text"
-          placeholder="Search athletes..."
-          className="w-full rounded-xl border border-border bg-card py-2 pl-10 pr-4 text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary"
-        />
+        {/* Search */}
+        <div className="relative w-96">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={18}
+          />
+
+          <input
+            type="text"
+            placeholder="Search athletes..."
+            className="w-full rounded-xl border border-border bg-card py-2 pl-10 pr-4 text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary"
+          />
+        </div>
       </div>
 
       {/* Right Side */}

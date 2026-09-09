@@ -14,7 +14,7 @@ export default function DashboardGrid() {
       <section className="grid gap-6 xl:grid-cols-2">
         <TodayTrainingCard />
         <RecentActivityCard />
-        <DashboardCard className="min-h-[420px]">
+        <DashboardCard className="min-h-[420px] xl:col-span-2" accent="orange">
           <WeeklyActivityChart />
         </DashboardCard>
       </section>

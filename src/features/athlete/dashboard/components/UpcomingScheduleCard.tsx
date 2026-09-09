@@ -69,20 +69,20 @@ export default function UpcomingScheduleCard() {
   }, []);
 
   return (
-    <DashboardCard className="group" hover>
+    <DashboardCard className="group" hover accent="indigo">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-white">
+          <h3 className="text-xl font-semibold text-foreground">
             Upcoming Schedule
           </h3>
 
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Your next scheduled training sessions
           </p>
         </div>
 
-        <div className="rounded-xl bg-indigo-500/10 p-3 text-indigo-400">
+        <div className="rounded-xl bg-indigo-500/10 p-3 text-indigo-500">
           <CalendarDays size={22} />
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function UpcomingScheduleCard() {
       {/* Loading */}
       {loading && (
         <div className="flex h-32 items-center justify-center">
-          <p className="text-zinc-500">
+          <p className="text-muted-foreground">
             Loading schedule...
           </p>
         </div>
@@ -98,17 +98,19 @@ export default function UpcomingScheduleCard() {
 
       {/* Empty */}
       {!loading && schedule.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950/50 p-8 text-center">
-          <CalendarDays
-            size={32}
-            className="mx-auto text-zinc-600"
-          />
+        <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-8 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500/10">
+            <CalendarDays
+              size={22}
+              className="text-indigo-500"
+            />
+          </div>
 
-          <p className="mt-4 font-medium text-white">
+          <p className="mt-4 font-medium text-foreground">
             No upcoming sessions
           </p>
 
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Your upcoming training sessions will appear here.
           </p>
         </div>
@@ -120,25 +122,25 @@ export default function UpcomingScheduleCard() {
           {schedule.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-indigo-500/40"
+              className="rounded-2xl border border-border bg-muted p-4 transition hover:border-indigo-500/40"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-foreground">
                     {item.workout}
                   </h4>
 
-                  <p className="mt-1 text-sm text-zinc-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {item.day}
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-indigo-500/10 p-2.5 text-indigo-400">
+                <div className="rounded-xl bg-indigo-500/10 p-2.5 text-indigo-500">
                   <Dumbbell size={18} />
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-4 text-sm text-zinc-400">
+              <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Clock size={16} />
                   {item.time}
@@ -149,7 +151,7 @@ export default function UpcomingScheduleCard() {
                   {item.type}
                 </div>
 
-                <div className="text-zinc-500">
+                <div className="text-muted-foreground">
                   {item.duration}
                 </div>
               </div>

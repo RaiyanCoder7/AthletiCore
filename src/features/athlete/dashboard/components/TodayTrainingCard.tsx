@@ -53,12 +53,12 @@ export default function TodayTrainingCard() {
   }, []);
 
   return (
-    <DashboardCard className="group" hover>
+    <DashboardCard className="group" hover accent="orange">
       <SectionHeading
         title="Today's Training"
         subtitle="Your scheduled workouts for today"
         action={
-          <div className="rounded-xl bg-blue-500/10 p-3 text-blue-400">
+          <div className="rounded-xl bg-primary/10 p-3 text-primary">
             <Dumbbell size={22} />
           </div>
         }
@@ -67,8 +67,8 @@ export default function TodayTrainingCard() {
       <div className="mt-6 space-y-4">
         {/* Loading */}
         {loading && (
-          <div className="rounded-2xl bg-zinc-800 p-5 text-center">
-            <p className="text-sm text-zinc-500">
+          <div className="rounded-2xl bg-muted p-5 text-center">
+            <p className="text-sm text-muted-foreground">
               Loading today's training...
             </p>
           </div>
@@ -76,18 +76,20 @@ export default function TodayTrainingCard() {
 
         {/* No Training */}
         {!loading && sessions.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-zinc-700 bg-zinc-800/50 p-6 text-center">
-            <Dumbbell
-              size={28}
-              className="mx-auto text-zinc-600"
-            />
+          <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-6 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <Dumbbell
+                size={22}
+                className="text-primary"
+              />
+            </div>
 
-            <p className="mt-3 font-medium text-white">
+            <p className="mt-3 font-medium text-foreground">
               No training scheduled today
             </p>
 
-            <p className="mt-1 text-sm text-zinc-500">
-              Enjoy your recovery or add a training session.
+            <p className="mt-1 text-sm text-muted-foreground">
+              Enjoy your recovery, or add a session to get started.
             </p>
           </div>
         )}
@@ -97,15 +99,15 @@ export default function TodayTrainingCard() {
           sessions.map((session) => (
             <div
               key={session.id}
-              className="rounded-2xl bg-zinc-800 p-4 transition hover:bg-zinc-750"
+              className="rounded-2xl bg-muted p-4 transition hover:bg-accent"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-medium text-white">
+                  <p className="font-medium text-foreground">
                     {session.workout}
                   </p>
 
-                  <p className="mt-1 text-sm text-zinc-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {session.type}
                   </p>
                 </div>
@@ -113,15 +115,15 @@ export default function TodayTrainingCard() {
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
                     session.status === "Completed"
-                      ? "bg-emerald-500/10 text-emerald-400"
-                      : "bg-blue-500/10 text-blue-400"
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "bg-primary/10 text-primary"
                   }`}
                 >
                   {session.status}
                 </span>
               </div>
 
-              <div className="mt-3 flex items-center gap-2 text-sm text-zinc-300">
+              <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock size={16} />
                 {session.time} • {session.duration}
               </div>

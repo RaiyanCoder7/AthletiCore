@@ -143,7 +143,7 @@ export default function PerformanceChart() {
       : 0;
 
   return (
-    <DashboardCard className="group" hover>
+    <DashboardCard className="group" hover accent="blue">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <SectionHeading
@@ -156,8 +156,8 @@ export default function PerformanceChart() {
           <span
             className={`rounded-full px-3 py-1 text-sm font-medium ${
               change >= 0
-                ? "bg-emerald-500/10 text-emerald-400"
-                : "bg-red-500/10 text-red-400"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                : "bg-red-500/10 text-red-600 dark:text-red-400"
             }`}
           >
             {change >= 0 ? "+" : ""}
@@ -169,69 +169,74 @@ export default function PerformanceChart() {
       <div className="h-72">
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-zinc-500">
+            <p className="text-muted-foreground">
               Loading performance...
             </p>
           </div>
         ) : data.length === 0 ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-zinc-500">
+            <p className="text-muted-foreground">
               No training data available.
             </p>
           </div>
         ) : (
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
-            <LineChart data={data}>
-              <CartesianGrid
-                stroke="#27272a"
-                strokeDasharray="4 4"
-              />
+          /*
+            The wrapping div carries text-muted-foreground so the
+            chart's grid lines and axis ticks (set to "currentColor"
+            below) automatically pick up the right shade for whichever
+            theme is active, instead of being hardcoded hex values
+            that only worked in dark mode.
+          */
+          <div className="h-full text-muted-foreground [&_.recharts-default-tooltip]:!rounded-xl [&_.recharts-default-tooltip]:!border-border [&_.recharts-default-tooltip]:!bg-card [&_.recharts-default-tooltip]:!text-foreground">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+              <LineChart data={data}>
+                <CartesianGrid
+                  stroke="currentColor"
+                  strokeOpacity={0.15}
+                  strokeDasharray="4 4"
+                />
 
-              <XAxis
-                dataKey="day"
-                tick={{ fill: "#9ca3af" }}
-                axisLine={false}
-                tickLine={false}
-              />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fill: "currentColor" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
 
-              <YAxis
-                domain={[0, 100]}
-                allowDecimals={false}
-                tick={{ fill: "#9ca3af" }}
-                axisLine={false}
-                tickLine={false}
-              />
+                <YAxis
+                  domain={[0, 100]}
+                  allowDecimals={false}
+                  tick={{ fill: "currentColor" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
 
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #3f3f46",
-                  borderRadius: "12px",
-                }}
-                formatter={(value) => [
-                  `${value}%`,
-                  "Completion",
-                ]}
-              />
+                <Tooltip
+                  formatter={(value) => [
+                    `${value}%`,
+                    "Completion",
+                  ]}
+                />
 
-              <Line
-                type="monotone"
-                dataKey="score"
-                stroke="#3b82f6"
-                strokeWidth={4}
-                dot={{
-                  r: 5,
-                  fill: "#3b82f6",
-                }}
-                activeDot={{
-                  r: 8,
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+                <Line
+                  type="monotone"
+                  dataKey="score"
+                  stroke="#3b82f6"
+                  strokeWidth={4}
+                  dot={{
+                    r: 5,
+                    fill: "#3b82f6",
+                  }}
+                  activeDot={{
+                    r: 8,
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </DashboardCard>

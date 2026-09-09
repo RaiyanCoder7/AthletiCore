@@ -55,28 +55,28 @@ export default function ProfileHeader({
 
   return (
     <>
-      <DashboardCard>
+      <DashboardCard accent="blue">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
 
           {/* Left */}
           <div className="flex items-center gap-6">
 
             {/* Avatar */}
-            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-4xl font-bold text-white">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-4xl font-bold text-white ring-4 ring-background">
               {initial}
             </div>
 
             {/* Info */}
             <div>
-              <h1 className="text-3xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 {name}
               </h1>
 
-              <p className="mt-2 text-zinc-400">
+              <p className="mt-2 text-muted-foreground">
                 Professional Football Player
               </p>
 
-              <div className="mt-4 flex flex-wrap gap-4 text-sm text-zinc-400">
+              <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
 
                 <div className="flex items-center gap-2">
                   <Shield size={16} />

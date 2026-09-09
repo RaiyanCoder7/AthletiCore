@@ -1,11 +1,21 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 
+const accentColors = {
+  blue: "bg-primary",
+  orange: "bg-orange-500",
+  rose: "bg-rose-500",
+  emerald: "bg-emerald-500",
+  indigo: "bg-indigo-500",
+} as const;
+
 type DashboardCardProps = {
   children: ReactNode;
   className?: string;
   hover?: boolean;
   id?: string;
+  /** Optional colored strip along the top edge, tying the card to its category. */
+  accent?: keyof typeof accentColors;
 };
 
 export default function DashboardCard({
@@ -13,6 +23,7 @@ export default function DashboardCard({
   className = "",
   hover = true,
   id,
+  accent,
 }: DashboardCardProps) {
   return (
     <motion.div
@@ -29,8 +40,10 @@ export default function DashboardCard({
         duration: 0.2,
       }}
       className={`
+        relative
         flex
         flex-col
+        overflow-hidden
         rounded-3xl
         border
         border-border
@@ -50,6 +63,13 @@ export default function DashboardCard({
         ${className}
       `}
     >
+      {accent && (
+        <div
+          aria-hidden="true"
+          className={`absolute inset-x-0 top-0 h-1 ${accentColors[accent]}`}
+        />
+      )}
+
       {children}
     </motion.div>
   );
