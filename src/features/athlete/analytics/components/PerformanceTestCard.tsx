@@ -140,7 +140,7 @@ export default function PerformanceTestCard() {
   };
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="blue">
       <SectionHeading
         title="Performance Test"
         subtitle="Record your latest athletic performance metrics"
@@ -155,7 +155,7 @@ export default function PerformanceTestCard() {
             <div key={field.key}>
               <label
                 htmlFor={field.key}
-                className="mb-2 block text-sm font-medium text-zinc-300"
+                className="mb-2 block text-sm font-medium text-foreground"
               >
                 {field.label}
               </label>
@@ -174,7 +174,7 @@ export default function PerformanceTestCard() {
                   )
                 }
                 placeholder="0 - 100"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary"
               />
             </div>
           ))}
@@ -184,7 +184,7 @@ export default function PerformanceTestCard() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Save size={18} />
 
@@ -194,7 +194,7 @@ export default function PerformanceTestCard() {
           </button>
 
           {message && (
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-muted-foreground">
               {message}
             </p>
           )}

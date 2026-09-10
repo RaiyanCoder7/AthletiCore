@@ -140,7 +140,7 @@ export default function PerformanceTrendChart({
       : "Current season";
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="blue">
       <SectionHeading
         title="Performance Trend"
         subtitle={`${rangeLabel} performance progression`}
@@ -149,70 +149,68 @@ export default function PerformanceTrendChart({
       <div className="mt-8 h-80">
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-zinc-500">
+            <p className="text-muted-foreground">
               Loading performance trend...
             </p>
           </div>
         ) : data.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center">
             <div>
-              <p className="font-medium text-white">
+              <p className="font-medium text-foreground">
                 No performance data available
               </p>
 
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 No performance tests found for this period.
               </p>
             </div>
           </div>
         ) : (
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
-            <LineChart data={data}>
-              <CartesianGrid
-                stroke="#27272a"
-                strokeDasharray="4 4"
-              />
+          <div className="h-full text-muted-foreground [&_.recharts-default-tooltip]:!rounded-xl [&_.recharts-default-tooltip]:!border-border [&_.recharts-default-tooltip]:!bg-card [&_.recharts-default-tooltip]:!text-foreground">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+              <LineChart data={data}>
+                <CartesianGrid
+                  stroke="currentColor"
+                  strokeOpacity={0.15}
+                  strokeDasharray="4 4"
+                />
 
-              <XAxis
-                dataKey="date"
-                stroke="#71717a"
-              />
+                <XAxis
+                  dataKey="date"
+                  stroke="currentColor"
+                />
 
-              <YAxis
-                domain={[0, 100]}
-                stroke="#71717a"
-              />
+                <YAxis
+                  domain={[0, 100]}
+                  stroke="currentColor"
+                />
 
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #3f3f46",
-                  borderRadius: "12px",
-                }}
-                formatter={(value) => [
-                  `${value}%`,
-                  "Performance",
-                ]}
-              />
+                <Tooltip
+                  formatter={(value) => [
+                    `${value}%`,
+                    "Performance",
+                  ]}
+                />
 
-              <Line
-                type="monotone"
-                dataKey="performance"
-                stroke="#3b82f6"
-                strokeWidth={4}
-                dot={{
-                  r: 5,
-                  fill: "#3b82f6",
-                }}
-                activeDot={{
-                  r: 8,
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+                <Line
+                  type="monotone"
+                  dataKey="performance"
+                  stroke="#3b82f6"
+                  strokeWidth={4}
+                  dot={{
+                    r: 5,
+                    fill: "#3b82f6",
+                  }}
+                  activeDot={{
+                    r: 8,
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </DashboardCard>

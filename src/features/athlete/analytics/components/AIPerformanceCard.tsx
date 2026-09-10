@@ -179,7 +179,7 @@ export default function AIPerformanceCard() {
     };
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="blue">
       <SectionHeading
         title="AI Performance Coach"
         subtitle="Personalized insights from your latest performance test"
@@ -190,20 +190,20 @@ export default function AIPerformanceCard() {
         {/* Initial State */}
 
         {!analysis && !loading && (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+          <div className="rounded-2xl border border-border bg-muted/40 p-6">
             <div className="flex items-start gap-4">
 
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600/10 text-blue-500">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Sparkles size={22} />
               </div>
 
               <div className="flex-1">
 
-                <h3 className="font-semibold text-white">
+                <h3 className="font-semibold text-foreground">
                   Get AI-powered performance insights
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-zinc-500">
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   AthletiCore AI will analyze your
                   latest performance metrics and provide
                   personalized training and recovery
@@ -215,7 +215,7 @@ export default function AIPerformanceCard() {
                   onClick={
                     handleGenerateAnalysis
                   }
-                  className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+                  className="mt-5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
                 >
                   Generate Analysis
                 </button>
@@ -228,9 +228,9 @@ export default function AIPerformanceCard() {
         {/* Loading */}
 
         {loading && (
-          <div className="flex min-h-48 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/40">
+          <div className="flex min-h-48 items-center justify-center rounded-2xl border border-border bg-muted/40">
 
-            <div className="flex items-center gap-3 text-zinc-400">
+            <div className="flex items-center gap-3 text-muted-foreground">
 
               <Loader2
                 size={20}
@@ -249,7 +249,7 @@ export default function AIPerformanceCard() {
         {/* Error */}
 
         {error && (
-          <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+          <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-600 dark:text-red-400">
             {error}
           </div>
         )}
@@ -263,16 +263,16 @@ export default function AIPerformanceCard() {
 
             <div className="flex items-center gap-3">
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-500">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Sparkles size={20} />
               </div>
 
               <div>
-                <h3 className="font-semibold text-white">
+                <h3 className="font-semibold text-foreground">
                   Your AI Performance Analysis
                 </h3>
 
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted-foreground">
                   Generated from your latest performance test
                 </p>
               </div>
@@ -282,22 +282,22 @@ export default function AIPerformanceCard() {
             {/* Overall Assessment */}
 
             {analysis.overall && (
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+              <div className="rounded-2xl border border-border bg-muted/40 p-6">
 
                 <div className="mb-3 flex items-center gap-3">
 
                   <TrendingUp
                     size={20}
-                    className="text-blue-500"
+                    className="text-primary"
                   />
 
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-foreground">
                     Overall Assessment
                   </h4>
 
                 </div>
 
-                <p className="text-sm leading-7 text-zinc-300">
+                <p className="text-sm leading-7 text-foreground/90">
                   {analysis.overall}
                 </p>
 
@@ -310,16 +310,16 @@ export default function AIPerformanceCard() {
 
               {/* Strengths */}
 
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+              <div className="rounded-2xl border border-border bg-muted/40 p-6">
 
                 <div className="mb-4 flex items-center gap-3">
 
                   <TrendingUp
                     size={20}
-                    className="text-emerald-400"
+                    className="text-emerald-600 dark:text-emerald-400"
                   />
 
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-foreground">
                     Strongest Areas
                   </h4>
 
@@ -331,7 +331,7 @@ export default function AIPerformanceCard() {
                     (item, index) => (
                       <div
                         key={index}
-                        className="rounded-xl bg-zinc-800/60 p-4 text-sm leading-6 text-zinc-300"
+                        className="rounded-xl bg-card p-4 text-sm leading-6 text-foreground/90"
                       >
                         {item}
                       </div>
@@ -344,16 +344,16 @@ export default function AIPerformanceCard() {
 
               {/* Improvements */}
 
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+              <div className="rounded-2xl border border-border bg-muted/40 p-6">
 
                 <div className="mb-4 flex items-center gap-3">
 
                   <Target
                     size={20}
-                    className="text-orange-400"
+                    className="text-orange-600 dark:text-orange-400"
                   />
 
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-foreground">
                     Areas to Improve
                   </h4>
 
@@ -365,7 +365,7 @@ export default function AIPerformanceCard() {
                     (item, index) => (
                       <div
                         key={index}
-                        className="rounded-xl bg-zinc-800/60 p-4 text-sm leading-6 text-zinc-300"
+                        className="rounded-xl bg-card p-4 text-sm leading-6 text-foreground/90"
                       >
                         {item}
                       </div>
@@ -380,16 +380,16 @@ export default function AIPerformanceCard() {
 
             {/* Training Recommendations */}
 
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+            <div className="rounded-2xl border border-border bg-muted/40 p-6">
 
               <div className="mb-4 flex items-center gap-3">
 
                 <Dumbbell
                   size={20}
-                  className="text-blue-400"
+                  className="text-primary"
                 />
 
-                <h4 className="font-semibold text-white">
+                <h4 className="font-semibold text-foreground">
                   Training Recommendations
                 </h4>
 
@@ -401,14 +401,14 @@ export default function AIPerformanceCard() {
                   (item, index) => (
                     <div
                       key={index}
-                      className="flex gap-4 rounded-xl bg-zinc-800/60 p-4"
+                      className="flex gap-4 rounded-xl bg-card p-4"
                     >
 
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-600/10 text-sm font-semibold text-blue-400">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
                         {index + 1}
                       </div>
 
-                      <p className="text-sm leading-6 text-zinc-300">
+                      <p className="text-sm leading-6 text-foreground/90">
                         {item}
                       </p>
 
@@ -422,16 +422,16 @@ export default function AIPerformanceCard() {
 
             {/* Recovery Recommendations */}
 
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
+            <div className="rounded-2xl border border-border bg-muted/40 p-6">
 
               <div className="mb-4 flex items-center gap-3">
 
                 <HeartPulse
                   size={20}
-                  className="text-pink-400"
+                  className="text-rose-500"
                 />
 
-                <h4 className="font-semibold text-white">
+                <h4 className="font-semibold text-foreground">
                   Recovery Recommendations
                 </h4>
 
@@ -443,7 +443,7 @@ export default function AIPerformanceCard() {
                   (item, index) => (
                     <div
                       key={index}
-                      className="rounded-xl bg-zinc-800/60 p-4 text-sm leading-6 text-zinc-300"
+                      className="rounded-xl bg-card p-4 text-sm leading-6 text-foreground/90"
                     >
                       {item}
                     </div>
@@ -457,22 +457,22 @@ export default function AIPerformanceCard() {
             {/* Short-Term Goal */}
 
             {analysis.goal && (
-              <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
 
                 <div className="mb-3 flex items-center gap-3">
 
                   <Target
                     size={20}
-                    className="text-blue-400"
+                    className="text-primary"
                   />
 
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-foreground">
                     Short-Term Goal
                   </h4>
 
                 </div>
 
-                <p className="text-sm leading-7 text-zinc-300">
+                <p className="text-sm leading-7 text-foreground/90">
                   {analysis.goal}
                 </p>
 
@@ -486,7 +486,7 @@ export default function AIPerformanceCard() {
               onClick={
                 handleGenerateAnalysis
               }
-              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
+              className="rounded-xl border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent"
             >
               Regenerate Analysis
             </button>

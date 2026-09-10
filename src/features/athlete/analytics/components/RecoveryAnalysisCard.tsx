@@ -156,14 +156,14 @@ export default function RecoveryAnalysisCard() {
 
   if (loading) {
     return (
-      <DashboardCard>
+      <DashboardCard accent="rose">
         <SectionHeading
           title="Recovery Analysis"
           subtitle="Today's recovery metrics"
         />
 
         <div className="mt-8 flex h-64 items-center justify-center">
-          <p className="text-zinc-500">
+          <p className="text-muted-foreground">
             Loading recovery data...
           </p>
         </div>
@@ -172,14 +172,14 @@ export default function RecoveryAnalysisCard() {
   }
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="rose">
       <SectionHeading
         title="Recovery Analysis"
         subtitle="Today's recovery metrics"
       />
 
       {error && (
-        <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+        <div className="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
           {error}
         </div>
       )}
@@ -223,7 +223,7 @@ export default function RecoveryAnalysisCard() {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="w-full rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving
               ? "Saving..."
@@ -234,28 +234,28 @@ export default function RecoveryAnalysisCard() {
         </div>
 
         {/* Recovery Score */}
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8">
-          <p className="text-sm font-medium text-zinc-400">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-muted/50 p-8">
+          <p className="text-sm font-medium text-muted-foreground">
             Recovery Score
           </p>
 
-          <div className="mt-5 flex h-36 w-36 items-center justify-center rounded-full border-8 border-blue-500/20">
+          <div className="mt-5 flex h-36 w-36 items-center justify-center rounded-full border-8 border-rose-500/20">
             <div className="text-center">
-              <p className="text-4xl font-bold text-white">
+              <p className="text-4xl font-bold text-foreground">
                 {recoveryScore}
               </p>
 
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 / 100
               </p>
             </div>
           </div>
 
-          <p className="mt-5 text-sm font-medium text-blue-400">
+          <p className="mt-5 text-sm font-medium text-rose-600 dark:text-rose-400">
             {getRecoveryLabel()}
           </p>
 
-          <p className="mt-2 text-center text-xs leading-5 text-zinc-500">
+          <p className="mt-2 text-center text-xs leading-5 text-muted-foreground">
             Based on today's sleep, hydration,
             energy, and muscle recovery.
           </p>
@@ -282,16 +282,16 @@ function RecoveryMetric({
     <div>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500">
             {icon}
           </div>
 
-          <span className="text-sm font-medium text-zinc-300">
+          <span className="text-sm font-medium text-foreground">
             {label}
           </span>
         </div>
 
-        <span className="text-sm font-semibold text-white">
+        <span className="text-sm font-semibold text-foreground">
           {value}%
         </span>
       </div>
@@ -304,7 +304,7 @@ function RecoveryMetric({
         onChange={(e) =>
           onChange(Number(e.target.value))
         }
-        className="w-full accent-blue-500"
+        className="w-full accent-rose-500"
       />
     </div>
   );

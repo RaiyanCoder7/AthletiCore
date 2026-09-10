@@ -290,7 +290,7 @@ export default function TrainingLoadChart({
       : "Current season";
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="orange">
       <SectionHeading
         title="Training Load"
         subtitle={`${rangeLabel} training intensity`}
@@ -299,62 +299,60 @@ export default function TrainingLoadChart({
       <div className="mt-8 h-80">
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-zinc-500">
+            <p className="text-muted-foreground">
               Loading training load...
             </p>
           </div>
         ) : data.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center">
             <div>
-              <p className="font-medium text-white">
+              <p className="font-medium text-foreground">
                 No training data available
               </p>
 
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Complete training sessions to see your load.
               </p>
             </div>
           </div>
         ) : (
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
-            <BarChart data={data}>
-              <CartesianGrid
-                stroke="#27272a"
-                strokeDasharray="4 4"
-              />
+          <div className="h-full text-muted-foreground [&_.recharts-default-tooltip]:!rounded-xl [&_.recharts-default-tooltip]:!border-border [&_.recharts-default-tooltip]:!bg-card [&_.recharts-default-tooltip]:!text-foreground">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+              <BarChart data={data}>
+                <CartesianGrid
+                  stroke="currentColor"
+                  strokeOpacity={0.15}
+                  strokeDasharray="4 4"
+                />
 
-              <XAxis
-                dataKey="day"
-                stroke="#71717a"
-              />
+                <XAxis
+                  dataKey="day"
+                  stroke="currentColor"
+                />
 
-              <YAxis
-                domain={[0, 100]}
-                stroke="#71717a"
-              />
+                <YAxis
+                  domain={[0, 100]}
+                  stroke="currentColor"
+                />
 
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #3f3f46",
-                  borderRadius: "12px",
-                }}
-                formatter={(value) => [
-                  `${value}%`,
-                  "Training Load",
-                ]}
-              />
+                <Tooltip
+                  formatter={(value) => [
+                    `${value}%`,
+                    "Training Load",
+                  ]}
+                />
 
-              <Bar
-                dataKey="load"
-                fill="#3b82f6"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+                <Bar
+                  dataKey="load"
+                  fill="#f97316"
+                  radius={[8, 8, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </DashboardCard>

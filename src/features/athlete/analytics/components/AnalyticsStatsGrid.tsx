@@ -292,8 +292,7 @@ export default function AnalyticsStatsGrid({
   return (
     <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
-      {/* Overall Rating */}
-
+      {/* Overall Rating — score-based, ring, primary */}
       <StatsCard
         title="Overall Rating"
         value={
@@ -308,13 +307,19 @@ export default function AnalyticsStatsGrid({
             ? "Latest performance test"
             : "No performance data"
         }
-        icon={
-          <TrendingUp size={22} />
+        icon={<TrendingUp size={18} />}
+        accentBg="bg-primary/10"
+        accentText="text-primary"
+        indicator={{
+          type: "ring",
+          percent: overallRating ?? 0,
+        }}
+        subtitleTone={
+          overallRating !== null ? "positive" : "neutral"
         }
       />
 
-      {/* Training Load */}
-
+      {/* Training Load — count-based, bar, orange */}
       <StatsCard
         title="Training Load"
         value={
@@ -331,13 +336,17 @@ export default function AnalyticsStatsGrid({
             ? "Last 30 days"
             : "Current season"
         }
-        icon={
-          <Dumbbell size={22} />
-        }
+        icon={<Dumbbell size={18} />}
+        accentBg="bg-orange-500/10"
+        accentText="text-orange-500"
+        indicator={{
+          type: "bar",
+          percent: trainingLoad ?? 0,
+        }}
+        subtitleTone="neutral"
       />
 
-      {/* Recovery */}
-
+      {/* Recovery — score-based, ring, rose */}
       <StatsCard
         title="Recovery"
         value={
@@ -352,13 +361,19 @@ export default function AnalyticsStatsGrid({
             ? "Today's recovery"
             : "No recovery data"
         }
-        icon={
-          <HeartPulse size={22} />
+        icon={<HeartPulse size={18} />}
+        accentBg="bg-rose-500/10"
+        accentText="text-rose-500"
+        indicator={{
+          type: "ring",
+          percent: recovery ?? 0,
+        }}
+        subtitleTone={
+          recovery !== null ? "positive" : "neutral"
         }
       />
 
-      {/* Sessions */}
-
+      {/* Sessions — count-based, emerald */}
       <StatsCard
         title="Sessions"
         value={
@@ -369,9 +384,9 @@ export default function AnalyticsStatsGrid({
             : "0"
         }
         subtitle={sessionsSubtitle}
-        icon={
-          <Activity size={22} />
-        }
+        icon={<Activity size={18} />}
+        accentBg="bg-emerald-500/10"
+        accentText="text-emerald-500"
       />
 
     </section>

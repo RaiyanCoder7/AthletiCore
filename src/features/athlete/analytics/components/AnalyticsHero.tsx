@@ -30,44 +30,71 @@ export default function AnalyticsHero({
   ];
 
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-800 p-8">
-      <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/10 px-4 py-2 text-sm text-blue-400">
-        <BarChart3 size={16} />
-        Analytics Dashboard
-      </div>
+    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white lg:p-8">
 
-      <h1 className="mt-6 text-5xl font-bold text-white">
-        Performance Analytics
-      </h1>
+      {/* Diagonal texture — consistent with the dashboard hero and auth pages */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            id="analytics-hero-diagonal"
+            width="24"
+            height="24"
+            patternTransform="rotate(35)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line x1="0" y1="0" x2="0" y2="24" stroke="white" strokeWidth="8" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#analytics-hero-diagonal)" />
+      </svg>
 
-      <p className="mt-4 max-w-3xl text-lg leading-8 text-zinc-400">
-        Analyse your performance trends, monitor recovery,
-        compare weekly progress and gain insights from your
-        training sessions.
-      </p>
+      {/* Background glow */}
+      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/15 blur-3xl" />
 
-      <div className="mt-8 flex flex-wrap gap-4">
-        {ranges.map((item) => {
-          const isActive =
-            range === item.id;
+      <div className="relative max-w-2xl">
 
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() =>
-                onRangeChange(item.id)
-              }
-              className={
-                isActive
-                  ? "rounded-xl bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-500"
-                  : "rounded-xl border border-zinc-700 px-5 py-3 font-medium text-zinc-300 transition hover:border-blue-500 hover:text-white"
-              }
-            >
-              {item.label}
-            </button>
-          );
-        })}
+        {/* Badge pill */}
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-blue-100 backdrop-blur">
+          <BarChart3 size={13} />
+          Analytics Dashboard
+        </div>
+
+        {/* Heading */}
+        <h1 className="text-3xl font-bold leading-tight lg:text-4xl">
+          Performance Analytics
+        </h1>
+
+        {/* Description */}
+        <p className="mt-3 max-w-lg text-sm leading-6 text-blue-100 lg:text-base">
+          Analyse your performance trends, monitor recovery, and
+          compare weekly progress with insights from your training
+          sessions.
+        </p>
+
+        {/* Range toggle */}
+        <div className="relative mt-6 flex flex-wrap gap-3">
+          {ranges.map((item) => {
+            const isActive = range === item.id;
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onRangeChange(item.id)}
+                className={
+                  isActive
+                    ? "rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-50"
+                    : "rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
+                }
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
