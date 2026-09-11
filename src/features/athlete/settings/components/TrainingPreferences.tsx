@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   ChevronDown,
   Clock,
-  Dumbbell,
   Gauge,
   HeartPulse,
   Loader2,

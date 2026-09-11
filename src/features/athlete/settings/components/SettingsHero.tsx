@@ -1,5 +1,4 @@
 import {
-  Settings,
   ShieldCheck,
   UserRound,
   Sliders,

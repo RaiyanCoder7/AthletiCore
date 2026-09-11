@@ -9,7 +9,7 @@ interface GoalsHeroProps {
 }
 
 export default function GoalsHero({
-  goals,
+ 
 }: GoalsHeroProps) {
   return (
     <DashboardCard className="relative overflow-hidden border-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white lg:p-10">
