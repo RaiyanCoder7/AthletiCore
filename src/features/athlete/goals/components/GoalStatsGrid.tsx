@@ -63,56 +63,93 @@ export default function GoalStatsGrid({
   const needsAttention =
     activeGoals.length - goalsOnTrack;
 
-  const stats = [
-    {
-      title: "Active Goals",
-      value: loading
-        ? "..."
-        : String(activeGoals.length),
-      subtitle: loading
-        ? "Loading..."
-        : `${dueThisWeek} due this week`,
-      icon: <Target size={22} />,
-    },
-    {
-      title: "Completed Goals",
-      value: loading
-        ? "..."
-        : String(completedGoals.length),
-      subtitle: "Successfully completed",
-      icon: <Trophy size={22} />,
-    },
-    {
-      title: "Average Progress",
-      value: loading
-        ? "..."
-        : `${averageProgress}%`,
-      subtitle: "Across all goals",
-      icon: <TrendingUp size={22} />,
-    },
-    {
-      title: "Goals On Track",
-      value: loading
-        ? "..."
-        : String(goalsOnTrack),
-      subtitle: loading
-        ? "Loading..."
-        : `${needsAttention} needs attention`,
-      icon: <Clock size={22} />,
-    },
-  ];
+  const completionRate = goals.length
+    ? Math.round(
+        (completedGoals.length / goals.length) * 100
+      )
+    : 0;
+
+  const onTrackRate = activeGoals.length
+    ? Math.round(
+        (goalsOnTrack / activeGoals.length) * 100
+      )
+    : 0;
 
   return (
     <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-      {stats.map((stat) => (
-        <StatsCard
-          key={stat.title}
-          title={stat.title}
-          value={stat.value}
-          subtitle={stat.subtitle}
-          icon={stat.icon}
-        />
-      ))}
+
+      {/* Active Goals — primary */}
+      <StatsCard
+        title="Active Goals"
+        value={
+          loading ? "..." : String(activeGoals.length)
+        }
+        subtitle={
+          loading
+            ? "Loading..."
+            : `${dueThisWeek} due this week`
+        }
+        icon={<Target size={18} />}
+        accentBg="bg-primary/10"
+        accentText="text-primary"
+        subtitleTone="neutral"
+      />
+
+      {/* Completed Goals — emerald, ring (completion rate) */}
+      <StatsCard
+        title="Completed Goals"
+        value={
+          loading
+            ? "..."
+            : String(completedGoals.length)
+        }
+        subtitle="Successfully completed"
+        icon={<Trophy size={18} />}
+        accentBg="bg-emerald-500/10"
+        accentText="text-emerald-500"
+        indicator={{
+          type: "ring",
+          percent: completionRate,
+        }}
+      />
+
+      {/* Average Progress — indigo, ring (the value itself) */}
+      <StatsCard
+        title="Average Progress"
+        value={
+          loading ? "..." : `${averageProgress}%`
+        }
+        subtitle="Across all goals"
+        icon={<TrendingUp size={18} />}
+        accentBg="bg-indigo-500/10"
+        accentText="text-indigo-500"
+        indicator={{
+          type: "ring",
+          percent: averageProgress,
+        }}
+      />
+
+      {/* Goals On Track — orange, bar (on-track rate) */}
+      <StatsCard
+        title="Goals On Track"
+        value={
+          loading ? "..." : String(goalsOnTrack)
+        }
+        subtitle={
+          loading
+            ? "Loading..."
+            : `${needsAttention} needs attention`
+        }
+        icon={<Clock size={18} />}
+        accentBg="bg-orange-500/10"
+        accentText="text-orange-500"
+        indicator={{
+          type: "bar",
+          percent: onTrackRate,
+        }}
+        subtitleTone="neutral"
+      />
+
     </section>
   );
 }

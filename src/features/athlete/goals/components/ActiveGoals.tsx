@@ -49,7 +49,7 @@ function getStatusStyle(progress: number) {
     return {
       label: "Excellent",
       className:
-        "bg-emerald-500/10 text-emerald-400",
+        "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
     };
   }
 
@@ -57,14 +57,14 @@ function getStatusStyle(progress: number) {
     return {
       label: "On Track",
       className:
-        "bg-blue-500/10 text-blue-400",
+        "bg-primary/10 text-primary",
     };
   }
 
   return {
     label: "Needs Attention",
     className:
-      "bg-yellow-500/10 text-yellow-400",
+      "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
   };
 }
 
@@ -174,23 +174,25 @@ export default function ActiveGoals({
       />
 
       {loading ? (
-        <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-          <p className="text-zinc-500">
+        <div className="mt-6 rounded-2xl border border-border bg-muted/50 p-8 text-center">
+          <p className="text-muted-foreground">
             Loading your goals...
           </p>
         </div>
       ) : activeGoals.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/30 p-10 text-center">
-          <Target
-            size={32}
-            className="mx-auto text-zinc-600"
-          />
+        <div className="mt-6 rounded-2xl border border-dashed border-border bg-muted/30 p-10 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
+            <Target
+              size={24}
+              className="text-emerald-500"
+            />
+          </div>
 
-          <h3 className="mt-4 font-semibold text-white">
+          <h3 className="mt-4 font-semibold text-foreground">
             No active goals
           </h3>
 
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             Create a new goal below to start tracking
             your progress.
           </p>
@@ -206,20 +208,20 @@ export default function ActiveGoals({
               editingGoalId === goal.id;
 
             return (
-              <DashboardCard key={goal.id}>
+              <DashboardCard key={goal.id} accent="emerald">
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-xl bg-blue-500/10 p-3 text-blue-400">
+                    <div className="rounded-xl bg-emerald-500/10 p-3 text-emerald-500">
                       {getGoalIcon(goal.type)}
                     </div>
 
                     <div>
-                      <h3 className="font-semibold text-white">
+                      <h3 className="font-semibold text-foreground">
                         {goal.name}
                       </h3>
 
-                      <p className="mt-1 text-sm text-zinc-400">
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {goal.description}
                       </p>
                     </div>
@@ -235,18 +237,18 @@ export default function ActiveGoals({
                 {/* Progress */}
                 <div className="mt-7">
                   <div className="mb-2 flex items-center justify-between text-sm">
-                    <span className="text-zinc-400">
+                    <span className="text-muted-foreground">
                       Progress
                     </span>
 
-                    <span className="font-semibold text-white">
+                    <span className="font-semibold text-foreground">
                       {goal.progress}%
                     </span>
                   </div>
 
-                  <div className="h-2.5 overflow-hidden rounded-full bg-zinc-800">
+                  <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-500"
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-teal-400 transition-all duration-500"
                       style={{
                         width: `${Math.min(
                           goal.progress,
@@ -260,34 +262,34 @@ export default function ActiveGoals({
                 {/* Current / Target */}
                 <div className="mt-5 flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground">
                       Current
                     </p>
 
-                    <p className="mt-1 font-semibold text-white">
+                    <p className="mt-1 font-semibold text-foreground">
                       {goal.current}
                     </p>
                   </div>
 
                   <div className="text-right">
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground">
                       Target
                     </p>
 
-                    <p className="mt-1 font-semibold text-white">
+                    <p className="mt-1 font-semibold text-foreground">
                       {goal.target}
                     </p>
                   </div>
                 </div>
 
                 {/* Deadline */}
-                <div className="mt-5 border-t border-zinc-800 pt-4">
+                <div className="mt-5 border-t border-border pt-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-zinc-500">
+                    <span className="text-muted-foreground">
                       Deadline
                     </span>
 
-                    <span className="font-medium text-zinc-300">
+                    <span className="font-medium text-foreground">
                       {new Date(
                         `${goal.deadline}T00:00:00`
                       ).toLocaleDateString(
@@ -309,7 +311,7 @@ export default function ActiveGoals({
                     onClick={() =>
                       openUpdateForm(goal)
                     }
-                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
                   >
                     <Pencil size={16} />
                     Update Progress
@@ -318,9 +320,9 @@ export default function ActiveGoals({
 
                 {/* Update Form */}
                 {isEditing && (
-                  <div className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
+                  <div className="mt-5 rounded-2xl border border-border bg-muted/70 p-5">
                     <div className="mb-4 flex items-center justify-between">
-                      <h4 className="font-semibold text-white">
+                      <h4 className="font-semibold text-foreground">
                         Update Goal Progress
                       </h4>
 
@@ -328,14 +330,14 @@ export default function ActiveGoals({
                         type="button"
                         onClick={closeUpdateForm}
                         disabled={saving}
-                        className="rounded-lg p-2 text-zinc-500 transition hover:bg-zinc-800 hover:text-white"
+                        className="rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
                       >
                         <X size={18} />
                       </button>
                     </div>
 
                     {error && (
-                      <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                      <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
                         {error}
                       </div>
                     )}
@@ -343,7 +345,7 @@ export default function ActiveGoals({
                     <div className="grid gap-4 sm:grid-cols-2">
                       {/* Current Value */}
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-zinc-300">
+                        <label className="mb-2 block text-sm font-medium text-foreground">
                           Current Value
                         </label>
 
@@ -357,13 +359,13 @@ export default function ActiveGoals({
                           }
                           placeholder="e.g. 12.4s"
                           disabled={saving}
-                          className="w-full rounded-xl border border-zinc-800 bg-zinc-800/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500 disabled:opacity-50"
+                          className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary disabled:opacity-50"
                         />
                       </div>
 
                       {/* Progress */}
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-zinc-300">
+                        <label className="mb-2 block text-sm font-medium text-foreground">
                           Progress (%)
                         </label>
 
@@ -378,12 +380,12 @@ export default function ActiveGoals({
                             )
                           }
                           disabled={saving}
-                          className="w-full rounded-xl border border-zinc-800 bg-zinc-800/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500 disabled:opacity-50"
+                          className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary disabled:opacity-50"
                         />
                       </div>
                     </div>
 
-                    <p className="mt-3 text-xs text-zinc-500">
+                    <p className="mt-3 text-xs text-muted-foreground">
                       Setting progress to 100% will
                       automatically complete this goal.
                     </p>
@@ -394,7 +396,7 @@ export default function ActiveGoals({
                         type="button"
                         onClick={closeUpdateForm}
                         disabled={saving}
-                        className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-accent disabled:opacity-50"
                       >
                         Cancel
                       </button>
@@ -405,7 +407,7 @@ export default function ActiveGoals({
                           handleUpdate(goal)
                         }
                         disabled={saving}
-                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Save size={16} />
                         {saving
