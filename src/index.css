@@ -6,6 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Surfaces & Base Layout */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
 
@@ -15,6 +16,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
 
+  /* Primary Brand & Accents */
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
 
@@ -35,6 +37,24 @@
 
   --radius: 0.75rem;
 
+  /* Domain Category Color Tokens (Light Mode) */
+  --domain-training: oklch(0.646 0.222 41.116);            /* Vibrant Athletic Orange */
+  --domain-training-foreground: oklch(0.985 0 0);
+  --domain-training-muted: oklch(0.96 0.04 41.116);
+
+  --domain-recovery: oklch(0.627 0.265 16.439);            /* Rest & Biometric Rose */
+  --domain-recovery-foreground: oklch(0.985 0 0);
+  --domain-recovery-muted: oklch(0.96 0.04 16.439);
+
+  --domain-goals: oklch(0.627 0.194 149.214);              /* Achievement Emerald */
+  --domain-goals-foreground: oklch(0.985 0 0);
+  --domain-goals-muted: oklch(0.96 0.04 149.214);
+
+  --domain-competition: oklch(0.769 0.188 70.08);          /* Match / Trophy Amber */
+  --domain-competition-foreground: oklch(0.205 0 0);
+  --domain-competition-muted: oklch(0.97 0.04 70.08);
+
+  /* Sidebar Tokens */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -46,6 +66,7 @@
 }
 
 .dark {
+  /* Surfaces & Base Layout (Dark Mode) */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
 
@@ -55,6 +76,7 @@
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
 
+  /* Primary Brand & Accents */
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
 
@@ -73,6 +95,24 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
 
+  /* Domain Category Color Tokens (Dark Mode) */
+  --domain-training: oklch(0.705 0.213 47.604);
+  --domain-training-foreground: oklch(0.145 0 0);
+  --domain-training-muted: oklch(0.25 0.05 47.604);
+
+  --domain-recovery: oklch(0.696 0.22 16.439);
+  --domain-recovery-foreground: oklch(0.145 0 0);
+  --domain-recovery-muted: oklch(0.25 0.05 16.439);
+
+  --domain-goals: oklch(0.696 0.17 149.214);
+  --domain-goals-foreground: oklch(0.145 0 0);
+  --domain-goals-muted: oklch(0.25 0.05 149.214);
+
+  --domain-competition: oklch(0.82 0.16 70.08);
+  --domain-competition-foreground: oklch(0.145 0 0);
+  --domain-competition-muted: oklch(0.25 0.05 70.08);
+
+  /* Sidebar Tokens */
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -84,7 +124,7 @@
 }
 
 @theme inline {
-  --font-sans: "Geist Variable", sans-serif;
+  --font-sans: "Geist Variable", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -113,6 +153,23 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Domain Utility Exposure */
+  --color-training: var(--domain-training);
+  --color-training-foreground: var(--domain-training-foreground);
+  --color-training-muted: var(--domain-training-muted);
+
+  --color-recovery: var(--domain-recovery);
+  --color-recovery-foreground: var(--domain-recovery-foreground);
+  --color-recovery-muted: var(--domain-recovery-muted);
+
+  --color-goals: var(--domain-goals);
+  --color-goals-foreground: var(--domain-goals-foreground);
+  --color-goals-muted: var(--domain-goals-muted);
+
+  --color-competition: var(--domain-competition);
+  --color-competition-foreground: var(--domain-competition-foreground);
+  --color-competition-muted: var(--domain-competition-muted);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -133,17 +190,40 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   html,
   body,
   #root {
+    min-height: 100%;
     width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
-    overflow: hidden;
+    @apply bg-background text-foreground font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Custom Theme-Aware Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.25);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.45);
   }
 }
