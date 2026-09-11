@@ -120,12 +120,12 @@ export default function WeeklyTrainingSchedule() {
   }, []);
 
   return (
-    <DashboardCard id="weekly-training-schedule">
+    <DashboardCard id="weekly-training-schedule" accent="orange">
       <SectionHeading
         title="Weekly Training Schedule"
         subtitle="Your planned workouts for this week"
         action={
-          <div className="rounded-xl bg-blue-500/10 p-3 text-blue-400">
+          <div className="rounded-xl bg-orange-500/10 p-3 text-orange-500">
             <CalendarDays size={20} />
           </div>
         }
@@ -133,21 +133,23 @@ export default function WeeklyTrainingSchedule() {
 
       <div className="mt-8 space-y-3">
         {loading ? (
-          <div className="py-10 text-center text-zinc-500">
+          <div className="py-10 text-center text-muted-foreground">
             Loading training schedule...
           </div>
         ) : schedule.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-800 py-10 text-center">
-            <Dumbbell
-              className="mx-auto mb-3 text-zinc-600"
-              size={32}
-            />
+          <div className="rounded-2xl border border-dashed border-border py-10 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/10">
+              <Dumbbell
+                className="text-orange-500"
+                size={22}
+              />
+            </div>
 
-            <p className="font-medium text-zinc-400">
+            <p className="font-medium text-foreground">
               No training sessions this week
             </p>
 
-            <p className="mt-1 text-sm text-zinc-600">
+            <p className="mt-1 text-sm text-muted-foreground">
               Add a training session to build your
               weekly plan.
             </p>
@@ -163,12 +165,12 @@ export default function WeeklyTrainingSchedule() {
             return (
               <div
                 key={item.id}
-                className="flex flex-col gap-4 rounded-2xl border border-zinc-800 bg-zinc-800/40 p-4 transition hover:border-blue-500/40 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-4 rounded-2xl border border-border bg-muted/40 p-4 transition hover:border-orange-500/40 sm:flex-row sm:items-center sm:justify-between"
               >
                 {/* Date */}
                 <div className="flex min-w-40 items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-zinc-800">
-                    <span className="text-[10px] font-medium uppercase text-zinc-500">
+                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-muted">
+                    <span className="text-[10px] font-medium uppercase text-muted-foreground">
                       {sessionDate.toLocaleDateString(
                         "en-US",
                         {
@@ -177,13 +179,13 @@ export default function WeeklyTrainingSchedule() {
                       )}
                     </span>
 
-                    <span className="text-lg font-bold leading-none text-white">
+                    <span className="text-lg font-bold leading-none text-foreground">
                       {sessionDate.getDate()}
                     </span>
                   </div>
 
                   <div>
-                    <p className="font-semibold text-white">
+                    <p className="font-semibold text-foreground">
                       {item.day ||
                         sessionDate.toLocaleDateString(
                           "en-US",
@@ -193,7 +195,7 @@ export default function WeeklyTrainingSchedule() {
                         )}
                     </p>
 
-                    <p className="text-sm text-zinc-500">
+                    <p className="text-sm text-muted-foreground">
                       {item.type}
                     </p>
                   </div>
@@ -201,16 +203,16 @@ export default function WeeklyTrainingSchedule() {
 
                 {/* Workout */}
                 <div className="flex flex-1 items-center gap-3">
-                  <div className="hidden rounded-xl bg-blue-500/10 p-3 text-blue-400 sm:block">
+                  <div className="hidden rounded-xl bg-orange-500/10 p-3 text-orange-500 sm:block">
                     <Dumbbell size={18} />
                   </div>
 
                   <div>
-                    <p className="font-medium text-white">
+                    <p className="font-medium text-foreground">
                       {item.workout}
                     </p>
 
-                    <div className="mt-1 flex items-center gap-2 text-sm text-zinc-500">
+                    <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock size={14} />
 
                       <span>
@@ -224,16 +226,16 @@ export default function WeeklyTrainingSchedule() {
                 <span
                   className={`w-fit rounded-full px-3 py-1 text-xs font-medium ${
                     status === "Completed"
-                      ? "bg-emerald-500/10 text-emerald-400"
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                       : status === "In Progress"
-                        ? "bg-blue-500/10 text-blue-400"
+                        ? "bg-orange-500/10 text-orange-600 dark:text-orange-400"
                         : status === "Today"
-                          ? "bg-blue-500/10 text-blue-400"
+                          ? "bg-primary/10 text-primary"
                           : status === "Missed"
-                            ? "bg-red-500/10 text-red-400"
+                            ? "bg-red-500/10 text-red-600 dark:text-red-400"
                             : status === "Rest"
-                              ? "bg-zinc-700 text-zinc-400"
-                              : "bg-yellow-500/10 text-yellow-400"
+                              ? "bg-muted text-muted-foreground"
+                              : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
                   }`}
                 >
                   {status}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Activity,
-  HeartPulse,
+  Flame,
   Zap,
 } from "lucide-react";
 
@@ -92,30 +92,30 @@ export default function TrainingIntensityCard() {
   );
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="orange">
       <SectionHeading
         title="Training Intensity"
         subtitle="Distribution of your training activities"
         action={
-          <div className="rounded-xl bg-red-500/10 p-3 text-red-400">
-            <HeartPulse size={20} />
+          <div className="rounded-xl bg-orange-500/10 p-3 text-orange-500">
+            <Flame size={20} />
           </div>
         }
       />
 
       {/* Current Training Focus */}
-      <div className="mt-8 flex items-center justify-between rounded-2xl bg-zinc-800/60 p-5">
+      <div className="mt-8 flex items-center justify-between rounded-2xl bg-muted/60 p-5">
         <div className="flex items-center gap-4">
-          <div className="rounded-xl bg-red-500/10 p-3 text-red-400">
+          <div className="rounded-xl bg-orange-500/10 p-3 text-orange-500">
             <Activity size={22} />
           </div>
 
           <div>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-muted-foreground">
               Current Training Focus
             </p>
 
-            <p className="mt-1 text-2xl font-bold text-white">
+            <p className="mt-1 text-2xl font-bold text-foreground">
               {loading
                 ? "..."
                 : totalSessions === 0
@@ -125,7 +125,7 @@ export default function TrainingIntensityCard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-blue-400">
+        <div className="flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400">
           <Zap size={16} />
 
           {loading
@@ -144,16 +144,16 @@ export default function TrainingIntensityCard() {
           return (
             <div key={type.name}>
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-medium text-white">
+                <span className="text-sm font-medium text-foreground">
                   {type.name}
                 </span>
 
-                <span className="text-sm font-medium text-zinc-300">
+                <span className="text-sm font-medium text-foreground">
                   {percentage}%
                 </span>
               </div>
 
-              <div className="h-2.5 overflow-hidden rounded-full bg-zinc-800">
+              <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                 <div
                   className={`h-full rounded-full ${type.color} transition-all duration-500`}
                   style={{

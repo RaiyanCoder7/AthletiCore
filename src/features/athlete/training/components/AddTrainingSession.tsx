@@ -104,16 +104,16 @@ export default function AddTrainingSession({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-background p-6 shadow-2xl">
 
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold text-foreground">
               Add Training Session
             </h2>
 
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Add a workout to your training schedule.
             </p>
           </div>
@@ -121,7 +121,7 @@ export default function AddTrainingSession({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+            className="rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
           >
             <X size={20} />
           </button>
@@ -134,7 +134,7 @@ export default function AddTrainingSession({
         >
           {/* Workout */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-300">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Workout
             </label>
 
@@ -143,13 +143,13 @@ export default function AddTrainingSession({
               value={form.workout}
               onChange={handleChange}
               placeholder="e.g. Sprint Training"
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary"
             />
           </div>
 
           {/* Date */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-zinc-300">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Date
             </label>
 
@@ -158,14 +158,14 @@ export default function AddTrainingSession({
               name="date"
               value={form.date}
               onChange={handleChange}
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
             />
           </div>
 
           {/* Time + Duration */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Time
               </label>
 
@@ -174,12 +174,12 @@ export default function AddTrainingSession({
                 name="time"
                 value={form.time}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Duration
               </label>
 
@@ -189,7 +189,7 @@ export default function AddTrainingSession({
                 value={form.duration}
                 onChange={handleChange}
                 placeholder="60 mins"
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function AddTrainingSession({
           {/* Type + Status */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Type
               </label>
 
@@ -205,7 +205,7 @@ export default function AddTrainingSession({
                 name="type"
                 value={form.type}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none focus:border-primary"
               >
                 <option value="Strength">Strength</option>
                 <option value="Speed">Speed</option>
@@ -216,7 +216,7 @@ export default function AddTrainingSession({
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-300">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Status
               </label>
 
@@ -224,7 +224,7 @@ export default function AddTrainingSession({
                 name="status"
                 value={form.status}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-white outline-none focus:border-blue-500"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none focus:border-primary"
               >
                 <option value="Upcoming">Upcoming</option>
                 <option value="Today">Today</option>
@@ -239,7 +239,7 @@ export default function AddTrainingSession({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl bg-zinc-800 px-5 py-3 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-700"
+              className="rounded-xl border border-border px-5 py-3 text-sm font-medium text-foreground transition hover:bg-accent"
             >
               Cancel
             </button>
@@ -247,7 +247,7 @@ export default function AddTrainingSession({
             <button
               type="submit"
               disabled={loading}
-              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Saving..." : "Save Session"}
             </button>

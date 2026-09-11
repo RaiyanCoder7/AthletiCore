@@ -162,8 +162,8 @@ export default function WorkoutSessionCards() {
           subtitle="Recent and active training sessions"
         />
 
-        <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-          <p className="text-zinc-400">
+        <div className="mt-6 rounded-2xl border border-border bg-muted/50 p-8 text-center">
+          <p className="text-muted-foreground">
             Loading workout sessions...
           </p>
         </div>
@@ -183,17 +183,19 @@ export default function WorkoutSessionCards() {
           subtitle="Recent and active training sessions"
         />
 
-        <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-          <Dumbbell
-            size={32}
-            className="mx-auto text-zinc-600"
-          />
+        <div className="mt-6 rounded-2xl border border-border bg-muted/50 p-8 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10">
+            <Dumbbell
+              size={24}
+              className="text-orange-500"
+            />
+          </div>
 
-          <p className="mt-4 font-medium text-white">
+          <p className="mt-4 font-medium text-foreground">
             No workout sessions yet
           </p>
 
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Add a training session to see it here.
           </p>
         </div>
@@ -231,44 +233,45 @@ export default function WorkoutSessionCards() {
               <DashboardCard
                 key={workout.id}
                 className="group"
+                accent="orange"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between">
-                  <div className="rounded-2xl bg-blue-500/10 p-3 text-blue-400">
+                  <div className="rounded-2xl bg-orange-500/10 p-3 text-orange-500">
                     <Dumbbell size={22} />
                   </div>
 
                   {isCompleted ? (
                     <CheckCircle2
                       size={20}
-                      className="text-emerald-400"
+                      className="text-emerald-500"
                     />
                   ) : (
                     <Activity
                       size={20}
                       className={
                         isInProgress
-                          ? "animate-pulse text-blue-400"
-                          : "text-yellow-400"
+                          ? "animate-pulse text-orange-500"
+                          : "text-yellow-600 dark:text-yellow-400"
                       }
                     />
                   )}
                 </div>
 
                 {/* Title */}
-                <h3 className="mt-6 text-lg font-semibold text-white">
+                <h3 className="mt-6 text-lg font-semibold text-foreground">
                   {workout.workout}
                 </h3>
 
-                <p className="mt-1 text-sm text-zinc-500">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {workout.type}
                 </p>
 
                 {/* Details */}
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   {/* Duration */}
-                  <div className="rounded-xl bg-zinc-800/60 p-3">
-                    <div className="flex items-center gap-2 text-zinc-500">
+                  <div className="rounded-xl bg-muted/60 p-3">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Clock size={14} />
 
                       <span className="text-xs">
@@ -276,14 +279,14 @@ export default function WorkoutSessionCards() {
                       </span>
                     </div>
 
-                    <p className="mt-1 font-medium text-white">
+                    <p className="mt-1 font-medium text-foreground">
                       {workout.duration}
                     </p>
                   </div>
 
                   {/* Time */}
-                  <div className="rounded-xl bg-zinc-800/60 p-3">
-                    <div className="flex items-center gap-2 text-zinc-500">
+                  <div className="rounded-xl bg-muted/60 p-3">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Clock size={14} />
 
                       <span className="text-xs">
@@ -291,14 +294,14 @@ export default function WorkoutSessionCards() {
                       </span>
                     </div>
 
-                    <p className="mt-1 font-medium text-white">
+                    <p className="mt-1 font-medium text-foreground">
                       {workout.time}
                     </p>
                   </div>
 
                   {/* Type */}
-                  <div className="rounded-xl bg-zinc-800/60 p-3">
-                    <div className="flex items-center gap-2 text-zinc-500">
+                  <div className="rounded-xl bg-muted/60 p-3">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Dumbbell size={14} />
 
                       <span className="text-xs">
@@ -306,14 +309,14 @@ export default function WorkoutSessionCards() {
                       </span>
                     </div>
 
-                    <p className="mt-1 font-medium text-white">
+                    <p className="mt-1 font-medium text-foreground">
                       {workout.type}
                     </p>
                   </div>
 
                   {/* Status */}
-                  <div className="rounded-xl bg-zinc-800/60 p-3">
-                    <div className="flex items-center gap-2 text-zinc-500">
+                  <div className="rounded-xl bg-muted/60 p-3">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Activity size={14} />
 
                       <span className="text-xs">
@@ -324,10 +327,10 @@ export default function WorkoutSessionCards() {
                     <p
                       className={`mt-1 font-medium ${
                         isCompleted
-                          ? "text-emerald-400"
+                          ? "text-emerald-600 dark:text-emerald-400"
                           : isInProgress
-                            ? "text-blue-400"
-                            : "text-yellow-400"
+                            ? "text-orange-600 dark:text-orange-400"
+                            : "text-yellow-600 dark:text-yellow-400"
                       }`}
                     >
                       {workout.status}
@@ -338,21 +341,21 @@ export default function WorkoutSessionCards() {
                 {/* Progress */}
                 <div className="mt-6">
                   <div className="mb-2 flex justify-between">
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-muted-foreground">
                       Progress
                     </span>
 
-                    <span className="text-xs font-medium text-zinc-300">
+                    <span className="text-xs font-medium text-foreground">
                       {progress}%
                     </span>
                   </div>
 
-                  <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         isCompleted
                           ? "bg-emerald-500"
-                          : "bg-blue-500"
+                          : "bg-orange-500"
                       }`}
                       style={{
                         width: `${progress}%`,
@@ -369,8 +372,8 @@ export default function WorkoutSessionCards() {
                   }
                   className={`mt-6 w-full rounded-xl py-3 text-sm font-semibold transition ${
                     isCompleted
-                      ? "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                      : "bg-blue-600 text-white hover:bg-blue-500"
+                      ? "bg-muted text-foreground hover:bg-accent"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
                   }`}
                 >
                   {isCompleted
@@ -388,21 +391,21 @@ export default function WorkoutSessionCards() {
       {/* Workout Modal */}
       {selectedWorkout && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-2xl">
 
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-blue-500/10 p-3 text-blue-400">
+                <div className="rounded-xl bg-orange-500/10 p-3 text-orange-500">
                   <Dumbbell size={22} />
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-xl font-bold text-foreground">
                     {selectedWorkout.workout}
                   </h2>
 
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-muted-foreground">
                     {selectedWorkout.type}
                   </p>
                 </div>
@@ -413,7 +416,7 @@ export default function WorkoutSessionCards() {
                 onClick={() =>
                   setSelectedWorkout(null)
                 }
-                className="rounded-xl p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+                className="rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
               >
                 <X size={20} />
               </button>
@@ -421,38 +424,38 @@ export default function WorkoutSessionCards() {
 
             {/* Details */}
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-zinc-900 p-4">
-                <p className="text-xs text-zinc-500">
+              <div className="rounded-xl bg-card p-4">
+                <p className="text-xs text-muted-foreground">
                   Date
                 </p>
 
-                <p className="mt-1 font-medium text-white">
+                <p className="mt-1 font-medium text-foreground">
                   {selectedWorkout.date}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-zinc-900 p-4">
-                <p className="text-xs text-zinc-500">
+              <div className="rounded-xl bg-card p-4">
+                <p className="text-xs text-muted-foreground">
                   Time
                 </p>
 
-                <p className="mt-1 font-medium text-white">
+                <p className="mt-1 font-medium text-foreground">
                   {selectedWorkout.time}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-zinc-900 p-4">
-                <p className="text-xs text-zinc-500">
+              <div className="rounded-xl bg-card p-4">
+                <p className="text-xs text-muted-foreground">
                   Duration
                 </p>
 
-                <p className="mt-1 font-medium text-white">
+                <p className="mt-1 font-medium text-foreground">
                   {selectedWorkout.duration}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-zinc-900 p-4">
-                <p className="text-xs text-zinc-500">
+              <div className="rounded-xl bg-card p-4">
+                <p className="text-xs text-muted-foreground">
                   Status
                 </p>
 
@@ -460,11 +463,11 @@ export default function WorkoutSessionCards() {
                   className={`mt-1 font-medium ${
                     selectedWorkout.status ===
                     "Completed"
-                      ? "text-emerald-400"
+                      ? "text-emerald-600 dark:text-emerald-400"
                       : selectedWorkout.status ===
                         "In Progress"
-                        ? "text-blue-400"
-                        : "text-yellow-400"
+                        ? "text-orange-600 dark:text-orange-400"
+                        : "text-yellow-600 dark:text-yellow-400"
                   }`}
                 >
                   {selectedWorkout.status}
@@ -478,14 +481,14 @@ export default function WorkoutSessionCards() {
               <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 text-center">
                 <CheckCircle2
                   size={32}
-                  className="mx-auto text-emerald-400"
+                  className="mx-auto text-emerald-500"
                 />
 
-                <h3 className="mt-3 font-semibold text-white">
+                <h3 className="mt-3 font-semibold text-foreground">
                   Workout Completed
                 </h3>
 
-                <p className="mt-1 text-sm text-zinc-500">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Great job! This training session has
                   been completed.
                 </p>
@@ -509,7 +512,7 @@ export default function WorkoutSessionCards() {
                     type="button"
                     disabled={actionLoading}
                     onClick={handleStartWorkout}
-                    className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {actionLoading
                       ? "Starting..."

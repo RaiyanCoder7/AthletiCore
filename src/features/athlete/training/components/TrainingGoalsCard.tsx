@@ -18,6 +18,8 @@ interface Goal {
   unit: string;
   icon: React.ReactNode;
   color: string;
+  iconBg: string;
+  iconText: string;
 }
 
 export default function TrainingGoalsCard() {
@@ -134,7 +136,9 @@ export default function TrainingGoalsCard() {
             target: 6,
             unit: "sessions",
             icon: <Target size={20} />,
-            color: "bg-blue-500",
+            color: "bg-primary",
+            iconBg: "bg-primary/10",
+            iconText: "text-primary",
           },
           {
             title: "Training Hours",
@@ -145,6 +149,8 @@ export default function TrainingGoalsCard() {
             unit: "hours",
             icon: <Zap size={20} />,
             color: "bg-violet-500",
+            iconBg: "bg-violet-500/10",
+            iconText: "text-violet-500",
           },
           {
             title: "Completed Workouts",
@@ -154,6 +160,8 @@ export default function TrainingGoalsCard() {
             unit: "sessions",
             icon: <Trophy size={20} />,
             color: "bg-amber-500",
+            iconBg: "bg-amber-500/10",
+            iconText: "text-amber-500",
           },
         ]);
       } catch (error) {
@@ -172,7 +180,7 @@ export default function TrainingGoalsCard() {
   }, []);
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="orange">
       <SectionHeading
         title="Training Goals"
         subtitle="Track your current training targets"
@@ -180,13 +188,13 @@ export default function TrainingGoalsCard() {
 
       {loading ? (
         <div className="mt-8 flex h-32 items-center justify-center">
-          <p className="text-zinc-500">
+          <p className="text-muted-foreground">
             Loading training goals...
           </p>
         </div>
       ) : goals.length === 0 ? (
         <div className="mt-8 flex h-32 items-center justify-center">
-          <p className="text-zinc-500">
+          <p className="text-muted-foreground">
             No training data available.
           </p>
         </div>
@@ -208,21 +216,23 @@ export default function TrainingGoalsCard() {
             return (
               <div
                 key={goal.title}
-                className="rounded-2xl border border-zinc-800 bg-zinc-800/40 p-5"
+                className="rounded-2xl border border-border bg-muted/40 p-5"
               >
                 {/* Icon + Title */}
 
                 <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-zinc-700 p-3 text-white">
+                  <div
+                    className={`rounded-xl p-3 ${goal.iconBg} ${goal.iconText}`}
+                  >
                     {goal.icon}
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-white">
+                    <h4 className="font-semibold text-foreground">
                       {goal.title}
                     </h4>
 
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted-foreground">
                       {goal.current} /{" "}
                       {goal.target}{" "}
                       {goal.unit}
@@ -234,16 +244,16 @@ export default function TrainingGoalsCard() {
 
                 <div className="mt-6">
                   <div className="mb-2 flex justify-between">
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-muted-foreground">
                       Progress
                     </span>
 
-                    <span className="text-xs font-semibold text-zinc-300">
+                    <span className="text-xs font-semibold text-foreground">
                       {progress}%
                     </span>
                   </div>
 
-                  <div className="h-2 overflow-hidden rounded-full bg-zinc-700">
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
                     <div
                       className={`h-full rounded-full ${goal.color} transition-all duration-500`}
                       style={{

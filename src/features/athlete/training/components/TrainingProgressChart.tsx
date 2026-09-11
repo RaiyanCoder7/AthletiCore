@@ -99,7 +99,7 @@ export default function TrainingProgressChart() {
   }, []);
 
   return (
-    <DashboardCard>
+    <DashboardCard accent="orange">
       <SectionHeading
         title="Training Activity"
         subtitle="Completed training sessions over the last 6 weeks"
@@ -108,84 +108,81 @@ export default function TrainingProgressChart() {
       <div className="mt-8 h-80">
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-zinc-500">
+            <p className="text-muted-foreground">
               Loading training progress...
             </p>
           </div>
         ) : data.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <p className="font-medium text-zinc-300">
+            <p className="font-medium text-foreground">
               No training data available
             </p>
 
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Complete training sessions to see your
               progress here.
             </p>
           </div>
         ) : (
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
-            <LineChart
-              data={data}
-              margin={{
-                top: 10,
-                right: 10,
-                left: -10,
-                bottom: 0,
-              }}
+          <div className="h-full text-muted-foreground [&_.recharts-default-tooltip]:!rounded-xl [&_.recharts-default-tooltip]:!border-border [&_.recharts-default-tooltip]:!bg-card [&_.recharts-default-tooltip]:!text-foreground">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
             >
-              <CartesianGrid
-                stroke="#27272a"
-                strokeDasharray="4 4"
-              />
-
-              <XAxis
-                dataKey="week"
-                stroke="#71717a"
-                tickLine={false}
-                axisLine={false}
-              />
-
-              <YAxis
-                allowDecimals={false}
-                stroke="#71717a"
-                tickLine={false}
-                axisLine={false}
-              />
-
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #3f3f46",
-                  borderRadius: "12px",
-                  color: "#fff",
+              <LineChart
+                data={data}
+                margin={{
+                  top: 10,
+                  right: 10,
+                  left: -10,
+                  bottom: 0,
                 }}
-                formatter={(value) => [
-                  `${value} session${
-                    value === 1 ? "" : "s"
-                  }`,
-                  "Completed",
-                ]}
-              />
+              >
+                <CartesianGrid
+                  stroke="currentColor"
+                  strokeOpacity={0.15}
+                  strokeDasharray="4 4"
+                />
 
-              <Line
-                type="monotone"
-                dataKey="sessions"
-                stroke="#3b82f6"
-                strokeWidth={4}
-                dot={{
-                  r: 5,
-                  fill: "#3b82f6",
-                }}
-                activeDot={{
-                  r: 8,
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+                <XAxis
+                  dataKey="week"
+                  stroke="currentColor"
+                  tickLine={false}
+                  axisLine={false}
+                />
+
+                <YAxis
+                  allowDecimals={false}
+                  stroke="currentColor"
+                  tickLine={false}
+                  axisLine={false}
+                />
+
+                <Tooltip
+                  formatter={(value) => [
+                    `${value} session${
+                      value === 1 ? "" : "s"
+                    }`,
+                    "Completed",
+                  ]}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="sessions"
+                  stroke="#f97316"
+                  strokeWidth={4}
+                  dot={{
+                    r: 5,
+                    fill: "#f97316",
+                  }}
+                  activeDot={{
+                    r: 8,
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </DashboardCard>

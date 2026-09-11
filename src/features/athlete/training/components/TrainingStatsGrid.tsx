@@ -59,6 +59,12 @@ export default function TrainingStatsGrid() {
 
   const trainingHours = (totalMinutes / 60).toFixed(1);
 
+  const completionPercent = sessions.length
+    ? Math.round(
+        (completedSessions.length / sessions.length) * 100
+      )
+    : 0;
+
   if (loading) {
     return (
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -66,28 +72,40 @@ export default function TrainingStatsGrid() {
           title="Workouts Completed"
           value="..."
           subtitle="Loading"
-          icon={<Dumbbell size={22} />}
+          icon={<Dumbbell size={18} />}
+          accentBg="bg-emerald-500/10"
+          accentText="text-emerald-500"
+          subtitleTone="neutral"
         />
 
         <StatsCard
           title="Training Hours"
           value="..."
           subtitle="Loading"
-          icon={<Clock size={22} />}
+          icon={<Clock size={18} />}
+          accentBg="bg-orange-500/10"
+          accentText="text-orange-500"
+          subtitleTone="neutral"
         />
 
         <StatsCard
           title="Upcoming Sessions"
           value="..."
           subtitle="Loading"
-          icon={<CalendarDays size={22} />}
+          icon={<CalendarDays size={18} />}
+          accentBg="bg-indigo-500/10"
+          accentText="text-indigo-500"
+          subtitleTone="neutral"
         />
 
         <StatsCard
           title="Total Sessions"
           value="..."
           subtitle="Loading"
-          icon={<Activity size={22} />}
+          icon={<Activity size={18} />}
+          accentBg="bg-primary/10"
+          accentText="text-primary"
+          subtitleTone="neutral"
         />
       </section>
     );
@@ -96,32 +114,50 @@ export default function TrainingStatsGrid() {
   return (
     <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
+      {/* Workouts Completed — count-based, bar, emerald */}
       <StatsCard
         title="Workouts Completed"
         value={String(completedSessions.length)}
         subtitle="Completed sessions"
-        icon={<Dumbbell size={22} />}
+        icon={<Dumbbell size={18} />}
+        accentBg="bg-emerald-500/10"
+        accentText="text-emerald-500"
+        indicator={{
+          type: "bar",
+          percent: completionPercent,
+        }}
       />
 
+      {/* Training Hours — orange */}
       <StatsCard
         title="Training Hours"
         value={trainingHours}
         subtitle="Total scheduled time"
-        icon={<Clock size={22} />}
+        icon={<Clock size={18} />}
+        accentBg="bg-orange-500/10"
+        accentText="text-orange-500"
       />
 
+      {/* Upcoming Sessions — indigo, matches schedule */}
       <StatsCard
         title="Upcoming Sessions"
         value={String(upcomingSessions.length)}
         subtitle="Scheduled workouts"
-        icon={<CalendarDays size={22} />}
+        icon={<CalendarDays size={18} />}
+        accentBg="bg-indigo-500/10"
+        accentText="text-indigo-500"
+        subtitleTone="neutral"
       />
 
+      {/* Total Sessions — primary */}
       <StatsCard
         title="Total Sessions"
         value={String(sessions.length)}
         subtitle="All training sessions"
-        icon={<Activity size={22} />}
+        icon={<Activity size={18} />}
+        accentBg="bg-primary/10"
+        accentText="text-primary"
+        subtitleTone="neutral"
       />
 
     </section>

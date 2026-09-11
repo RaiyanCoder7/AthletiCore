@@ -166,51 +166,68 @@ export default function TrainingHero({
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white">
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white lg:p-8">
+
+        {/* Diagonal texture — consistent with dashboard/analytics/auth */}
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
+          aria-hidden="true"
+        >
+          <defs>
+            <pattern
+              id="training-hero-diagonal"
+              width="24"
+              height="24"
+              patternTransform="rotate(35)"
+              patternUnits="userSpaceOnUse"
+            >
+              <line x1="0" y1="0" x2="0" y2="24" stroke="white" strokeWidth="8" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#training-hero-diagonal)" />
+        </svg>
 
         {/* Background Glow */}
-        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/15 blur-3xl" />
 
         {/* Add Training Session */}
         <button
           type="button"
           onClick={onAddTraining}
-          className="absolute right-6 top-6 inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
+          className="absolute right-6 top-6 z-10 inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
         >
           <Plus size={18} />
           Add Training Session
         </button>
 
-        <div className="relative">
+        <div className="relative max-w-2xl">
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur">
-            <Dumbbell size={16} />
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-blue-100 backdrop-blur">
+            <Dumbbell size={13} />
             Training Center
           </div>
 
           {/* Heading */}
-          <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
-            Train Smarter.
-            <br />
-            Perform Better.
+          <h1 className="mt-3 text-3xl font-bold leading-tight lg:text-4xl">
+            Train Smarter. Perform Better.
           </h1>
 
           {/* Description */}
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-blue-100">
+          <p className="mt-3 max-w-lg text-sm leading-6 text-blue-100 lg:text-base">
             Follow your training plan, track every workout,
             monitor your intensity and stay consistent with
             your performance goals.
           </p>
 
           {/* Actions */}
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-6 flex flex-wrap gap-3">
 
             {/* Start Workout */}
             <button
               type="button"
               onClick={() => setIsWorkoutOpen(true)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 font-semibold text-blue-700 transition hover:scale-105"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 font-semibold text-blue-700 transition hover:bg-blue-50"
             >
               <Play size={18} />
               Start Workout
@@ -233,25 +250,25 @@ export default function TrainingHero({
       {isWorkoutOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
 
-          <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-2xl">
 
             {/* Header */}
             <div className="flex items-start justify-between">
 
               <div className="flex items-center gap-3">
 
-                <div className="rounded-xl bg-blue-500/10 p-3 text-blue-400">
+                <div className="rounded-xl bg-orange-500/10 p-3 text-orange-500">
                   <Dumbbell size={22} />
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-white">
+                  <h2 className="text-xl font-bold text-foreground">
                     {isWorkoutRunning
                       ? "Workout in Progress"
                       : "Start Workout"}
                   </h2>
 
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-muted-foreground">
                     {isWorkoutRunning
                       ? "Keep going and complete your session"
                       : "Your next scheduled workout"}
@@ -263,7 +280,7 @@ export default function TrainingHero({
               <button
                 type="button"
                 onClick={handleCloseWorkout}
-                className="rounded-xl p-2 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+                className="rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
               >
                 <X size={20} />
               </button>
@@ -275,23 +292,23 @@ export default function TrainingHero({
               <div className="mt-6">
 
                 {/* Workout Details */}
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+                <div className="rounded-2xl border border-border bg-card p-5">
 
                   <div className="flex items-center justify-between">
 
                     <div>
-                      <h3 className="text-xl font-bold text-white">
+                      <h3 className="text-xl font-bold text-foreground">
                         {nextWorkout.workout}
                       </h3>
 
-                      <p className="mt-1 text-sm text-zinc-500">
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {nextWorkout.type}
                       </p>
                     </div>
 
                     {isWorkoutRunning && (
-                      <div className="flex items-center gap-2 rounded-full bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-400">
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
+                      <div className="flex items-center gap-2 rounded-full bg-orange-500/10 px-3 py-1.5 text-xs font-medium text-orange-600 dark:text-orange-400">
+                        <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
                         In Progress
                       </div>
                     )}
@@ -300,47 +317,47 @@ export default function TrainingHero({
 
                   <div className="mt-5 grid grid-cols-2 gap-3">
 
-                    <div className="rounded-xl bg-zinc-800 p-3">
-                      <p className="text-xs text-zinc-500">
+                    <div className="rounded-xl bg-muted p-3">
+                      <p className="text-xs text-muted-foreground">
                         Date
                       </p>
 
-                      <p className="mt-1 font-medium text-white">
+                      <p className="mt-1 font-medium text-foreground">
                         {nextWorkout.date}
                       </p>
                     </div>
 
-                    <div className="rounded-xl bg-zinc-800 p-3">
-                      <p className="text-xs text-zinc-500">
+                    <div className="rounded-xl bg-muted p-3">
+                      <p className="text-xs text-muted-foreground">
                         Time
                       </p>
 
-                      <p className="mt-1 font-medium text-white">
+                      <p className="mt-1 font-medium text-foreground">
                         {nextWorkout.time}
                       </p>
                     </div>
 
-                    <div className="rounded-xl bg-zinc-800 p-3">
-                      <div className="flex items-center gap-1 text-xs text-zinc-500">
+                    <div className="rounded-xl bg-muted p-3">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock size={13} />
                         Duration
                       </div>
 
-                      <p className="mt-1 font-medium text-white">
+                      <p className="mt-1 font-medium text-foreground">
                         {nextWorkout.duration}
                       </p>
                     </div>
 
-                    <div className="rounded-xl bg-zinc-800 p-3">
-                      <p className="text-xs text-zinc-500">
+                    <div className="rounded-xl bg-muted p-3">
+                      <p className="text-xs text-muted-foreground">
                         Status
                       </p>
 
                       <p
                         className={`mt-1 font-medium ${
                           isWorkoutRunning
-                            ? "text-blue-400"
-                            : "text-yellow-400"
+                            ? "text-orange-600 dark:text-orange-400"
+                            : "text-yellow-600 dark:text-yellow-400"
                         }`}
                       >
                         {isWorkoutRunning
@@ -356,17 +373,17 @@ export default function TrainingHero({
                 {isWorkoutRunning ? (
                   <div className="mt-5">
 
-                    <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-5 text-center">
+                    <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 text-center">
 
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 text-blue-400">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-500/10 text-orange-500">
                         <Dumbbell size={28} />
                       </div>
 
-                      <h3 className="mt-4 text-lg font-semibold text-white">
+                      <h3 className="mt-4 text-lg font-semibold text-foreground">
                         Workout Started
                       </h3>
 
-                      <p className="mt-2 text-sm text-zinc-500">
+                      <p className="mt-2 text-sm text-muted-foreground">
                         Complete your workout when you are finished.
                       </p>
 
@@ -392,7 +409,7 @@ export default function TrainingHero({
                     type="button"
                     onClick={handleBeginWorkout}
                     disabled={loading}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Play size={18} />
 
@@ -405,18 +422,17 @@ export default function TrainingHero({
               </div>
             ) : (
               /* No Workout */
-              <div className="mt-6 rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/50 p-8 text-center">
+              <div className="mt-6 rounded-2xl border border-dashed border-border bg-muted/50 p-8 text-center">
 
-                <Dumbbell
-                  size={32}
-                  className="mx-auto text-zinc-600"
-                />
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-500">
+                  <Dumbbell size={24} />
+                </div>
 
-                <h3 className="mt-4 font-semibold text-white">
+                <h3 className="mt-4 font-semibold text-foreground">
                   No Upcoming Workout
                 </h3>
 
-                <p className="mt-2 text-sm text-zinc-500">
+                <p className="mt-2 text-sm text-muted-foreground">
                   Add a training session to start your next workout.
                 </p>
 
@@ -426,7 +442,7 @@ export default function TrainingHero({
                     setIsWorkoutOpen(false);
                     onAddTraining?.();
                   }}
-                  className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+                  className="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
                 >
                   Add Training Session
                 </button>
