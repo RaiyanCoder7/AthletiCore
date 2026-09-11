@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import {
+  CheckCircle2,
+  Clock,
   Dumbbell,
   Play,
   Plus,
   X,
-  CheckCircle2,
-  Clock,
+  Loader2,
+  Calendar,
 } from "lucide-react";
 
+import Button from "@/components/ui/Button";
 import { auth } from "@/services/firebase/firebase";
 import {
   getTrainingSessions,
@@ -32,7 +35,6 @@ export default function TrainingHero({
 
   const loadSessions = async () => {
     const user = auth.currentUser;
-
     if (!user) return;
 
     try {
@@ -52,10 +54,7 @@ export default function TrainingHero({
 
   const upcomingSessions = sessions
     .filter((session) => {
-      const sessionDate = new Date(
-        `${session.date}T00:00:00`
-      );
-
+      const sessionDate = new Date(`${session.date}T00:00:00`);
       return (
         sessionDate >= today &&
         session.status !== "Completed" &&
@@ -67,10 +66,7 @@ export default function TrainingHero({
   const nextWorkout = upcomingSessions[0];
 
   const handleViewTrainingPlan = () => {
-    const scheduleSection = document.getElementById(
-      "weekly-training-schedule"
-    );
-
+    const scheduleSection = document.getElementById("weekly-training-schedule");
     scheduleSection?.scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -79,33 +75,19 @@ export default function TrainingHero({
 
   const handleBeginWorkout = async () => {
     const user = auth.currentUser;
-
-    if (!user || !nextWorkout?.id) {
-      return;
-    }
+    if (!user || !nextWorkout?.id) return;
 
     setLoading(true);
-
     try {
-      await updateTrainingSessionStatus(
-        user.uid,
-        nextWorkout.id,
-        "In Progress"
-      );
-
+      await updateTrainingSessionStatus(user.uid, nextWorkout.id, "In Progress");
       setSessions((previous) =>
         previous.map((session) =>
           session.id === nextWorkout.id
-            ? {
-                ...session,
-                status: "In Progress",
-              }
+            ? { ...session, status: "In Progress" }
             : session
         )
       );
-
       setIsWorkoutRunning(true);
-
       onWorkoutUpdated?.();
     } catch (error) {
       console.error("Failed to start workout:", error);
@@ -117,36 +99,21 @@ export default function TrainingHero({
 
   const handleCompleteWorkout = async () => {
     const user = auth.currentUser;
-
-    if (!user || !nextWorkout?.id) {
-      return;
-    }
+    if (!user || !nextWorkout?.id) return;
 
     setLoading(true);
-
     try {
-      await updateTrainingSessionStatus(
-        user.uid,
-        nextWorkout.id,
-        "Completed"
-      );
-
+      await updateTrainingSessionStatus(user.uid, nextWorkout.id, "Completed");
       setSessions((previous) =>
         previous.map((session) =>
           session.id === nextWorkout.id
-            ? {
-                ...session,
-                status: "Completed",
-              }
+            ? { ...session, status: "Completed" }
             : session
         )
       );
-
       setIsWorkoutRunning(false);
       setIsWorkoutOpen(false);
-
       onWorkoutUpdated?.();
-
       await loadSessions();
     } catch (error) {
       console.error("Failed to complete workout:", error);
@@ -165,291 +132,218 @@ export default function TrainingHero({
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white lg:p-8">
-
-        {/* Diagonal texture — consistent with dashboard/analytics/auth */}
-        <svg
-          className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
+      {/* Hero Container */}
+      <section className="relative overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-sm shadow-slate-900/[0.04] transition-colors dark:shadow-black/20 sm:p-8">
+        {/* Ambient training domain glow (Orange) */}
+        <div
           aria-hidden="true"
-        >
-          <defs>
-            <pattern
-              id="training-hero-diagonal"
-              width="24"
-              height="24"
-              patternTransform="rotate(35)"
-              patternUnits="userSpaceOnUse"
-            >
-              <line x1="0" y1="0" x2="0" y2="24" stroke="white" strokeWidth="8" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#training-hero-diagonal)" />
-        </svg>
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-orange-500/10 blur-3xl dark:bg-orange-500/15"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-20 right-1/4 h-48 w-48 rounded-full bg-amber-500/5 blur-2xl dark:bg-amber-500/10"
+        />
 
-        {/* Background Glow */}
-        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/15 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          {/* Content Block */}
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-600 dark:text-orange-400">
+              <Dumbbell size={13} className="shrink-0" />
+              <span>Training Center</span>
+            </div>
 
-        {/* Add Training Session */}
-        <button
-          type="button"
-          onClick={onAddTraining}
-          className="absolute right-6 top-6 z-10 inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
-        >
-          <Plus size={18} />
-          Add Training Session
-        </button>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+              Train Smarter. Perform Better.
+            </h1>
 
-        <div className="relative max-w-2xl">
+            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+              Follow your scheduled training load, log active sessions, and maintain consistent intensity toward your performance goals.
+            </p>
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-blue-100 backdrop-blur">
-            <Dumbbell size={13} />
-            Training Center
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-3">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => setIsWorkoutOpen(true)}
+                className="bg-orange-600 text-white hover:bg-orange-500 focus-visible:ring-orange-500/30"
+              >
+                <Play size={15} />
+                <span>Start Workout</span>
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={handleViewTrainingPlan}
+              >
+                <Calendar size={15} className="text-muted-foreground" />
+                <span>View Training Plan</span>
+              </Button>
+            </div>
           </div>
 
-          {/* Heading */}
-          <h1 className="mt-3 text-3xl font-bold leading-tight lg:text-4xl">
-            Train Smarter. Perform Better.
-          </h1>
-
-          {/* Description */}
-          <p className="mt-3 max-w-lg text-sm leading-6 text-blue-100 lg:text-base">
-            Follow your training plan, track every workout,
-            monitor your intensity and stay consistent with
-            your performance goals.
-          </p>
-
-          {/* Actions */}
-          <div className="mt-6 flex flex-wrap gap-3">
-
-            {/* Start Workout */}
-            <button
-              type="button"
-              onClick={() => setIsWorkoutOpen(true)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 font-semibold text-blue-700 transition hover:bg-blue-50"
+          {/* Quick Add Button */}
+          <div className="shrink-0">
+            <Button
+              variant="outline"
+              size="md"
+              onClick={onAddTraining}
+              className="w-full sm:w-auto"
             >
-              <Play size={18} />
-              Start Workout
-            </button>
-
-            {/* View Training Plan */}
-            <button
-              type="button"
-              onClick={handleViewTrainingPlan}
-              className="rounded-2xl border border-white/20 bg-white/10 px-6 py-3 font-semibold text-white backdrop-blur transition hover:bg-white/20"
-            >
-              View Training Plan
-            </button>
-
+              <Plus size={16} />
+              <span>Add Training Session</span>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Workout Modal */}
       {isWorkoutOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-
-          <div className="w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-2xl">
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border border-border/80 bg-card p-6 shadow-2xl shadow-slate-950/10 dark:shadow-black/40">
             {/* Header */}
             <div className="flex items-start justify-between">
-
               <div className="flex items-center gap-3">
-
-                <div className="rounded-xl bg-orange-500/10 p-3 text-orange-500">
-                  <Dumbbell size={22} />
+                <div className="rounded-xl border border-orange-500/20 bg-orange-500/10 p-2.5 text-orange-600 dark:text-orange-400">
+                  <Dumbbell size={20} />
                 </div>
-
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">
-                    {isWorkoutRunning
-                      ? "Workout in Progress"
-                      : "Start Workout"}
+                  <h2 className="text-lg font-bold text-foreground">
+                    {isWorkoutRunning ? "Workout in Progress" : "Start Workout"}
                   </h2>
-
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {isWorkoutRunning
-                      ? "Keep going and complete your session"
-                      : "Your next scheduled workout"}
+                      ? "Session active. Complete when finished."
+                      : "Your next scheduled session"}
                   </p>
                 </div>
-
               </div>
 
               <button
                 type="button"
                 onClick={handleCloseWorkout}
-                className="rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
-
             </div>
 
-            {/* Workout Content */}
+            {/* Workout Body */}
             {nextWorkout ? (
-              <div className="mt-6">
-
-                {/* Workout Details */}
-                <div className="rounded-2xl border border-border bg-card p-5">
-
+              <div className="mt-5 space-y-4">
+                <div className="rounded-xl border border-border/60 bg-muted/30 p-4">
                   <div className="flex items-center justify-between">
-
                     <div>
-                      <h3 className="text-xl font-bold text-foreground">
+                      <h3 className="font-semibold text-foreground">
                         {nextWorkout.workout}
                       </h3>
-
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {nextWorkout.type}
                       </p>
                     </div>
 
                     {isWorkoutRunning && (
-                      <div className="flex items-center gap-2 rounded-full bg-orange-500/10 px-3 py-1.5 text-xs font-medium text-orange-600 dark:text-orange-400">
-                        <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
-                        In Progress
+                      <div className="flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-1 text-xs font-medium text-orange-600 dark:text-orange-400">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-orange-500" />
+                        Active
                       </div>
                     )}
-
                   </div>
 
-                  <div className="mt-5 grid grid-cols-2 gap-3">
-
-                    <div className="rounded-xl bg-muted p-3">
-                      <p className="text-xs text-muted-foreground">
-                        Date
-                      </p>
-
-                      <p className="mt-1 font-medium text-foreground">
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg bg-card p-2.5 border border-border/40">
+                      <span className="text-muted-foreground">Date</span>
+                      <p className="mt-0.5 font-medium text-foreground">
                         {nextWorkout.date}
                       </p>
                     </div>
-
-                    <div className="rounded-xl bg-muted p-3">
-                      <p className="text-xs text-muted-foreground">
-                        Time
-                      </p>
-
-                      <p className="mt-1 font-medium text-foreground">
+                    <div className="rounded-lg bg-card p-2.5 border border-border/40">
+                      <span className="text-muted-foreground">Time</span>
+                      <p className="mt-0.5 font-medium text-foreground">
                         {nextWorkout.time}
                       </p>
                     </div>
-
-                    <div className="rounded-xl bg-muted p-3">
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock size={13} />
-                        Duration
-                      </div>
-
-                      <p className="mt-1 font-medium text-foreground">
+                    <div className="rounded-lg bg-card p-2.5 border border-border/40">
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <Clock size={12} /> Duration
+                      </span>
+                      <p className="mt-0.5 font-medium text-foreground">
                         {nextWorkout.duration}
                       </p>
                     </div>
-
-                    <div className="rounded-xl bg-muted p-3">
-                      <p className="text-xs text-muted-foreground">
-                        Status
-                      </p>
-
+                    <div className="rounded-lg bg-card p-2.5 border border-border/40">
+                      <span className="text-muted-foreground">Status</span>
                       <p
-                        className={`mt-1 font-medium ${
+                        className={`mt-0.5 font-medium ${
                           isWorkoutRunning
                             ? "text-orange-600 dark:text-orange-400"
-                            : "text-yellow-600 dark:text-yellow-400"
+                            : "text-foreground"
                         }`}
                       >
-                        {isWorkoutRunning
-                          ? "In Progress"
-                          : "Ready"}
+                        {isWorkoutRunning ? "In Progress" : "Scheduled"}
                       </p>
                     </div>
-
                   </div>
                 </div>
 
-                {/* Running State */}
+                {/* Actions */}
                 {isWorkoutRunning ? (
-                  <div className="mt-5">
-
-                    <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 text-center">
-
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-500/10 text-orange-500">
-                        <Dumbbell size={28} />
-                      </div>
-
-                      <h3 className="mt-4 text-lg font-semibold text-foreground">
-                        Workout Started
-                      </h3>
-
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        Complete your workout when you are finished.
-                      </p>
-
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleCompleteWorkout}
-                      disabled={loading}
-                      className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <CheckCircle2 size={18} />
-
-                      {loading
-                        ? "Saving..."
-                        : "Complete Workout"}
-                    </button>
-
-                  </div>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={handleCompleteWorkout}
+                    disabled={loading}
+                    className="w-full bg-emerald-600 text-white hover:bg-emerald-500"
+                  >
+                    {loading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <CheckCircle2 size={16} />
+                    )}
+                    <span>Complete Workout</span>
+                  </Button>
                 ) : (
-                  /* Ready State */
-                  <button
-                    type="button"
+                  <Button
+                    variant="primary"
+                    size="md"
                     onClick={handleBeginWorkout}
                     disabled={loading}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full bg-orange-600 text-white hover:bg-orange-500"
                   >
-                    <Play size={18} />
-
-                    {loading
-                      ? "Starting..."
-                      : "Begin Workout"}
-                  </button>
+                    {loading ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Play size={16} />
+                    )}
+                    <span>Begin Workout</span>
+                  </Button>
                 )}
-
               </div>
             ) : (
-              /* No Workout */
-              <div className="mt-6 rounded-2xl border border-dashed border-border bg-muted/50 p-8 text-center">
-
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-500">
-                  <Dumbbell size={24} />
+              <div className="mt-5 rounded-xl border border-dashed border-border p-6 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                  <Dumbbell size={22} />
                 </div>
-
-                <h3 className="mt-4 font-semibold text-foreground">
-                  No Upcoming Workout
+                <h3 className="mt-3 text-sm font-semibold text-foreground">
+                  No Upcoming Workouts
                 </h3>
-
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Add a training session to start your next workout.
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Schedule a session to start tracking your load.
                 </p>
-
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="sm"
                   onClick={() => {
                     setIsWorkoutOpen(false);
                     onAddTraining?.();
                   }}
-                  className="mt-5 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+                  className="mt-4"
                 >
                   Add Training Session
-                </button>
-
+                </Button>
               </div>
             )}
-
           </div>
         </div>
       )}

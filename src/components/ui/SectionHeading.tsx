@@ -12,20 +12,20 @@ export default function SectionHeading({
   action,
 }: SectionHeadingProps) {
   return (
-    <div className="mb-6 flex items-start justify-between">
+    <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
           {title}
         </h2>
 
         {subtitle && (
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground sm:text-sm">
             {subtitle}
           </p>
         )}
       </div>
 
-      {action}
+      {action && <div className="mt-2 sm:mt-0">{action}</div>}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { BarChart3 } from "lucide-react";
-
 import type { AnalyticsRange } from "../AnalyticsPage";
 
 interface AnalyticsHeroProps {
@@ -25,57 +24,44 @@ export default function AnalyticsHero({
     },
     {
       id: "SEASON",
-      label: "Season",
+      label: "Full Season",
     },
   ];
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white lg:p-8">
-
-      {/* Diagonal texture — consistent with the dashboard hero and auth pages */}
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
+    <section className="relative overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-sm shadow-slate-900/[0.04] transition-colors dark:shadow-black/20 sm:p-8">
+      {/* Ambient background light glows */}
+      <div
         aria-hidden="true"
-      >
-        <defs>
-          <pattern
-            id="analytics-hero-diagonal"
-            width="24"
-            height="24"
-            patternTransform="rotate(35)"
-            patternUnits="userSpaceOnUse"
-          >
-            <line x1="0" y1="0" x2="0" y2="24" stroke="white" strokeWidth="8" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#analytics-hero-diagonal)" />
-      </svg>
+        className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl dark:bg-primary/15"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-20 right-1/4 h-48 w-48 rounded-full bg-indigo-500/5 blur-2xl dark:bg-indigo-500/10"
+      />
 
-      {/* Background glow */}
-      <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/15 blur-3xl" />
+      <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        {/* Text & Header Block */}
+        <div className="max-w-xl space-y-3">
+          {/* Badge Pill */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+            <BarChart3 size={13} className="shrink-0" />
+            <span>Telemetry & Insights</span>
+          </div>
 
-      <div className="relative max-w-2xl">
+          {/* Title */}
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+            Performance Analytics
+          </h1>
 
-        {/* Badge pill */}
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-blue-100 backdrop-blur">
-          <BarChart3 size={13} />
-          Analytics Dashboard
+          {/* Subtitle */}
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Analyze output trends, track biometric load, and benchmark your progress against previous training blocks.
+          </p>
         </div>
 
-        {/* Heading */}
-        <h1 className="text-3xl font-bold leading-tight lg:text-4xl">
-          Performance Analytics
-        </h1>
-
-        {/* Description */}
-        <p className="mt-3 max-w-lg text-sm leading-6 text-blue-100 lg:text-base">
-          Analyse your performance trends, monitor recovery, and
-          compare weekly progress with insights from your training
-          sessions.
-        </p>
-
-        {/* Range toggle */}
-        <div className="relative mt-6 flex flex-wrap gap-3">
+        {/* Modern Segmented Range Switcher */}
+        <div className="flex items-center rounded-xl border border-border/80 bg-muted/50 p-1 backdrop-blur-xs">
           {ranges.map((item) => {
             const isActive = range === item.id;
 
@@ -84,11 +70,11 @@ export default function AnalyticsHero({
                 key={item.id}
                 type="button"
                 onClick={() => onRangeChange(item.id)}
-                className={
+                className={`rounded-lg px-4 py-2 text-xs font-medium transition-all sm:text-sm ${
                   isActive
-                    ? "rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-50"
-                    : "rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
-                }
+                    ? "bg-card text-foreground shadow-xs shadow-slate-950/5 dark:shadow-black/20"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
                 {item.label}
               </button>

@@ -7,8 +7,8 @@ type StatRingProps = {
 
 export default function StatRing({
   percent,
-  size = 44,
-  strokeWidth = 4,
+  size = 40,
+  strokeWidth = 3.5,
   className = "text-primary",
 }: StatRingProps) {
   const radius = (size - strokeWidth) / 2;
@@ -23,7 +23,9 @@ export default function StatRing({
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       className="shrink-0"
+      aria-hidden="true"
     >
+      {/* Background track circle */}
       <circle
         cx={center}
         cy={center}
@@ -31,8 +33,9 @@ export default function StatRing({
         fill="none"
         stroke="currentColor"
         strokeWidth={strokeWidth}
-        className="text-border"
+        className="text-border/60 dark:text-border/40"
       />
+      {/* Progress ring fill */}
       <circle
         cx={center}
         cy={center}
@@ -44,7 +47,7 @@ export default function StatRing({
         strokeDashoffset={offset}
         strokeLinecap="round"
         transform={`rotate(-90 ${center} ${center})`}
-        className={className}
+        className={`transition-[stroke-dashoffset] duration-700 ease-out ${className}`}
       />
     </svg>
   );
