@@ -2,65 +2,95 @@ import {
   Settings,
   ShieldCheck,
   UserRound,
+  Sliders,
 } from "lucide-react";
-
-import DashboardCard from "@/components/ui/DashboardCard";
 
 export default function SettingsHero() {
   return (
-    <DashboardCard className="relative overflow-hidden border-0 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 p-8 text-white">
-      {/* Background Glow */}
-      <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 text-white shadow-xs transition-colors lg:p-8">
+      {/* Shared Diagonal Pattern Texture */}
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.06]"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            id="settings-hero-diagonal"
+            width="24"
+            height="24"
+            patternTransform="rotate(35)"
+            patternUnits="userSpaceOnUse"
+          >
+            <line x1="0" y1="0" x2="0" y2="24" stroke="white" strokeWidth="8" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#settings-hero-diagonal)" />
+      </svg>
 
-      <div className="relative flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
-        {/* Left */}
+      {/* Ambient Lighting Accents */}
+      <div
+        className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/15 blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-indigo-400/20 blur-2xl"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
+        {/* Left Content Area */}
         <div className="max-w-2xl">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm backdrop-blur">
-            <Settings size={16} />
-            Account Settings
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-medium text-blue-100 backdrop-blur">
+            <Sliders size={13} />
+            <span>Account Settings</span>
           </div>
 
-          <p className="text-lg text-blue-100">
-            Manage your Athleticore experience.
+          <p className="mt-4 text-xs font-semibold uppercase tracking-widest text-blue-200/80">
+            AthletiCore Preferences
           </p>
 
-          <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="mt-1.5 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
             Personalize Your Experience.
           </h1>
 
-          <p className="mt-5 max-w-xl text-base leading-7 text-blue-100 sm:text-lg">
-            Update your profile, training preferences, notifications
-            and account settings from one place.
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-blue-100/90 sm:text-base">
+            Configure your athlete profile, manage training notifications, optimize display themes, and safeguard your account credentials in one centralized hub.
           </p>
         </div>
 
-        {/* Right */}
-        <div className="grid grid-cols-2 gap-4 lg:w-[340px]">
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <UserRound size={20} className="text-blue-200" />
+        {/* Right Status Cards */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:w-[360px]">
+          {/* Profile Card */}
+          <div className="group rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur transition-all duration-200 hover:bg-white/[0.14]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-blue-100 transition-transform duration-200 group-hover:scale-105">
+              <UserRound size={20} />
+            </div>
 
-            <p className="mt-4 text-sm text-blue-100">
-              Profile
+            <p className="mt-4 text-xs font-medium uppercase tracking-wider text-blue-100/70">
+              Profile Status
             </p>
 
-            <p className="mt-1 text-lg font-semibold">
+            <p className="mt-1 text-lg font-bold tracking-tight text-white">
               Personal Info
             </p>
           </div>
 
-          <div className="rounded-2xl bg-white/10 p-5 backdrop-blur">
-            <ShieldCheck size={20} className="text-emerald-200" />
+          {/* Security Card */}
+          <div className="group rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur transition-all duration-200 hover:bg-white/[0.14]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300 transition-transform duration-200 group-hover:scale-105">
+              <ShieldCheck size={20} />
+            </div>
 
-            <p className="mt-4 text-sm text-blue-100">
-              Security
+            <p className="mt-4 text-xs font-medium uppercase tracking-wider text-blue-100/70">
+              Account Security
             </p>
 
-            <p className="mt-1 text-lg font-semibold">
+            <p className="mt-1 text-lg font-bold tracking-tight text-white">
               Protected
             </p>
           </div>
         </div>
       </div>
-    </DashboardCard>
+    </section>
   );
 }

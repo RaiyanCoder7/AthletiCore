@@ -1,6 +1,10 @@
 import { useState } from "react";
 import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
   KeyRound,
+  Loader2,
   LogOut,
   ShieldCheck,
   Trash2,
@@ -28,17 +32,10 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import { auth, db } from "@/services/firebase/firebase";
 
 export default function AccountSecurity() {
-  const [showPasswordForm, setShowPasswordForm] =
-    useState(false);
-
-  const [currentPassword, setCurrentPassword] =
-    useState("");
-
-  const [newPassword, setNewPassword] =
-    useState("");
-
-  const [confirmPassword, setConfirmPassword] =
-    useState("");
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -50,7 +47,7 @@ export default function AccountSecurity() {
   };
 
   /* -----------------------------
-     Change Password
+      Change Password
   ----------------------------- */
 
   const handleChangePassword = async () => {
@@ -63,19 +60,13 @@ export default function AccountSecurity() {
       return;
     }
 
-    if (
-      !currentPassword ||
-      !newPassword ||
-      !confirmPassword
-    ) {
+    if (!currentPassword || !newPassword || !confirmPassword) {
       setError("Please fill in all password fields.");
       return;
     }
 
     if (newPassword.length < 6) {
-      setError(
-        "New password must contain at least 6 characters."
-      );
+      setError("New password must contain at least 6 characters.");
       return;
     }
 
@@ -85,26 +76,19 @@ export default function AccountSecurity() {
     }
 
     if (!user.email) {
-      setError(
-        "Unable to change password for this account."
-      );
+      setError("Unable to change password for this account.");
       return;
     }
 
     try {
       setLoading(true);
 
-      const credential =
-        EmailAuthProvider.credential(
-          user.email,
-          currentPassword
-        );
-
-      await reauthenticateWithCredential(
-        user,
-        credential
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        currentPassword
       );
 
+      await reauthenticateWithCredential(user, credential);
       await updatePassword(user, newPassword);
 
       setCurrentPassword("");
@@ -112,31 +96,16 @@ export default function AccountSecurity() {
       setConfirmPassword("");
       setShowPasswordForm(false);
 
-      setMessage(
-        "Password changed successfully."
-      );
-    } catch (error: any) {
-      console.error(
-        "Failed to change password:",
-        error
-      );
+      setMessage("Password changed successfully.");
+    } catch (err: any) {
+      console.error("Failed to change password:", err);
 
-      if (
-        error.code ===
-        "auth/invalid-credential"
-      ) {
+      if (err.code === "auth/invalid-credential") {
         setError("Current password is incorrect.");
-      } else if (
-        error.code ===
-        "auth/too-many-requests"
-      ) {
-        setError(
-          "Too many attempts. Please try again later."
-        );
+      } else if (err.code === "auth/too-many-requests") {
+        setError("Too many attempts. Please try again later.");
       } else {
-        setError(
-          "Unable to change password. Please try again."
-        );
+        setError("Unable to change password. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -144,7 +113,7 @@ export default function AccountSecurity() {
   };
 
   /* -----------------------------
-     Logout
+      Logout
   ----------------------------- */
 
   const handleLogout = async () => {
@@ -152,27 +121,17 @@ export default function AccountSecurity() {
 
     try {
       setLoading(true);
-
       await signOut(auth);
-
-      // Your auth state listener/router
-      // should redirect the user automatically.
-    } catch (error) {
-      console.error(
-        "Failed to log out:",
-        error
-      );
-
-      setError(
-        "Unable to log out. Please try again."
-      );
+    } catch (err) {
+      console.error("Failed to log out:", err);
+      setError("Unable to log out. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   /* -----------------------------
-     Delete Subcollection
+      Delete Subcollection
   ----------------------------- */
 
   const deleteSubcollection = async (
@@ -189,14 +148,12 @@ export default function AccountSecurity() {
     const snapshot = await getDocs(collectionRef);
 
     await Promise.all(
-      snapshot.docs.map((document) =>
-        deleteDoc(document.ref)
-      )
+      snapshot.docs.map((document) => deleteDoc(document.ref))
     );
   };
 
   /* -----------------------------
-     Delete Account
+      Delete Account
   ----------------------------- */
 
   const handleDeleteAccount = async () => {
@@ -222,51 +179,20 @@ export default function AccountSecurity() {
 
       const uid = user.uid;
 
-      // Delete goals
-      await deleteSubcollection(
-        uid,
-        "goals"
-      );
-
-      // Delete training sessions
-      await deleteSubcollection(
-        uid,
-        "trainingSessions"
-      );
-
-      // Delete calendar events
-      await deleteSubcollection(
-        uid,
-        "calendarEvents"
-      );
-
-      // Delete main Firestore profile
-      await deleteDoc(
-        doc(db, "users", uid)
-      );
-
-      // Delete Firebase Authentication account
+      await deleteSubcollection(uid, "goals");
+      await deleteSubcollection(uid, "trainingSessions");
+      await deleteSubcollection(uid, "calendarEvents");
+      await deleteDoc(doc(db, "users", uid));
       await deleteUser(user);
+    } catch (err: any) {
+      console.error("Failed to delete account:", err);
 
-      // Auth state listener/router should redirect
-      // the user automatically.
-    } catch (error: any) {
-      console.error(
-        "Failed to delete account:",
-        error
-      );
-
-      if (
-        error.code ===
-        "auth/requires-recent-login"
-      ) {
+      if (err.code === "auth/requires-recent-login") {
         setError(
           "For security, please log in again before deleting your account."
         );
       } else {
-        setError(
-          "Unable to delete your account. Please try again."
-        );
+        setError("Unable to delete your account. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -280,152 +206,146 @@ export default function AccountSecurity() {
         subtitle="Manage your password and account security"
       />
 
-      <DashboardCard className="mt-6">
-        {/* Messages */}
+      <DashboardCard className="relative mt-6 overflow-hidden border-border bg-card shadow-xs transition-colors">
+        {/* Top Accent Strip (Shield/Security Domain) */}
+        <div
+          className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-400"
+          aria-hidden="true"
+        />
 
+        {/* Feedback Messages */}
         {message && (
-          <div className="mb-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
-            {message}
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="mt-0.5 shrink-0" size={16} />
+            <span>{message}</span>
           </div>
         )}
 
         {error && (
-          <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-            {error}
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <AlertCircle className="mt-0.5 shrink-0" size={16} />
+            <span>{error}</span>
           </div>
         )}
 
         <div className="space-y-4">
-          {/* Change Password */}
-
-          <div>
+          {/* Change Password Card & Form */}
+          <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/20 transition-colors">
             <button
               type="button"
               disabled={loading}
               onClick={() => {
                 clearMessages();
-
-                setShowPasswordForm(
-                  (current) => !current
-                );
+                setShowPasswordForm((current) => !current);
               }}
-              className="flex w-full items-center gap-4 rounded-2xl border border-zinc-800 bg-zinc-800/30 p-5 text-left transition hover:border-zinc-700 hover:bg-zinc-800/50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="group flex w-full items-center gap-4 p-5 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <div className="rounded-xl bg-blue-500/10 p-3 text-blue-400">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-transform duration-200 group-hover:scale-105">
                 <KeyRound size={20} />
               </div>
 
-              <div className="flex-1">
-                <h3 className="font-semibold text-white">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
                   Change Password
                 </h3>
-
-                <p className="mt-1 text-sm text-zinc-500">
-                  Update your account password regularly
-                  to keep your account secure.
+                <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed sm:text-sm">
+                  Update your account password regularly to keep your credentials secure.
                 </p>
               </div>
 
-              <span className="text-sm text-blue-400">
-                {showPasswordForm
-                  ? "Close"
-                  : "Change"}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-primary">
+                  {showPasswordForm ? "Close" : "Change"}
+                </span>
+                <ChevronDown
+                  size={16}
+                  className={`text-muted-foreground transition-transform duration-200 ${
+                    showPasswordForm ? "rotate-180 text-primary" : ""
+                  }`}
+                />
+              </div>
             </button>
 
-            {/* Password Form */}
-
+            {/* Password Form Drawer */}
             {showPasswordForm && (
-              <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-800/20 p-5">
+              <div className="border-t border-border/60 bg-card p-5 sm:p-6">
                 <div className="mb-5 flex items-center justify-between">
-                  <h4 className="font-semibold text-white">
-                    Update Password
-                  </h4>
+                  <div>
+                    <h4 className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
+                      Update Password
+                    </h4>
+                    <p className="text-xs text-muted-foreground">
+                      Enter your current password along with your new credentials.
+                    </p>
+                  </div>
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setShowPasswordForm(false)
-                    }
-                    className="text-zinc-500 transition hover:text-white"
+                    onClick={() => setShowPasswordForm(false)}
+                    className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    <X size={18} />
+                    <X size={16} />
                   </button>
                 </div>
 
                 <div className="space-y-4">
                   {/* Current Password */}
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-300">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Current Password
                     </label>
-
                     <input
                       type="password"
                       value={currentPassword}
-                      onChange={(e) =>
-                        setCurrentPassword(
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter current password"
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-800/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500"
+                      className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 hover:bg-muted/60 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20"
                     />
                   </div>
 
                   {/* New Password */}
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-300">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       New Password
                     </label>
-
                     <input
                       type="password"
                       value={newPassword}
-                      onChange={(e) =>
-                        setNewPassword(
-                          e.target.value
-                        )
-                      }
-                      placeholder="Enter new password"
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-800/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500"
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password (min. 6 characters)"
+                      className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 hover:bg-muted/60 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20"
                     />
                   </div>
 
                   {/* Confirm Password */}
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-zinc-300">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Confirm New Password
                     </label>
-
                     <input
                       type="password"
                       value={confirmPassword}
-                      onChange={(e) =>
-                        setConfirmPassword(
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new password"
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-800/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:border-blue-500"
+                      className="w-full rounded-xl border border-border bg-muted/40 px-4 py-2.5 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 hover:bg-muted/60 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20"
                     />
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex justify-end pt-2">
                     <button
                       type="button"
-                      onClick={
-                        handleChangePassword
-                      }
+                      onClick={handleChangePassword}
                       disabled={loading}
-                      className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-xs transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {loading
-                        ? "Updating..."
-                        : "Update Password"}
+                      {loading ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          <span>Updating...</span>
+                        </>
+                      ) : (
+                        <span>Update Password</span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -433,75 +353,71 @@ export default function AccountSecurity() {
             )}
           </div>
 
-          {/* Account Protection */}
-
-          <div className="flex items-center gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-            <div className="rounded-xl bg-emerald-500/10 p-3 text-emerald-400">
+          {/* Account Protection Status Tile */}
+          <div className="flex items-center gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 transition-colors">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck size={20} />
             </div>
 
-            <div>
-              <h3 className="font-semibold text-white">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
                 Account Protection
               </h3>
-
-              <p className="mt-1 text-sm text-zinc-500">
-                Your account security is currently up to
-                date.
+              <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed sm:text-sm">
+                Your account security is actively verified and protected by Firebase Auth.
               </p>
             </div>
 
-            <span className="ml-auto text-sm font-medium text-emerald-400">
+            <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               Protected
             </span>
           </div>
 
-          {/* Logout */}
-
+          {/* Logout Action */}
           <button
             type="button"
             disabled={loading}
             onClick={handleLogout}
-            className="flex w-full items-center gap-4 rounded-2xl border border-zinc-800 bg-zinc-800/30 p-5 text-left transition hover:border-zinc-700 hover:bg-zinc-800/50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="group flex w-full items-center gap-4 rounded-2xl border border-border/70 bg-muted/20 p-5 text-left transition-all hover:border-border hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <div className="rounded-xl bg-zinc-800 p-3 text-zinc-400">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/60 text-muted-foreground transition-transform duration-200 group-hover:scale-105 group-hover:text-foreground">
               <LogOut size={20} />
             </div>
 
-            <div className="flex-1">
-              <h3 className="font-semibold text-white">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold tracking-tight text-foreground sm:text-base">
                 Log Out
               </h3>
-
-              <p className="mt-1 text-sm text-zinc-500">
-                Sign out of your Athleticore account.
+              <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed sm:text-sm">
+                Sign out of your active AthletiCore session.
               </p>
             </div>
           </button>
 
-          {/* Delete Account */}
+          {/* Danger Zone: Delete Account */}
+          <div className="border-t border-destructive/20 pt-6">
+            <div className="mb-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-destructive">
+                Danger Zone
+              </p>
+            </div>
 
-          <div className="border-t border-zinc-800 pt-6">
             <button
               type="button"
               disabled={loading}
               onClick={handleDeleteAccount}
-              className="flex w-full items-center gap-4 rounded-2xl border border-red-500/20 bg-red-500/5 p-5 text-left transition hover:border-red-500/40 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+              className="group flex w-full items-center gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-left transition-all hover:border-destructive/50 hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <div className="rounded-xl bg-red-500/10 p-3 text-red-400">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-destructive/20 bg-destructive/10 text-destructive transition-transform duration-200 group-hover:scale-105">
                 <Trash2 size={20} />
               </div>
 
-              <div className="flex-1">
-                <h3 className="font-semibold text-red-400">
-                  {loading
-                    ? "Processing..."
-                    : "Delete Account"}
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold tracking-tight text-destructive sm:text-base">
+                  {loading ? "Processing..." : "Delete Account"}
                 </h3>
-
-                <p className="mt-1 text-sm text-zinc-500">
-                  Permanently delete your Athleticore
-                  account and all associated data.
+                <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed sm:text-sm">
+                  Permanently delete your AthletiCore account, analytics, goals, and training records.
                 </p>
               </div>
             </button>

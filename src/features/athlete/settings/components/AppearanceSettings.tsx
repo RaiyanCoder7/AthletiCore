@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import {
   Check,
+  CheckCircle2,
+  Loader2,
   Monitor,
   Moon,
+  Save,
   Sun,
 } from "lucide-react";
 
@@ -28,17 +31,17 @@ const themes: {
 }[] = [
   {
     name: "Dark",
-    description: "Best for low-light environments",
+    description: "Deep neutral dark contrast for low-light focus",
     icon: Moon,
   },
   {
     name: "Light",
-    description: "Clean and bright interface",
+    description: "High-clarity bright layout for daytime visibility",
     icon: Sun,
   },
   {
     name: "System",
-    description: "Follow your device settings",
+    description: "Automatically synchronizes with your device settings",
     icon: Monitor,
   },
 ];
@@ -52,15 +55,17 @@ export default function AppearanceSettings() {
   const [message, setMessage] = useState("");
 
   /* --------------------------------
-     Load Appearance Preference
+      Load Appearance Preference
   -------------------------------- */
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadAppearance = async () => {
       const user = auth.currentUser;
 
       if (!user) {
-        setLoading(false);
+        if (isMounted) setLoading(false);
         applyTheme(getStoredTheme());
         return;
       }
@@ -68,8 +73,9 @@ export default function AppearanceSettings() {
       try {
         const profile = await getUserProfile(user.uid);
 
-        const savedTheme =
-          profile?.appearance;
+        if (!isMounted) return;
+
+        const savedTheme = profile?.appearance;
 
         if (
           savedTheme === "Dark" ||
@@ -82,27 +88,27 @@ export default function AppearanceSettings() {
           applyTheme(getStoredTheme());
         }
       } catch (error) {
-        console.error(
-          "Failed to load appearance preference:",
-          error
-        );
-
+        console.error("Failed to load appearance preference:", error);
         applyTheme(getStoredTheme());
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     loadAppearance();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   /* --------------------------------
-     Select Theme
+      Select Theme
   -------------------------------- */
 
-  const handleThemeSelect = (
-    theme: Theme
-  ) => {
+  const handleThemeSelect = (theme: Theme) => {
     setSelectedTheme(theme);
     setMessage("");
 
@@ -118,16 +124,14 @@ export default function AppearanceSettings() {
   };
 
   /* --------------------------------
-     Save Appearance
+      Save Appearance
   -------------------------------- */
 
   const handleSave = async () => {
     const user = auth.currentUser;
 
     if (!user) {
-      setMessage(
-        "You must be logged in to save settings."
-      );
+      setMessage("You must be logged in to save settings.");
       return;
     }
 
@@ -142,26 +146,16 @@ export default function AppearanceSettings() {
       applyTheme(selectedTheme);
 
       window.dispatchEvent(
-        new CustomEvent(
-          "athleticore-theme-change",
-          {
-            detail: selectedTheme,
-          }
-        )
+        new CustomEvent("athleticore-theme-change", {
+          detail: selectedTheme,
+        })
       );
 
-      setMessage(
-        "Appearance settings saved successfully."
-      );
+      setMessage("Appearance settings saved successfully.");
     } catch (error) {
-      console.error(
-        "Failed to save appearance settings:",
-        error
-      );
+      console.error("Failed to save appearance settings:", error);
 
-      setMessage(
-        "Unable to save appearance settings. Please try again."
-      );
+      setMessage("Unable to save appearance settings. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -174,79 +168,110 @@ export default function AppearanceSettings() {
         subtitle="Customize how Athleticore looks"
       />
 
-      <DashboardCard className="mt-6">
+      <DashboardCard className="relative mt-6 overflow-hidden border-border bg-card shadow-xs transition-colors">
+        {/* Top Accent Strip (Account & System Settings Theme Strip) */}
+        <div
+          className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-400"
+          aria-hidden="true"
+        />
+
         {message && (
-          <div className="mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-            {message}
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="mt-0.5 shrink-0" size={16} />
+            <span>{message}</span>
           </div>
         )}
 
         {loading ? (
-          <div className="py-8 text-center text-sm text-zinc-500">
-            Loading appearance settings...
+          <div className="grid gap-4 py-2 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="h-44 animate-pulse rounded-2xl border border-border/50 bg-muted/20 p-5"
+              >
+                <div className="h-11 w-11 rounded-xl bg-muted/60" />
+                <div className="mt-5 h-4 w-20 rounded bg-muted/60" />
+                <div className="mt-2 h-3 w-3/4 rounded bg-muted/40" />
+              </div>
+            ))}
           </div>
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-3">
               {themes.map((theme) => {
                 const Icon = theme.icon;
-
-                const isSelected =
-                  selectedTheme === theme.name;
+                const isSelected = selectedTheme === theme.name;
 
                 return (
                   <button
                     key={theme.name}
                     type="button"
-                    onClick={() =>
-                      handleThemeSelect(
-                        theme.name
-                      )
-                    }
-                    className={`relative rounded-2xl border p-5 text-left transition ${
+                    onClick={() => handleThemeSelect(theme.name)}
+                    className={`group relative flex flex-col justify-between rounded-2xl border p-5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       isSelected
-                        ? "border-blue-500 bg-blue-500/10"
-                        : "border-zinc-800 bg-zinc-800/30 hover:border-zinc-700"
+                        ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary/20"
+                        : "border-border bg-muted/30 hover:border-border/80 hover:bg-muted/60"
                     }`}
                   >
+                    {/* Selected Badge Indicator */}
                     {isSelected && (
-                      <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white">
-                        <Check size={14} />
+                      <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs animate-in zoom-in-75">
+                        <Check size={14} strokeWidth={2.5} />
                       </div>
                     )}
 
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-xl ${
-                        isSelected
-                          ? "bg-blue-500/20 text-blue-400"
-                          : "bg-zinc-800 text-zinc-400"
-                      }`}
-                    >
-                      <Icon size={21} />
+                    <div>
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-200 ${
+                          isSelected
+                            ? "border-primary/20 bg-primary/10 text-primary group-hover:scale-105"
+                            : "border-border/60 bg-muted/60 text-muted-foreground group-hover:border-border group-hover:text-foreground"
+                        }`}
+                      >
+                        <Icon size={20} />
+                      </div>
+
+                      <h3 className="mt-4 font-semibold tracking-tight text-foreground">
+                        {theme.name}
+                      </h3>
+
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {theme.description}
+                      </p>
                     </div>
 
-                    <h3 className="mt-4 font-semibold text-white">
-                      {theme.name}
-                    </h3>
-
-                    <p className="mt-1 text-sm text-zinc-500">
-                      {theme.description}
-                    </p>
+                    {/* Miniature Theme Mode Graphic Pill */}
+                    <div className="mt-5 pt-3 border-t border-border/40">
+                      <div
+                        className={`h-2 w-full rounded-full transition-colors ${
+                          isSelected ? "bg-primary/40" : "bg-muted"
+                        }`}
+                      />
+                    </div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            {/* Save Actions */}
+            <div className="mt-6 flex justify-end border-t border-border/50 pt-5">
               <button
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-xs transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {saving
-                  ? "Saving..."
-                  : "Save Appearance"}
+                {saving ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    <span>Save Appearance</span>
+                  </>
+                )}
               </button>
             </div>
           </>
