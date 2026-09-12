@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BarChart3, Calendar, Dumbbell } from "lucide-react";
+import { BarChart3, Dumbbell } from "lucide-react";
 import SectionHeading from "@/components/ui/SectionHeading";
 
 import { auth } from "@/services/firebase/firebase";
