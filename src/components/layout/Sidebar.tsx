@@ -10,10 +10,8 @@ import {
   X,
 } from "lucide-react";
 
-import athleticoreLogo from "@/assets/logos/athleticore-logo.png";
-
 const menu = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard },
+  { name: "Dashboard", path: "/athlete", icon: LayoutDashboard },
   { name: "Profile", path: "/profile", icon: User },
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
   { name: "Training", path: "/training", icon: Dumbbell },
@@ -27,53 +25,58 @@ type SidebarProps = {
   onClose: () => void;
 };
 
-export default function Sidebar({
-  isOpen,
-  onClose,
-}: SidebarProps) {
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
-      {/* Backdrop — click outside to close */}
+      {/* Click-outside Backdrop: z-[60] to sit cleanly on top of Navbar */}
       {isOpen && (
         <div
           onClick={onClose}
           aria-hidden="true"
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-sm transition-opacity"
         />
       )}
 
-      {/* Sidebar panel */}
+      {/* Slide-over Drawer Panel: z-[70] so it is completely above everything */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform duration-300 ${
+        className={`fixed inset-y-0 left-0 z-[70] flex h-screen w-72 flex-col border-r border-white/[0.08] bg-[#0B1017] text-neutral-100 shadow-[0_0_60px_rgba(0,0,0,0.95)] transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Logo */}
-        <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
+        {/* Header Branding */}
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/[0.08] px-6">
           <div className="flex items-center gap-3">
-            <img
-              src={athleticoreLogo}
-              alt="Athleticore"
-              className="h-8 w-8 object-contain"
-            />
-
-            <h1 className="text-xl font-semibold text-sidebar-foreground">
-              Athleticore
-            </h1>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#22C55E]/40 bg-[#22C55E]/10 p-1.5 shadow-lg shadow-[#22C55E]/20">
+              <img
+                src="/favicon.svg"
+                alt="Athleticore Logo"
+                className="h-full w-full object-contain filter drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = "none";
+                }}
+              />
+            </div>
+            <span className="text-xl font-black tracking-tight text-white">
+              Athleti<span className="text-[#22C55E]">core</span>
+            </span>
           </div>
 
           <button
             type="button"
             onClick={onClose}
             aria-label="Close sidebar"
-            className="rounded-lg p-1.5 text-sidebar-foreground/60 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            className="rounded-xl border border-white/10 p-1.5 text-neutral-400 transition hover:bg-white/[0.05] hover:text-white"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-2 overflow-y-auto p-4">
+        {/* Navigation Console */}
+        <nav className="flex-1 space-y-1.5 overflow-y-auto p-4">
+          <div className="px-3 pb-2 pt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+            Console Navigation
+          </div>
+
           {menu.map((item) => {
             const Icon = item.icon;
 
@@ -83,19 +86,47 @@ export default function Sidebar({
                 to={item.path}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
+                  `group relative flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-xs font-semibold tracking-wide transition-all ${
                     isActive
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      ? "border border-[#22C55E]/30 bg-[#22C55E]/10 text-white shadow-md shadow-[#22C55E]/10"
+                      : "border border-transparent text-neutral-400 hover:border-white/5 hover:bg-white/[0.03] hover:text-white"
                   }`
                 }
               >
-                <Icon size={20} />
-                {item.name}
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      size={18}
+                      className={`transition-colors ${
+                        isActive
+                          ? "text-[#22C55E] filter drop-shadow-[0_0_6px_rgba(34,197,94,0.4)]"
+                          : "text-neutral-500 group-hover:text-neutral-300"
+                      }`}
+                    />
+                    <span>{item.name}</span>
+
+                    {isActive && (
+                      <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-[#22C55E] shadow-[0_0_6px_#22C55E]" />
+                    )}
+                  </>
+                )}
               </NavLink>
             );
           })}
         </nav>
+
+        {/* Bottom System Status */}
+        <div className="border-t border-white/[0.08] p-4">
+          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3 text-left">
+            <div className="flex items-center justify-between font-mono text-[10px] text-neutral-400">
+              <span>SYSTEM STATE</span>
+              <span className="font-bold text-[#22C55E]">ONLINE</span>
+            </div>
+            <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10">
+              <div className="h-full w-full bg-[#22C55E]" />
+            </div>
+          </div>
+        </div>
       </aside>
     </>
   );

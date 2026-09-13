@@ -9,22 +9,57 @@ import {
 import { db } from "./firebase";
 
 /* --------------------------------
+   Types
+-------------------------------- */
+
+export type UserRole = "athlete" | "coach" | "manager";
+
+export interface UserProfile {
+  name: string;
+  email: string;
+  role: UserRole;
+  createdAt?: any;
+
+  // Profile attributes
+  age?: number;
+  height?: number;
+  weight?: number;
+  position?: string;
+  team?: string;
+  dominantFoot?: string;
+  location?: string;
+  phone?: string;
+  bio?: string;
+
+  // Training preferences
+  trainingLevel?: string;
+  primaryGoal?: string;
+  trainingDays?: string[];
+  sessionDuration?: number;
+  recoveryTracking?: boolean;
+
+  // Notification preferences
+  trainingReminders?: boolean;
+  performanceUpdates?: boolean;
+  emailNotifications?: boolean;
+
+  // Appearance preference
+  appearance?: "Dark" | "Light" | "System";
+}
+
+/* --------------------------------
    Create User Profile
 -------------------------------- */
 
 export async function createUserProfile(
   uid: string,
   name: string,
-  email: string
-) {
-  const userRef = doc(
-    db,
-    "users",
-    uid
-  );
+  email: string,
+  role: UserRole = "athlete"
+): Promise<void> {
+  const userRef = doc(db, "users", uid);
 
-  const existingProfile =
-    await getDoc(userRef);
+  const existingProfile = await getDoc(userRef);
 
   // Don't overwrite an existing profile
   if (existingProfile.exists()) {
@@ -34,7 +69,7 @@ export async function createUserProfile(
   await setDoc(userRef, {
     name,
     email,
-    role: "athlete",
+    role,
     createdAt: serverTimestamp(),
   });
 }
@@ -45,66 +80,28 @@ export async function createUserProfile(
 
 export async function getUserProfile(
   uid: string
-) {
-  const userRef = doc(
-    db,
-    "users",
-    uid
-  );
+): Promise<UserProfile | null> {
+  const userRef = doc(db, "users", uid);
 
-  const snapshot =
-    await getDoc(userRef);
+  const snapshot = await getDoc(userRef);
 
   if (!snapshot.exists()) {
     return null;
   }
 
-  return snapshot.data();
+  return snapshot.data() as UserProfile;
 }
 
 /* --------------------------------
    Update User Profile
+   (Role is excluded to prevent elevation)
 -------------------------------- */
 
 export async function updateUserProfile(
   uid: string,
-  data: {
-    // Profile
-    name?: string;
-    age?: number;
-    height?: number;
-    weight?: number;
-    position?: string;
-    team?: string;
-    dominantFoot?: string;
-    location?: string;
-    phone?: string;
-    bio?: string;
+  data: Omit<Partial<UserProfile>, "role" | "createdAt" | "email">
+): Promise<void> {
+  const userRef = doc(db, "users", uid);
 
-    // Training preferences
-    trainingLevel?: string;
-    primaryGoal?: string;
-    trainingDays?: string[];
-    sessionDuration?: number;
-    recoveryTracking?: boolean;
-
-    // Notification preferences
-    trainingReminders?: boolean;
-    performanceUpdates?: boolean;
-    emailNotifications?: boolean;
-
-    // Appearance preference
-    appearance?: "Dark" | "Light" | "System";
-  }
-) {
-  const userRef = doc(
-    db,
-    "users",
-    uid
-  );
-
-  await updateDoc(
-    userRef,
-    data
-  );
+  await updateDoc(userRef, data);
 }
