@@ -1,41 +1,36 @@
-import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-
+import { useEffect, useState } from "react";
 import { auth } from "@/services/firebase/firebase";
-import {
-  getUserProfile,
-  type UserProfile,
-  type UserRole,
-} from "@/services/firebase/users";
-import { getRoleDashboardPath } from "@/services/firebase/auth";
+import { getUserProfile } from "@/services/firebase/users";
 
-interface ProtectedRouteProps {
-  allowedRoles?: UserRole[];
-}
-
-export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const [user, setUser] = useState(auth.currentUser);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+export default function ProtectedRoute({
+  allowedRoles,
+}: {
+  allowedRoles?: string[];
+}) {
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-
-      if (currentUser) {
-        try {
-          const userProfile = await getUserProfile(currentUser.uid);
-          setProfile(userProfile);
-        } catch (error) {
-          console.error("Failed to load user profile in ProtectedRoute:", error);
-          setProfile(null);
-        }
-      } else {
-        setProfile(null);
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
       }
 
-      setLoading(false);
+      setIsAuthenticated(true);
+
+      try {
+        const profile = await getUserProfile(user.uid);
+        setRole(profile?.role?.toLowerCase() || "athlete");
+      } catch (err) {
+        console.error("Failed checking role in route:", err);
+        setRole("athlete");
+      } finally {
+        setLoading(false);
+      }
     });
 
     return () => unsubscribe();
@@ -43,30 +38,21 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#070B0E]">
-        <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-[#22C55E]" />
-          <p className="mt-4 font-mono text-xs text-neutral-400">
-            AUTHENTICATING COMBINE SESSION...
-          </p>
-        </div>
+      <div className="flex h-screen w-full items-center justify-center bg-[#070B0E] text-neutral-400">
+        <p className="animate-pulse font-mono text-xs uppercase tracking-widest text-[#22C55E]">
+          Validating Security Clearance...
+        </p>
       </div>
     );
   }
 
-  // Not logged in -> redirect to login
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Logged in via Firebase Auth, but missing Firestore profile record
-  if (!profile) {
-    return <Navigate to="/register" replace />;
-  }
-
-  // Logged in, but trying to access an unauthorized route
-  if (allowedRoles && !allowedRoles.includes(profile.role)) {
-    return <Navigate to={getRoleDashboardPath(profile.role)} replace />;
+  if (allowedRoles && role && !allowedRoles.map(r => r.toLowerCase()).includes(role)) {
+    // If coach tries to go to athlete route, send to /coach. If athlete, send to /athlete.
+    return <Navigate to={role === "coach" ? "/coach" : "/athlete"} replace />;
   }
 
   return <Outlet />;

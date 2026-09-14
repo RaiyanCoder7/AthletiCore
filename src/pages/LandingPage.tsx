@@ -9,7 +9,6 @@ import {
   Sparkles,
   User,
   Users,
-  Zap,
 } from "lucide-react";
 
 export default function LandingPage() {

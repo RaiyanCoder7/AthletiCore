@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   User,
@@ -8,14 +9,30 @@ import {
   Calendar,
   Settings,
   X,
+  Users,
+  Shield,
+  Activity,
 } from "lucide-react";
 
-const menu = [
+import { auth } from "@/services/firebase/firebase";
+import { getUserProfile } from "@/services/firebase/users";
+
+const ATHLETE_MENU = [
   { name: "Dashboard", path: "/athlete", icon: LayoutDashboard },
   { name: "Profile", path: "/profile", icon: User },
   { name: "Analytics", path: "/analytics", icon: BarChart3 },
   { name: "Training", path: "/training", icon: Dumbbell },
   { name: "Goals", path: "/goals", icon: Target },
+  { name: "Calendar", path: "/calendar", icon: Calendar },
+  { name: "Settings", path: "/settings", icon: Settings },
+];
+
+const COACH_MENU = [
+  { name: "Dashboard", path: "/coach", icon: LayoutDashboard },
+  { name: "Athletes", path: "/coach/athletes", icon: Users },
+  { name: "Teams", path: "/coach/teams", icon: Shield },
+  { name: "Training", path: "/coach/training", icon: Dumbbell },
+  { name: "Performance", path: "/coach/performance", icon: Activity },
   { name: "Calendar", path: "/calendar", icon: Calendar },
   { name: "Settings", path: "/settings", icon: Settings },
 ];
@@ -26,9 +43,31 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const [role, setRole] = useState<string>("athlete");
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        const profile = await getUserProfile(user.uid);
+        if (profile?.role) {
+          setRole(profile.role.toLowerCase());
+        }
+      } catch (err) {
+        console.error("Failed to load user role for sidebar:", err);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
+
+  const menu = role === "coach" ? COACH_MENU : ATHLETE_MENU;
+
   return (
     <>
-      {/* Click-outside Backdrop: z-[60] to sit cleanly on top of Navbar */}
+      {/* Click-outside Backdrop */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -37,7 +76,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         />
       )}
 
-      {/* Slide-over Drawer Panel: z-[70] so it is completely above everything */}
+      {/* Slide-over Drawer Panel */}
       <aside
         className={`fixed inset-y-0 left-0 z-[70] flex h-screen w-72 flex-col border-r border-white/[0.08] bg-[#0B1017] text-neutral-100 shadow-[0_0_60px_rgba(0,0,0,0.95)] transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
@@ -74,7 +113,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Navigation Console */}
         <nav className="flex-1 space-y-1.5 overflow-y-auto p-4">
           <div className="px-3 pb-2 pt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-            Console Navigation
+            {role === "coach" ? "Coach Command Console" : "Athlete Console"}
           </div>
 
           {menu.map((item) => {
@@ -84,6 +123,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <NavLink
                 key={item.path}
                 to={item.path}
+                end={item.path === "/coach" || item.path === "/athlete"}
                 onClick={onClose}
                 className={({ isActive }) =>
                   `group relative flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-xs font-semibold tracking-wide transition-all ${
