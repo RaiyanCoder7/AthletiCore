@@ -156,7 +156,7 @@ AthletiCore/
 
 ### ⚙️ Coach Dashboard
 
-![Coach Dashboard](./screenshots/coach-dashborad.png)
+![Coach Dashboard](./screenshots/coach-dashboard.png)
 
 ---
 
