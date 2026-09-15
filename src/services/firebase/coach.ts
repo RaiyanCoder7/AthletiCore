@@ -7,11 +7,12 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   arrayUnion,
   onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
 
 export interface CoachAthlete {
   id: string;
@@ -19,9 +20,12 @@ export interface CoachAthlete {
   email?: string;
   position?: string;
   category?: "FWD" | "MID" | "DEF" | "GK";
+  teamId?: string;
+  teamName?: string;
   fitnessScore: number;
   status: "Critical" | "Monitor" | "Optimal";
   availability: "Available" | "Questionable" | "Out";
+  clearance?: "Full Clearance" | "Conditional" | "Sidelined";
   age?: number;
   height?: string | number;
   weight?: string | number;
@@ -56,10 +60,11 @@ export interface CoachTrainingDoc {
   attendeesCount: number;
   maxSquadSize: number;
   status: "Scheduled" | "In Progress" | "Completed";
+  attendance?: Record<string, "Present" | "Late" | "Excused" | "Absent">;
   createdAt?: any;
 }
 
-export interface TeamDoc {
+export interface TeamSquadDoc {
   id?: string;
   name: string;
   division: string;
@@ -68,160 +73,131 @@ export interface TeamDoc {
   formation: string;
   homeGround: string;
   coachId: string;
-  nextFixture: {
+  nextFixture?: {
     opponent: string;
     date: string;
     competition: string;
   };
+  createdAt?: any;
 }
 
-/**
- * 1. Listen to all athletes registered in the platform
- */
+/* --------------------------------------------------------------------------
+   ATHLETES
+-------------------------------------------------------------------------- */
 export function subscribeToAthletes(
   callback: (athletes: CoachAthlete[]) => void,
-  onError?: (error: Error) => void
+  onError?: (err: Error) => void
 ) {
-  const usersRef = collection(db, "users");
-  const q = query(usersRef, where("role", "==", "athlete"));
+  const q = query(collection(db, "users"), where("role", "==", "athlete"));
 
   return onSnapshot(
     q,
-    (snapshot) => {
-      const athletes: CoachAthlete[] = snapshot.docs.map((docSnap) => {
-        const data = docSnap.data();
-
-        const fitnessScore = data.fitnessScore ?? data.readinessScore ?? 85;
+    (snap) => {
+      const athletes: CoachAthlete[] = snap.docs.map((docSnap) => {
+        const d = docSnap.data();
+        const fitnessScore = d.fitnessScore ?? d.readinessScore ?? 85;
         let status: "Critical" | "Monitor" | "Optimal" = "Optimal";
         if (fitnessScore < 65) status = "Critical";
         else if (fitnessScore < 75) status = "Monitor";
 
         return {
           id: docSnap.id,
-          name: data.name || "Athlete",
-          email: data.email,
-          position: data.position || "Flex",
-          category: data.category || "MID",
+          name: d.name || "Athlete",
+          email: d.email,
+          position: d.position || "Flex",
+          category: d.category || "MID",
+          teamId: d.teamId,
+          teamName: d.teamName,
           fitnessScore,
-          status: data.status || status,
-          availability:
-            data.availability ||
-            (status === "Critical" ? "Questionable" : "Available"),
-          age: data.age || 20,
-          height: data.height ? `${data.height} cm` : "180 cm",
-          weight: data.weight ? `${data.weight} kg` : "75 kg",
-          restingHR: data.restingHR ? `${data.restingHR} bpm` : "56 bpm",
-          maxVelocity: data.maxVelocity ? `${data.maxVelocity} km/h` : "31.2 km/h",
+          status: d.status || status,
+          clearance: d.clearance || (status === "Critical" ? "Sidelined" : status === "Monitor" ? "Conditional" : "Full Clearance"),
+          availability: d.availability || (status === "Critical" ? "Out" : status === "Monitor" ? "Questionable" : "Available"),
+          age: d.age || 20,
+          height: d.height ? `${d.height} cm` : "180 cm",
+          weight: d.weight ? `${d.weight} kg` : "75 kg",
+          restingHR: d.restingHR ? `${d.restingHR} bpm` : "56 bpm",
+          maxVelocity: d.maxVelocity ? `${d.maxVelocity} km/h` : "31.2 km/h",
           metrics: {
-            speed: data.metrics?.speed ?? 82,
-            strength: data.metrics?.strength ?? 80,
-            endurance: data.metrics?.endurance ?? 84,
-            agility: data.metrics?.agility ?? 86,
+            speed: d.metrics?.speed ?? 82,
+            strength: d.metrics?.strength ?? 80,
+            endurance: d.metrics?.endurance ?? 84,
+            agility: d.metrics?.agility ?? 86,
           },
-          notes: data.notes || [],
-          lastActive: data.lastActive || "Recently",
+          notes: d.notes || [],
+          lastActive: d.lastActive || "Recently",
         };
       });
-
       callback(athletes);
     },
-    (err) => {
-      if (onError) onError(err);
-      else console.error("Error subscribing to athletes:", err);
-    }
+    (err) => (onError ? onError(err) : console.error("subscribeToAthletes error:", err))
   );
 }
 
-/**
- * 2. Get single athlete biometrics and notes
- */
-export async function getCoachAthleteDetail(
-  athleteId: string
-): Promise<CoachAthlete | null> {
-  const docRef = doc(db, "users", athleteId);
-  const snap = await getDoc(docRef);
-
+export async function getCoachAthleteDetail(athleteId: string): Promise<CoachAthlete | null> {
+  const snap = await getDoc(doc(db, "users", athleteId));
   if (!snap.exists()) return null;
-
-  const data = snap.data();
-  const fitnessScore = data.fitnessScore ?? data.readinessScore ?? 85;
+  const d = snap.data();
+  const fitnessScore = d.fitnessScore ?? d.readinessScore ?? 85;
   let status: "Critical" | "Monitor" | "Optimal" = "Optimal";
   if (fitnessScore < 65) status = "Critical";
   else if (fitnessScore < 75) status = "Monitor";
 
   return {
     id: snap.id,
-    name: data.name || "Athlete",
-    email: data.email,
-    position: data.position || "Center Midfielder",
-    category: data.category || "MID",
+    name: d.name || "Athlete",
+    email: d.email,
+    position: d.position || "Center Midfielder",
+    category: d.category || "MID",
+    teamId: d.teamId,
+    teamName: d.teamName,
     fitnessScore,
-    status: data.status || status,
-    availability: data.availability || "Available",
-    age: data.age || 20,
-    height: data.height ? `${data.height} cm` : "178 cm",
-    weight: data.weight ? `${data.weight} kg` : "72 kg",
-    restingHR: data.restingHR ? `${data.restingHR} bpm` : "54 bpm",
-    maxVelocity: data.maxVelocity ? `${data.maxVelocity} km/h` : "32.4 km/h",
+    status: d.status || status,
+    clearance: d.clearance || "Full Clearance",
+    availability: d.availability || "Available",
+    age: d.age || 20,
+    height: d.height ? `${d.height} cm` : "178 cm",
+    weight: d.weight ? `${d.weight} kg` : "72 kg",
+    restingHR: d.restingHR ? `${d.restingHR} bpm` : "54 bpm",
+    maxVelocity: d.maxVelocity ? `${d.maxVelocity} km/h` : "32.4 km/h",
     metrics: {
-      speed: data.metrics?.speed ?? 88,
-      strength: data.metrics?.strength ?? 82,
-      endurance: data.metrics?.endurance ?? 85,
-      agility: data.metrics?.agility ?? 90,
+      speed: d.metrics?.speed ?? 88,
+      strength: d.metrics?.strength ?? 82,
+      endurance: d.metrics?.endurance ?? 85,
+      agility: d.metrics?.agility ?? 90,
     },
-    notes: data.notes || [],
-    lastActive: data.lastActive || "Active Today",
+    notes: d.notes || [],
+    lastActive: d.lastActive || "Active Today",
   };
 }
 
-/**
- * 3. Append observation note to an athlete's record
- */
-export async function addAthleteCoachNote(
-  athleteId: string,
-  note: { text: string; author: string }
-) {
-  const athleteRef = doc(db, "users", athleteId);
-  const notePayload = {
+export async function addAthleteCoachNote(athleteId: string, note: { text: string; author: string }) {
+  const payload = {
     id: `note-${Date.now()}`,
-    date: new Date().toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
+    date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
     text: note.text,
     author: note.author,
   };
-
-  await updateDoc(athleteRef, {
-    notes: arrayUnion(notePayload),
-  });
-
-  return notePayload;
+  await updateDoc(doc(db, "users", athleteId), { notes: arrayUnion(payload) });
+  return payload;
 }
 
-/**
- * 4. Register or invite a new athlete to the squad roster
- */
 export async function createAthleteRosterEntry(athleteData: {
   name: string;
   email: string;
   position: string;
   category: "FWD" | "MID" | "DEF" | "GK";
   age: number;
+  teamId?: string;
+  teamName?: string;
 }) {
-  const usersRef = collection(db, "users");
-  const docRef = await addDoc(usersRef, {
+  const docRef = await addDoc(collection(db, "users"), {
     ...athleteData,
     role: "athlete",
     fitnessScore: 85,
     status: "Optimal",
+    clearance: "Full Clearance",
     availability: "Available",
-    metrics: {
-      speed: 80,
-      strength: 80,
-      endurance: 80,
-      agility: 80,
-    },
+    metrics: { speed: 80, strength: 80, endurance: 80, agility: 80 },
     notes: [],
     createdAt: serverTimestamp(),
     lastActive: "Just added",
@@ -229,9 +205,6 @@ export async function createAthleteRosterEntry(athleteData: {
   return docRef.id;
 }
 
-/**
- * 5. Adjust workload targets and clearance status for an athlete
- */
 export async function updateAthleteWorkload(
   athleteId: string,
   payload: {
@@ -242,74 +215,98 @@ export async function updateAthleteWorkload(
     coachName: string;
   }
 ) {
-  const athleteRef = doc(db, "users", athleteId);
-
   const updates: Record<string, any> = {
     clearance: payload.clearance,
     workloadCapPercent: payload.workloadCapPercent,
-    status:
-      payload.clearance === "Sidelined"
-        ? "Critical"
-        : payload.clearance === "Conditional"
-        ? "Monitor"
-        : "Optimal",
-    availability:
-      payload.clearance === "Sidelined"
-        ? "Out"
-        : payload.clearance === "Conditional"
-        ? "Questionable"
-        : "Available",
+    status: payload.clearance === "Sidelined" ? "Critical" : payload.clearance === "Conditional" ? "Monitor" : "Optimal",
+    availability: payload.clearance === "Sidelined" ? "Out" : payload.clearance === "Conditional" ? "Questionable" : "Available",
   };
+  if (typeof payload.fitnessScore === "number") updates.fitnessScore = payload.fitnessScore;
 
-  if (typeof payload.fitnessScore === "number") {
-    updates.fitnessScore = payload.fitnessScore;
-  }
-
-  await updateDoc(athleteRef, updates);
+  await updateDoc(doc(db, "users", athleteId), updates);
 
   if (payload.protocolNote?.trim()) {
     await addAthleteCoachNote(athleteId, {
-      text: `[Workload Adjusted to ${payload.workloadCapPercent}% • ${payload.clearance}]: ${payload.protocolNote.trim()}`,
+      text: `[Workload ${payload.workloadCapPercent}% • ${payload.clearance}]: ${payload.protocolNote.trim()}`,
       author: payload.coachName,
     });
   }
 }
 
-/**
- * 6. Subscribe to scheduled training drills
- */
+/* --------------------------------------------------------------------------
+   TEAMS
+-------------------------------------------------------------------------- */
+export function subscribeToTeams(
+  callback: (teams: TeamSquadDoc[]) => void,
+  onError?: (err: Error) => void
+) {
+  return onSnapshot(
+    collection(db, "teams"),
+    (snap) => {
+      const teams = snap.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<TeamSquadDoc, "id">),
+      }));
+      callback(teams);
+    },
+    (err) => (onError ? onError(err) : console.error("subscribeToTeams error:", err))
+  );
+}
+
+export async function createTeamSquad(team: Omit<TeamSquadDoc, "id" | "coachId" | "createdAt">) {
+  const coachId = auth.currentUser?.uid || "coach-system";
+  const docRef = await addDoc(collection(db, "teams"), {
+    ...team,
+    coachId,
+    createdAt: serverTimestamp(),
+  });
+  return docRef.id;
+}
+
+/* --------------------------------------------------------------------------
+   TRAINING SESSIONS & ATTENDANCE
+-------------------------------------------------------------------------- */
 export function subscribeToTrainingSessions(
   callback: (sessions: CoachTrainingDoc[]) => void,
   onError?: (err: Error) => void
 ) {
-  const sessionsRef = collection(db, "training_sessions");
-
   return onSnapshot(
-    sessionsRef,
-    (snapshot) => {
-      const items: CoachTrainingDoc[] = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...(docSnap.data() as Omit<CoachTrainingDoc, "id">),
+    collection(db, "training_sessions"),
+    (snap) => {
+      const items: CoachTrainingDoc[] = snap.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<CoachTrainingDoc, "id">),
       }));
       callback(items);
     },
-    (err) => {
-      if (onError) onError(err);
-      else console.error("Error subscribing to training sessions:", err);
-    }
+    (err) => (onError ? onError(err) : console.error("subscribeToTrainingSessions error:", err))
   );
 }
 
-/**
- * 7. Create new pitch drill session in Firestore
- */
-export async function createTrainingSessionDoc(
-  session: Omit<CoachTrainingDoc, "id" | "createdAt">
-) {
-  const colRef = collection(db, "training_sessions");
-  const docRef = await addDoc(colRef, {
+export async function createTrainingSessionDoc(session: Omit<CoachTrainingDoc, "id" | "coachId" | "createdAt">) {
+  const coachId = auth.currentUser?.uid || "coach-system";
+  const docRef = await addDoc(collection(db, "training_sessions"), {
     ...session,
+    coachId,
+    attendance: {},
     createdAt: serverTimestamp(),
   });
   return docRef.id;
+}
+
+export async function updateSessionAttendance(
+  sessionId: string,
+  athleteId: string,
+  status: "Present" | "Late" | "Excused" | "Absent"
+) {
+  await updateDoc(doc(db, "training_sessions", sessionId), {
+    [`attendance.${athleteId}`]: status,
+  });
+}
+
+export async function updateSessionStatus(
+  sessionId: string,
+  status: "Scheduled" | "In Progress" | "Completed"
+) {
+  await updateDoc(doc(db, "training_sessions", sessionId), { status });
 }

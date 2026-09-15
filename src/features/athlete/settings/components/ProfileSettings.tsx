@@ -24,7 +24,8 @@ export default function ProfileSettings() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [position, setPosition] = useState("Athlete");
+  const [role, setRole] = useState<"athlete" | "coach" | "manager">("athlete");
+  const [position, setPosition] = useState("");
   const [bio, setBio] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -57,14 +58,20 @@ export default function ProfileSettings() {
         if (!isMounted) return;
 
         if (profile) {
-          setName(profile.name || "");
+          const userRole = (profile.role?.toLowerCase() || "athlete") as "athlete" | "coach" | "manager";
+          setRole(userRole);
+          setName(profile.name || user.displayName || "");
           setEmail(profile.email || user.email || "");
           setPhone(profile.phone || "");
-          setPosition(profile.position || "Athlete");
+          setPosition(
+            profile.position ||
+              (userRole === "coach" ? "Head Coach" : "Athlete")
+          );
           setBio(profile.bio || "");
         } else {
           setName(user.displayName || "");
           setEmail(user.email || "");
+          setPosition("Athlete");
         }
       } catch (err) {
         console.error("Failed to load profile:", err);
@@ -112,6 +119,7 @@ export default function ProfileSettings() {
         position,
         phone: phone.trim(),
         bio: bio.trim(),
+        role, // Preserves the role in Firestore
       });
 
       setSuccess("Profile updated successfully.");
@@ -123,17 +131,23 @@ export default function ProfileSettings() {
     }
   };
 
+  const isCoach = role === "coach";
+
   return (
     <section>
       <SectionHeading
         title="Profile Settings"
-        subtitle="Update your personal information"
+        subtitle="Update your personal credentials and role information"
       />
 
       <DashboardCard className="relative mt-6 overflow-hidden border-border bg-card shadow-xs transition-colors">
-        {/* Top Accent Strip (Account/Settings: Slate-to-Blue subtle branding strip) */}
+        {/* Top Accent Strip */}
         <div
-          className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-400"
+          className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${
+            isCoach
+              ? "from-emerald-600 via-teal-500 to-green-400"
+              : "from-blue-600 via-indigo-500 to-sky-400"
+          }`}
           aria-hidden="true"
         />
 
@@ -244,35 +258,72 @@ export default function ProfileSettings() {
                 </div>
               </div>
 
-              {/* Position / Role */}
+              {/* Position / Tactical Role */}
               <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Position / Role
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Assigned Role & Title
+                  </label>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider ${
+                      isCoach
+                        ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+                        : "border border-blue-500/30 bg-blue-500/10 text-blue-500"
+                    }`}
+                  >
+                    <Shield size={10} />
+                    {role}
+                  </span>
+                </div>
 
                 <div className="relative">
-                  <select
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    disabled={saving}
-                    className="w-full appearance-none rounded-xl border border-border bg-muted/40 py-2.5 pl-4 pr-10 text-sm text-foreground outline-none transition-all hover:bg-muted/60 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="Athlete" className="bg-card text-foreground">
-                      Athlete
-                    </option>
-                    <option value="Goalkeeper" className="bg-card text-foreground">
-                      Goalkeeper
-                    </option>
-                    <option value="Defender" className="bg-card text-foreground">
-                      Defender
-                    </option>
-                    <option value="Midfielder" className="bg-card text-foreground">
-                      Midfielder
-                    </option>
-                    <option value="Forward" className="bg-card text-foreground">
-                      Forward
-                    </option>
-                  </select>
+                  {isCoach ? (
+                    <select
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      disabled={saving}
+                      className="w-full appearance-none rounded-xl border border-border bg-muted/40 py-2.5 pl-4 pr-10 text-sm text-foreground outline-none transition-all hover:bg-muted/60 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="Head Coach" className="bg-card text-foreground">
+                        Head Coach
+                      </option>
+                      <option value="Assistant Coach" className="bg-card text-foreground">
+                        Assistant Coach
+                      </option>
+                      <option value="Tactical Analyst" className="bg-card text-foreground">
+                        Tactical Analyst
+                      </option>
+                      <option value="Conditioning Coach" className="bg-card text-foreground">
+                        Conditioning Coach
+                      </option>
+                      <option value="Goalkeeping Coach" className="bg-card text-foreground">
+                        Goalkeeping Coach
+                      </option>
+                    </select>
+                  ) : (
+                    <select
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      disabled={saving}
+                      className="w-full appearance-none rounded-xl border border-border bg-muted/40 py-2.5 pl-4 pr-10 text-sm text-foreground outline-none transition-all hover:bg-muted/60 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="Athlete" className="bg-card text-foreground">
+                        Athlete
+                      </option>
+                      <option value="Goalkeeper" className="bg-card text-foreground">
+                        Goalkeeper
+                      </option>
+                      <option value="Defender" className="bg-card text-foreground">
+                        Defender
+                      </option>
+                      <option value="Midfielder" className="bg-card text-foreground">
+                        Midfielder
+                      </option>
+                      <option value="Forward" className="bg-card text-foreground">
+                        Forward
+                      </option>
+                    </select>
+                  )}
 
                   <ChevronDown
                     size={16}
@@ -293,7 +344,11 @@ export default function ProfileSettings() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 disabled={saving}
-                placeholder="Tell us a little about your athletic journey, training focus, or current targets..."
+                placeholder={
+                  isCoach
+                    ? "Coaching background, licenses (e.g. AFC / UEFA), tactical philosophies, or squad targets..."
+                    : "Tell us a little about your athletic journey, training focus, or current targets..."
+                }
                 className="w-full resize-none rounded-xl border border-border bg-muted/40 p-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground/50 hover:bg-muted/60 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
