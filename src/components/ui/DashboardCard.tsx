@@ -40,7 +40,7 @@ export default function DashboardCard({
         bg-card
         p-6
         shadow-sm
-        shadow-slate-900/[0.04]
+        shadow-slate-900/4
         dark:shadow-black/20
         transition-all
         duration-200
@@ -52,7 +52,7 @@ export default function DashboardCard({
       {accent && (
         <div
           aria-hidden="true"
-          className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${accentStyles[accent]}`}
+          className={`absolute inset-x-0 top-0 h-0.5 bg-linear-to-r ${accentStyles[accent]}`}
         />
       )}
 

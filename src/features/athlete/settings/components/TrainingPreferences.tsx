@@ -168,7 +168,7 @@ export default function TrainingPreferences() {
       <DashboardCard className="relative mt-6 overflow-hidden border-border bg-card shadow-xs transition-colors">
         {/* Accent Strip: Emerald for Coach, Orange for Athlete */}
         <div
-          className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${
+          className={`absolute inset-x-0 top-0 h-1 bg-linear-to-r ${
             isCoach
               ? "from-emerald-600 via-teal-500 to-green-400"
               : "from-orange-500 via-amber-500 to-rose-500"

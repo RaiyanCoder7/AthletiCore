@@ -82,7 +82,7 @@ export default function SettingsHero() {
         </div>
 
         {/* Right Status Cards */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:w-[440px] shrink-0">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:w-110 shrink-0">
           {/* Dynamic Staff/Profile Status Card */}
           <div className="min-w-0 rounded-xl border border-border/70 bg-muted/30 p-4 transition-colors hover:border-border hover:bg-muted/50 sm:p-5">
             <div
@@ -99,7 +99,7 @@ export default function SettingsHero() {
               {isCoach ? "Staff Role" : "Profile Status"}
             </p>
 
-            <p className="mt-1 text-sm font-semibold tracking-tight text-foreground sm:text-base leading-snug break-words">
+            <p className="mt-1 text-sm font-semibold tracking-tight text-foreground sm:text-base leading-snug wrap-break-words">
               {position || (isCoach ? "Coach" : "Personal Info")}
             </p>
           </div>

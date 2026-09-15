@@ -171,7 +171,7 @@ export default function AppearanceSettings() {
       <DashboardCard className="relative mt-6 overflow-hidden border-border bg-card shadow-xs transition-colors">
         {/* Top Accent Strip (Account & System Settings Theme Strip) */}
         <div
-          className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-400"
+          className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-blue-600 via-indigo-500 to-sky-400"
           aria-hidden="true"
         />
 
