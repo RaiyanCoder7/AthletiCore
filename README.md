@@ -95,12 +95,12 @@ AthletiCore/
 │   ├── routes/             # App routing and role-guarded access paths
 │   ├── App.tsx             # Root component
 │   └── main.tsx            # Entry point
-
+```
 ---
 
 ## 📸 Screenshots
 
-### 🔐 Login
+### 🔐 Landing Page
 
 ![Landing Page](./screenshots/landing.png)
 
