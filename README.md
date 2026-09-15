@@ -114,7 +114,7 @@ AthletiCore/
 
 ### 📝 Register
 
-![Register](./screenshots/regsiter.png)
+![Register](./screenshots/register.png)
 
 ---
 
