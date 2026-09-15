@@ -1,506 +1,252 @@
-⚡ AthletiCore
+# ⚡ AthletiCore
 
-«AI-Powered Athlete Development & Management Platform built with React, TypeScript & Firebase.»
+> **AI-Powered Athlete Development & Management Platform**  
+> Built with React 19, TypeScript, Tailwind CSS & Firebase.
 
-"React" (https://img.shields.io/badge/React-19-61DAFB?logo=react)
-"TypeScript" (https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
-"Firebase" (https://img.shields.io/badge/Firebase-Backend-FFCA28?logo=firebase)
-"Vite" (https://img.shields.io/badge/Vite-Frontend-646CFF?logo=vite)
-"License" (https://img.shields.io/badge/License-MIT-green)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Backend-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![Vite](https://img.shields.io/badge/Vite-Frontend-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-🌐 Live Demo
+## 🌐 Live Demo
 
 🔗 https://athleticore-ca65a.web.app/
 
 ---
 
-📌 Overview
+## 📌 Overview
 
-AthletiCore is a modern athlete development and management platform designed to connect athletes and coaches through centralized performance data, training management, goals, analytics, and development insights.
+**AthletiCore** is a modern athlete development and management platform engineered to connect athletes and coaches through centralized performance telemetry, structured training schedules, goal tracking, and predictive analytics.
 
-Athletes can manage their profiles, training sessions, goals, matches, achievements, and performance history through an interactive dashboard.
+- **Athletes** manage training regimens, match statistics, personal bests, and career milestones through a real-time reactive dashboard.
+- **Coaches** monitor squad metrics, assess recovery, review performance curves, and schedule squad-level training drills from a centralized coaching hub.
+- **Vision:** Transform raw athletic telemetry into actionable performance intelligence using AI-driven analytics, computer vision, and wearable data integrations.
 
-Coaches can monitor athletes, review performance information, manage training activities, and gain a centralized view of athlete development.
-
-The long-term vision of AthletiCore is to transform raw athlete data into actionable performance intelligence using AI, analytics, computer vision, and eventually wearable integrations.
-
-«From tracking performance → to understanding performance.»
+> *"From tracking performance → to understanding performance."*
 
 ---
 
-✨ Features
+## ✨ Features
 
-🌐 Landing Page
+### 🌐 Landing & Discovery
+* Responsive marketing layout introducing platform value propositions for athletes, coaches, and sports organizations.
+* Role-tailored access paths and registration entry points.
 
-- Modern product landing page
-- Athleticore product introduction
-- Athlete, Coach & Manager positioning
-- Feature highlights
-- Call-to-action sections
-- Login and registration navigation
-- Responsive design
+### 🏠 Athlete Dashboard
+* Real-time metrics overview: session streaks, training load, upcoming fixtures, and personal best milestones.
+* Dynamic activity visualizations and upcoming calendar schedules.
 
----
+### 👤 Comprehensive Athlete Profiles
+* Biometric logging: age, height, weight, dominant foot, team designation, and tactical positions.
+* Historical records: verified achievements, tournament match logs, and training preferences.
 
-🏠 Athlete Dashboard
+### 📊 Analytics Engine
+* Volume and intensity load tracking via interactive Recharts visualizations.
+* Metric breakdowns covering tactical proficiency, recovery states, and historic trendlines.
 
-- Personalized athlete dashboard
-- Performance summary
-- Training statistics
-- Recent activity
-- Personal best tracking
-- Achievement cards
-- Weekly activity visualization
-- Performance trends
-- Upcoming schedule
+### 💪 Training & Fixture Management
+* Drill, workout, and session scheduling with duration and perceived exertion logging.
+* Match logger tracking opponent data, match outcomes, competition tiers, and individual contributions.
 
----
+### 🎯 Goal Tracking & Calendar
+* Multi-stage goal setup with visual percentage completion bars.
+* Centralized monthly calendar with full event scheduling and category tagging.
 
-👤 Athlete Profile
+### 🧑‍🏫 Coach Command Center
+* Multi-athlete roster management with keyword search and performance filtering.
+* Centralized squad metrics to diagnose fatigue and plan microcycles.
 
-- Edit athlete information
-- Age, height & weight
-- Team & position
-- Dominant foot
-- Location & contact information
-- Training preferences
-- Personal bio
-- Athlete achievements
-- Match history
-- Personal best information
+### 🔐 Security & Identity
+* Multi-role authentication (Athlete, Coach, Manager) backed by Firebase Auth and Google Sign-In.
+* Cloud Firestore security rules ensuring strict user-level data isolation.
 
 ---
 
-📊 Analytics
+## 🛠 Tech Stack
 
-- Performance trend analysis
-- Training load analysis
-- Skill distribution
-- Recovery information
-- Performance metrics
-- Interactive charts
-- AI-powered performance insight foundation
-
----
-
-💪 Training Management
-
-- Create and schedule training sessions
-- Track training sessions
-- Update training status
-- Weekly training overview
-- Training history
-- Session duration tracking
-- Training performance data
+| Domain | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, Framer Motion |
+| **Data Viz & UI** | Recharts, Lucide React, React Router 6+ |
+| **Backend & Cloud** | Firebase Authentication, Cloud Firestore, Firebase App Check |
+| **Deployment** | Firebase Hosting, GitHub Actions |
 
 ---
 
-🎯 Goal Management
+## 📂 Project Structure
 
-- Create personal goals
-- Track goal progress
-- Completion percentage
-- Goal status management
-- Goal history
-
----
-
-📅 Calendar
-
-- Monthly calendar
-- Create events
-- Edit events
-- Delete events
-- Upcoming events
-- Training and activity scheduling
-
----
-
-🏆 Achievements
-
-- Add achievements
-- Edit achievements
-- Delete achievements
-- Achievement types
-- Achievement descriptions
-- Achievement dates
-- Firebase-backed persistent data
+```text
+AthletiCore/
+├── src/
+│   ├── assets/             # Static graphics and icons
+│   ├── components/         # Global reusable atomic UI elements
+│   │   ├── layout/         # Navbars, sidebars, and shell containers
+│   │   └── ui/             # Buttons, inputs, modal dialogs, cards
+│   ├── features/           # Domain-driven modular features
+│   │   ├── athlete/        # Athlete metrics, profiles, and dashboards
+│   │   ├── coach/          # Coach roster views and squad analytics
+│   │   └── auth/           # Login, registration, and session logic
+│   ├── hooks/              # Custom React hooks (state, Firestore listeners)
+│   ├── pages/              # Top-level view routes
+│   ├── services/           # External API & Firebase service initializers
+│   ├── routes/             # App routing and role-guarded access paths
+│   ├── App.tsx             # Root component
+│   └── main.tsx            # Entry point
 
 ---
 
-⚽ Match Management
+## 📸 Screenshots
 
-- Add match records
-- Edit match records
-- Delete match records
-- Opponent information
-- Match result tracking
-- Competition information
-- Match dates
-- Firebase-backed persistent data
+### 🔐 Login
+
+![Landing Page](./screenshots/landing.png)
 
 ---
 
-🧑‍🏫 Coach Dashboard
+### 📝 Login
 
-AthletiCore now includes a dedicated coaching workspace for managing and monitoring athletes.
-
-- Coach dashboard overview
-- Athlete management
-- Athlete search
-- Athlete filtering
-- Athlete performance monitoring
-- Athlete-specific information
-- Training management
-- Team-oriented coaching workflow
-- Performance analytics foundation
-- Centralized athlete development data
-
-The Coach Dashboard is designed to evolve into a complete coaching intelligence system where coaches can monitor athlete development and make data-driven decisions.
+![Login](./screenshots/login.png)
 
 ---
 
-🔐 Authentication
+### 📝 Register
 
-- Email & Password authentication
-- User registration
-- Google authentication
-- Secure Firebase Authentication
-- User-specific profiles
-- Protected application access
-- Role-based authentication architecture
-
-Supported roles:
-
-- Athlete
-- Coach
-- Manager
+![Register](./screenshots/regsiter.png)
 
 ---
 
-🔔 Notifications
+### 🏠 Dashboard
 
-- Training reminders
-- Performance update preferences
-- Notification settings
-- Low-fitness awareness
-- User-configurable notification preferences
+![Dashboard](./screenshots/dashboard.png)
 
 ---
 
-🎨 Appearance & Settings
+### 👤 Profile
 
-- Profile settings
-- Training preferences
-- Notification preferences
-- Dark theme
-- Light theme
-- System theme
-- Persistent theme preference
-- Account security settings
+![Profile](./screenshots/profile.png)
 
 ---
 
-🛠 Tech Stack
+### 📊 Analytics
 
-Frontend
-
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- Framer Motion
-- Recharts
-- Lucide React
-- React Router
-
-Backend & Data
-
-- Firebase Authentication
-- Cloud Firestore
-- Firebase App Check
-
-Development
-
-- Git
-- GitHub
-- VS Code
-
-Deployment
-
-- Firebase Hosting
+![Analytics](./screenshots/analytics.png)
 
 ---
 
-🏗 Architecture
+### 💪 Training
 
-AthletiCore follows a modular feature-based architecture.
-
-User
- │
- ├── Authentication
- │
- ├── Role
- │    ├── Athlete
- │    ├── Coach
- │    └── Manager
- │
- └── Dashboard
-      │
-      ├── Profile
-      ├── Training
-      ├── Goals
-      ├── Calendar
-      ├── Analytics
-      ├── Matches
-      ├── Achievements
-      │
-      └── Coach Workspace
-           ├── Athletes
-           ├── Training
-           ├── Performance
-           └── Team Management
+![Training](./screenshots/training.png)
 
 ---
 
-📂 Project Structure
+### 🎯 Goals
 
-src/
-│
-├── assets/
-│
-├── components/
-│   ├── layout/
-│   └── ui/
-│
-├── features/
-│   ├── athlete/
-│   ├── coach/
-│   └── auth/
-│
-├── hooks/
-│
-├── pages/
-│   ├── landing/
-│   ├── athlete/
-│   ├── coach/
-│   └── settings/
-│
-├── services/
-│   ├── firebase/
-│   └── theme/
-│
-├── routes/
-│
-└── App.tsx
-
-«The exact folder structure may evolve as additional platform modules are introduced.»
+![Goals](./screenshots/goals.png)
 
 ---
 
-📸 Screenshots
+### 📅 Calendar
 
-🌐 Landing Page
-
-"Landing Page" (./screenshots/landing.png)
+![Calendar](./screenshots/calendar.png)
 
 ---
 
-🔐 Login
+### ⚙️ Coach Dashboard
 
-"Login" (./screenshots/login.png)
-
----
-
-📝 Register
-
-"Register" (./screenshots/register.png)
+![Coach Dashboard](./screenshots/coach-dashborad.png)
 
 ---
 
-🏠 Athlete Dashboard
+### ⚙️ Settings
 
-"Dashboard" (./screenshots/dashboard.png)
-
----
-
-👤 Athlete Profile
-
-"Profile" (./screenshots/profile.png)
+![Settings](./screenshots/settings.png)
 
 ---
 
-📊 Analytics
-
-"Analytics" (./screenshots/analytics.png)
-
----
-
-💪 Training
-
-"Training" (./screenshots/training.png)
-
----
-
-🎯 Goals
-
-"Goals" (./screenshots/goals.png)
-
----
-
-📅 Calendar
-
-"Calendar" (./screenshots/calendar.png)
-
----
-
-🧑‍🏫 Coach Dashboard
-
-"Coach Dashboard" (./screenshots/coach-dashboard.png)
-
----
-
-⚙️ Settings
-
-"Settings" (./screenshots/settings.png)
-
----
-
-🚀 Installation
+## 🚀 Installation
 
 Clone the repository
 
+```bash
 git clone https://github.com/RaiyanCoder7/AthletiCore.git
+```
 
-Go to the project folder
+Go to project folder
 
+```bash
 cd AthletiCore
+```
 
 Install dependencies
 
+```bash
 npm install
+```
 
-Create a ".env" file
+Create a `.env` file
 
+```env
 VITE_FIREBASE_API_KEY=YOUR_API_KEY
 VITE_FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
 VITE_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
 VITE_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
 VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID
 VITE_FIREBASE_APP_ID=YOUR_APP_ID
-VITE_RECAPTCHA_SITE_KEY=YOUR_RECAPTCHA_SITE_KEY
+```
 
 Run the development server
 
+```bash
 npm run dev
+```
 
 Build for production
 
+```bash
 npm run build
+```
 
 ---
 
-🔒 Security
-
-AthletiCore uses Firebase security mechanisms to protect user data.
+## 🔒 Security
 
 - Firebase Authentication
 - Firestore Security Rules
-- Firebase App Check
-- User-specific Firestore data
-- Authenticated access
-- Protected application routes
-- Role-aware application architecture
-
-Each athlete's personal data is isolated within their Firebase user document and associated subcollections.
+- User-specific data isolation
+- Protected routes
 
 ---
 
-🧠 Development Roadmap
+## 🚀 Future Improvements
 
-✅ Completed
-
-- [x] Landing Page
-- [x] Firebase Authentication
-- [x] Google Authentication
-- [x] Athlete Dashboard
-- [x] Athlete Profile
-- [x] Training Management
-- [x] Goal Management
-- [x] Calendar
-- [x] Analytics
-- [x] Achievements
-- [x] Match Management
-- [x] Notification Preferences
-- [x] Appearance / Theme System
-- [x] Coach Dashboard
-- [x] Coach Athlete Management
-- [x] Firebase-backed athlete data
-
-🚧 In Progress
-
-- [ ] Complete role-based routing
-- [ ] Manager Dashboard
-- [ ] Advanced coach analytics
-- [ ] Coach-athlete feedback workflow
-- [ ] AI-powered training recommendations
-- [ ] AI coach insights
-
-🔮 Future
-
-- [ ] Team & squad management
-- [ ] Athlete recruitment / discovery
-- [ ] Coach recruitment
-- [ ] Training & match video analysis
-- [ ] Computer vision-based performance assessment
-- [ ] Injury-risk prediction
-- [ ] Wearable / GPS integration
-- [ ] Performance forecasting
-- [ ] Automated PDF performance reports
-- [ ] Sponsorship & opportunity discovery
-- [ ] Training equipment marketplace
-- [ ] Mobile application
-- [ ] Academy & organization management
+- Admin Panel
+- Athlete Profile Photos
+- AI Training Recommendations
+- Injury Prediction
+- Push Notifications
+- PDF Reports
+- Mobile App
+- Team Management
+- Performance Forecasting
 
 ---
 
-🎯 Vision
+## 👨‍💻 Author
 
-AthletiCore aims to build a connected athlete-development ecosystem where performance data is not just recorded but transformed into meaningful decisions.
-
-ATHLETE DATA
-     ↓
-PROFILE + TRAINING + MATCHES + FITNESS
-     ↓
-ATHLETICORE
-     ↓
-ANALYTICS
-     ↓
-AI INTELLIGENCE
-     ↓
-ACTIONABLE INSIGHTS
-     ↓
-BETTER ATHLETE DEVELOPMENT
-
-The long-term vision is to make performance intelligence more accessible to athletes, coaches, academies, and sporting organizations.
-
----
-
-👨‍💻 Author
-
-Md Raiyan Raza Khan
+**Md Raiyan Raza Khan**
 
 GitHub:
 https://github.com/RaiyanCoder7
 
 LinkedIn:
-https://www.linkedin.com/in/mdraiyanzakhan
+https://www.linkedin.com/in/mdraiyanrazakhan
 
 ---
 
-⭐ Support
+## ⭐ Support
 
 If you like this project, consider giving it a ⭐ on GitHub.
 
@@ -508,6 +254,6 @@ It helps the project grow and motivates future development.
 
 ---
 
-📄 License
+## 📄 License
 
 This project is licensed under the MIT License.
