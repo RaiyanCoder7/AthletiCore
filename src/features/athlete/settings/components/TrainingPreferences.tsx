@@ -9,7 +9,6 @@ import {
   Loader2,
   Save,
   Target,
-  Users,
   ShieldAlert,
 } from "lucide-react";
 
@@ -70,7 +69,7 @@ export default function TrainingPreferences() {
           if (Array.isArray(profile.trainingDays)) setTrainingDays(profile.trainingDays);
           if (profile.sessionDuration) setSessionDuration(profile.sessionDuration);
           if (typeof profile.recoveryTracking === "boolean") setRecoveryTracking(profile.recoveryTracking);
-          if (profile.fatigueAlertThreshold) setFatigueAlertThreshold(profile.fatigueAlertThreshold);
+          if (profile.fatigueAlertThreshold) setFatigueAlertThreshold(String(profile.fatigueAlertThreshold));
         }
       } catch (err) {
         console.error("Failed to load training preferences:", err);
@@ -122,7 +121,14 @@ export default function TrainingPreferences() {
         trainingDays,
         sessionDuration,
         recoveryTracking,
-        ...(role === "coach" ? { fatigueAlertThreshold } : {}),
+        ...(role === "coach"
+          ? {
+              fatigueAlertThreshold: Number.parseInt(
+                fatigueAlertThreshold.match(/\d+/)?.[0] ?? fatigueAlertThreshold,
+                10
+              ),
+            }
+          : {}),
       });
 
       setMessage(

@@ -10,8 +10,11 @@ const ai = getAI(app, {
   backend: new GoogleAIBackend(),
 });
 
+/* --------------------------------------------------------------------------
+   Athlete Performance Model
+-------------------------------------------------------------------------- */
 export const performanceModel = getGenerativeModel(ai, {
-  model: "gemini-3.5-flash",
+  model: "gemini-3.6-flash",
 
   systemInstruction: `
 You are AthletiCore AI, a professional sports performance coach.
@@ -75,8 +78,94 @@ Endurance: ${performance.endurance}/100
 Provide personalized coaching feedback using the required structure.
 `;
 
-  const result =
-    await performanceModel.generateContent(prompt);
+  const result = await performanceModel.generateContent(prompt);
+  return result.response.text();
+}
 
+/* --------------------------------------------------------------------------
+   Coach Squad Tactical Model
+-------------------------------------------------------------------------- */
+export const coachTacticalModel = getGenerativeModel(ai, {
+  model: "gemini-3.6-flash",
+
+  systemInstruction: `
+You are AthletiCore AI, an elite sports performance director and tactical load specialist.
+
+Analyze collective squad telemetry, biometric readiness, and injury triage data to provide high-level coaching decisions.
+
+Return the response using EXACTLY this structure:
+
+SQUAD STATUS OVERVIEW
+Write 2-3 concise sentences evaluating collective readiness, squad strain, and physical capacity.
+
+IMMEDIATE TRIAGE DIRECTIVES
+- Bullet point on specific workload restrictions or substitutions needed for flagged players.
+- Bullet point on minutes/volume capping.
+
+TACTICAL TRAINING ADJUSTMENTS
+1. Give a concrete tactical or pitch drill adjustment based on squad condition.
+2. Give a second adjustment (e.g. adjust press intensity, small-sided vs full-pitch).
+3. Give a third adjustment focused on positional balance.
+
+RECOVERY & CLEARANCE PROTOCOLS
+- Give a practical protocol for athletes under Monitor or Critical status.
+- Give a squad-wide post-session recovery directive.
+
+MATCHDAY RISK ASSESSMENT
+Write 1-2 concise sentences assessing team availability risk and competitive vulnerability.
+
+Rules:
+- Use only the provided squad telemetry data.
+- Never invent metrics or extrapolate beyond the numbers provided.
+- Do not offer clinical diagnoses; frame all insights around sports science, load management, and tactical rotation.
+- Scores and readiness are on a 0 to 100 scale.
+`,
+});
+
+export interface SquadTelemetryPayload {
+  squadName: string;
+  totalAthletes: number;
+  avgReadiness: number;
+  criticalCount: number;
+  monitorCount: number;
+  athletesAtRisk: Array<{
+    name: string;
+    status: string;
+    readiness: number;
+    position: string;
+  }>;
+  recentDrillFocus?: string;
+}
+
+export async function generateSquadTacticalAnalysis(
+  payload: SquadTelemetryPayload
+): Promise<string> {
+  const flaggedPlayersFormatted =
+    payload.athletesAtRisk.length > 0
+      ? payload.athletesAtRisk
+          .map(
+            (a) =>
+              `- ${a.name} (${a.position}): Status=${a.status}, Readiness=${a.readiness}%`
+          )
+          .join("\n")
+      : "None (Full squad optimal)";
+
+  const prompt = `
+Analyze the following squad telemetry data:
+
+Squad: ${payload.squadName}
+Total Active Roster: ${payload.totalAthletes} players
+Squad Average Readiness: ${payload.avgReadiness}/100
+Critical / Sidelined Players: ${payload.criticalCount}
+Monitored / Elevated Fatigue: ${payload.monitorCount}
+Recent Training Focus: ${payload.recentDrillFocus || "Standard Conditioning"}
+
+Flagged Players:
+${flaggedPlayersFormatted}
+
+Synthesize this data into tactical insights using the required section headers.
+`;
+
+  const result = await coachTacticalModel.generateContent(prompt);
   return result.response.text();
 }

@@ -7,7 +7,6 @@ import {
   doc,
   addDoc,
   updateDoc,
-  deleteDoc,
   arrayUnion,
   onSnapshot,
   serverTimestamp,
@@ -81,6 +80,24 @@ export interface TeamSquadDoc {
     competition: string;
   };
   createdAt?: any;
+}
+
+export interface AthleteGoalDoc {
+  id: string;
+  title: string;
+  category?: string;
+  targetDate?: string;
+  progress: number;
+  status: "In Progress" | "Completed" | "Pending Review";
+  notes?: string;
+}
+
+export interface AthleteAchievementDoc {
+  id: string;
+  title: string;
+  description?: string;
+  dateEarned?: string;
+  category?: "Speed" | "Endurance" | "Matchday" | "Milestone" | "Discipline";
 }
 
 /* --------------------------------------------------------------------------
@@ -184,6 +201,58 @@ export async function getCoachAthleteDetail(
     notes: d.notes || [],
     lastActive: d.lastActive || "Active Today",
   };
+}
+
+export function subscribeToAthleteGoals(
+  athleteId: string,
+  callback: (goals: AthleteGoalDoc[]) => void,
+  onError?: (err: Error) => void
+) {
+  const q = collection(db, "users", athleteId, "goals");
+  return onSnapshot(
+    q,
+    (snap) => {
+      const goals: AthleteGoalDoc[] = snap.docs.map((docSnap) => {
+        const d = docSnap.data();
+        return {
+          id: docSnap.id,
+          title: d.title || "Untitled Goal",
+          category: d.category,
+          targetDate: d.targetDate,
+          progress: Number(d.progress ?? 0),
+          status: d.status || (Number(d.progress) >= 100 ? "Completed" : "In Progress"),
+          notes: d.notes,
+        };
+      });
+      callback(goals);
+    },
+    (err) => (onError ? onError(err) : console.error("subscribeToAthleteGoals error:", err))
+  );
+}
+
+export function subscribeToAthleteAchievements(
+  athleteId: string,
+  callback: (achievements: AthleteAchievementDoc[]) => void,
+  onError?: (err: Error) => void
+) {
+  const q = collection(db, "users", athleteId, "achievements");
+  return onSnapshot(
+    q,
+    (snap) => {
+      const achievements: AthleteAchievementDoc[] = snap.docs.map((docSnap) => {
+        const d = docSnap.data();
+        return {
+          id: docSnap.id,
+          title: d.title || "Unlocked Award",
+          description: d.description,
+          dateEarned: d.dateEarned,
+          category: d.category || "Milestone",
+        };
+      });
+      callback(achievements);
+    },
+    (err) => (onError ? onError(err) : console.error("subscribeToAthleteAchievements error:", err))
+  );
 }
 
 export async function addAthleteCoachNote(
@@ -327,12 +396,10 @@ export async function joinTeamWithCode(athleteId: string, inviteCode: string) {
   const teamData = teamDoc.data();
   const teamId = teamDoc.id;
 
-  // Add athlete ID to the squad
   await updateDoc(doc(db, "teams", teamId), {
     athleteIds: arrayUnion(athleteId),
   });
 
-  // Assign team to athlete profile
   await updateDoc(doc(db, "users", athleteId), {
     teamId: teamId,
     teamName: teamData.name || "Squad",
@@ -392,4 +459,69 @@ export async function updateSessionStatus(
   status: "Scheduled" | "In Progress" | "Completed"
 ) {
   await updateDoc(doc(db, "training_sessions", sessionId), { status });
+}
+
+/* --------------------------------------------------------------------------
+   GOALS & ACHIEVEMENTS WRITE OPERATIONS
+-------------------------------------------------------------------------- */
+export async function addAthleteGoal(
+  athleteId: string,
+  goal: {
+    title: string;
+    category?: string;
+    targetDate?: string;
+    progress?: number;
+    notes?: string;
+  }
+) {
+  const colRef = collection(db, "users", athleteId, "goals");
+  const docRef = await addDoc(colRef, {
+    title: goal.title.trim(),
+    category: goal.category || "Tactical",
+    targetDate: goal.targetDate || "",
+    progress: Number(goal.progress ?? 0),
+    status: Number(goal.progress ?? 0) >= 100 ? "Completed" : "In Progress",
+    notes: goal.notes?.trim() || "",
+    createdAt: serverTimestamp(),
+  });
+  return docRef.id;
+}
+
+export async function updateAthleteGoalProgress(
+  athleteId: string,
+  goalId: string,
+  progress: number
+) {
+  const goalRef = doc(db, "users", athleteId, "goals", goalId);
+  await updateDoc(goalRef, {
+    progress,
+    status: progress >= 100 ? "Completed" : "In Progress",
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function awardAthleteAchievement(
+  athleteId: string,
+  achievement: {
+    title: string;
+    description: string;
+    category?: "Speed" | "Endurance" | "Matchday" | "Milestone" | "Discipline";
+    dateEarned?: string;
+  }
+) {
+  const colRef = collection(db, "users", athleteId, "achievements");
+  const docRef = await addDoc(colRef, {
+    title: achievement.title.trim(),
+    description: achievement.description.trim(),
+    category: achievement.category || "Milestone",
+    dateEarned:
+      achievement.dateEarned ||
+      new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+    createdAt: serverTimestamp(),
+  });
+  return docRef.id;
 }

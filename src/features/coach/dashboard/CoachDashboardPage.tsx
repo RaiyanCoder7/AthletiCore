@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users,
@@ -9,7 +9,8 @@ import {
   Clock,
   ChevronRight,
   TrendingUp,
-  Activity,
+  Shield,
+  Key,
 } from "lucide-react";
 import {
   Area,
@@ -32,8 +33,13 @@ import { getUserProfile } from "@/services/firebase/users";
 import {
   subscribeToAthletes,
   subscribeToTrainingSessions,
+  subscribeToTeams,
 } from "@/services/firebase/coach";
-import type { CoachAthlete, CoachTrainingDoc } from "@/services/firebase/coach";
+import type {
+  CoachAthlete,
+  CoachTrainingDoc,
+  TeamSquadDoc,
+} from "@/services/firebase/coach";
 import CoachAIInsightsCard from "./CoachAIInsightsCard";
 
 const TREND_DATA = [
@@ -51,6 +57,8 @@ export default function CoachDashboardPage() {
   const [coachName, setCoachName] = useState("Coach");
   const [athletes, setAthletes] = useState<CoachAthlete[]>([]);
   const [sessions, setSessions] = useState<CoachTrainingDoc[]>([]);
+  const [teams, setTeams] = useState<TeamSquadDoc[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("ALL");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,52 +81,102 @@ export default function CoachDashboardPage() {
       setSessions(data);
     });
 
+    // 4. Real-time Firestore Squads listener
+    const unsubTeams = subscribeToTeams((teamList) => {
+      setTeams(teamList);
+    });
+
     return () => {
       unsubAthletes();
       unsubSessions();
+      unsubTeams();
     };
   }, []);
 
-  // Compute live squad stats
-  const totalAthletes = athletes.length;
-  const injuredOrCritical = athletes.filter(
+  const activeSquad = teams.find((t) => t.id === selectedTeamId);
+
+  // Filter athletes by active squad selection
+  const scopedAthletes = useMemo(() => {
+    if (selectedTeamId === "ALL") return athletes;
+    return athletes.filter(
+      (a) =>
+        a.teamId === selectedTeamId ||
+        (activeSquad && a.teamName === activeSquad.name)
+    );
+  }, [athletes, selectedTeamId, activeSquad]);
+
+  // Compute live scoped squad stats
+  const totalAthletes = scopedAthletes.length;
+  const injuredOrCritical = scopedAthletes.filter(
     (a) => a.status === "Critical" || a.availability === "Out"
   );
   const avgFitness =
     totalAthletes > 0
       ? Math.round(
-          athletes.reduce((acc, curr) => acc + (curr.fitnessScore || 0), 0) /
-            totalAthletes
+          scopedAthletes.reduce(
+            (acc, curr) => acc + (curr.fitnessScore || 0),
+            0
+          ) / totalAthletes
         )
-      : 82;
+      : activeSquad?.avgReadiness ?? 82;
 
   // Athletes needing attention (Critical or Monitor)
-  const attentionList = athletes.filter(
-    (a) => a.status === "Critical" || a.status === "Monitor"
-  ).slice(0, 5);
+  const attentionList = scopedAthletes
+    .filter((a) => a.status === "Critical" || a.status === "Monitor")
+    .slice(0, 5);
 
-  // Next scheduled training session
-  const nextSession = sessions[0] || {
-    title: "Speed & Positional Agility Circuit",
-    time: "5:30 PM – 7:00 PM",
-    pitch: "Pitch A - Main Stadium",
-    attendeesCount: athletes.length > 0 ? athletes.length - 2 : 18,
-  };
+  // Next scheduled training session scoped to the squad if applicable
+  const nextSession = useMemo(() => {
+    if (selectedTeamId !== "ALL" && activeSquad) {
+      const squadSession = sessions.find((s) => s.squad === activeSquad.name);
+      if (squadSession) return squadSession;
+    }
+
+    return (
+      sessions[0] || {
+        title: "Speed & Positional Agility Circuit",
+        time: "5:30 PM – 7:00 PM",
+        pitch: "Pitch A - Main Stadium",
+        attendeesCount: totalAthletes > 0 ? totalAthletes : 18,
+      }
+    );
+  }, [sessions, selectedTeamId, activeSquad, totalAthletes]);
 
   return (
     <PageContainer>
       {/* 1. Greeting & Hero Header */}
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Good morning, {coachName}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Live telemetry overview from your connected team roster.
+            Live telemetry overview from {activeSquad ? activeSquad.name : "all active squads"}.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Squad Scope Switcher */}
+          <div className="relative min-w-[170px]">
+            <select
+              value={selectedTeamId}
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+              aria-label="Select active squad"
+              className="w-full appearance-none rounded-xl border border-border/80 bg-card py-1.5 pl-8 pr-7 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+            >
+              <option value="ALL">All Squads ({athletes.length})</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+            <Shield
+              size={13}
+              className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-primary"
+            />
+          </div>
+
           <Button
             variant="outline"
             size="sm"
@@ -151,7 +209,9 @@ export default function CoachDashboardPage() {
             <span className="text-2xl font-bold sm:text-3xl">
               {totalAthletes}
             </span>
-            <p className="mt-1 text-xs text-muted-foreground">Rostered athletes</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {activeSquad ? `${activeSquad.name} roster` : "Rostered athletes"}
+            </p>
           </div>
         </DashboardCard>
 
@@ -166,7 +226,11 @@ export default function CoachDashboardPage() {
           </div>
           <div className="mt-3">
             <span className="text-2xl font-bold sm:text-3xl">
-              {sessions.length}
+              {
+                selectedTeamId === "ALL"
+                  ? sessions.length
+                  : sessions.filter((s) => s.squad === activeSquad?.name).length
+              }
             </span>
             <p className="mt-1 text-xs text-muted-foreground">Drills programmed</p>
           </div>
@@ -212,7 +276,7 @@ export default function CoachDashboardPage() {
         <DashboardCard className="lg:col-span-2" accent="emerald">
           <SectionHeading
             title="Team Readiness & Performance"
-            subtitle="Collective conditioning output across squad (7-Day rolling)"
+            subtitle={`Collective conditioning for ${activeSquad ? activeSquad.name : "all active squads"} (7-Day rolling)`}
             action={
               <div className="flex items-center gap-1 text-xs font-medium text-emerald-500">
                 <TrendingUp size={14} />
@@ -301,14 +365,17 @@ export default function CoachDashboardPage() {
         </DashboardCard>
       </div>
 
-      {/* 4. AI Squad Intelligence */}
-      <CoachAIInsightsCard />
+      {/* AI Squad Intelligence */}
+      <CoachAIInsightsCard
+        squadName={activeSquad ? activeSquad.name : "All Squads"}
+        athletes={scopedAthletes}
+      />
 
       {/* 5. Live Triage Table */}
       <DashboardCard accent="rose">
         <SectionHeading
           title="Athletes Needing Attention"
-          subtitle="Real-time triage of players with elevated fatigue index or active flags"
+          subtitle={`Real-time triage for ${activeSquad ? activeSquad.name : "all squad members"}`}
         />
 
         <div className="mt-4 overflow-x-auto">
@@ -323,10 +390,33 @@ export default function CoachDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/40">
-              {attentionList.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-muted-foreground">
-                    All squad members currently within optimal conditioning thresholds.
+                  <td colSpan={5} className="py-6 text-center text-muted-foreground animate-pulse">
+                    Loading squad telemetry...
+                  </td>
+                </tr>
+              ) : attentionList.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                    {totalAthletes === 0 && activeSquad ? (
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          No athletes enrolled in {activeSquad.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Share team code {activeSquad.inviteCode || "with athletes"} to link them to this squad.
+                        </p>
+                        {activeSquad.inviteCode && (
+                          <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-primary/30 bg-primary/5 px-2.5 py-1 font-mono text-xs font-bold text-primary">
+                            <Key size={12} />
+                            <span>{activeSquad.inviteCode}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      "All squad members currently within optimal conditioning thresholds."
+                    )}
                   </td>
                 </tr>
               ) : (

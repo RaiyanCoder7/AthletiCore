@@ -15,7 +15,6 @@ import {
 
 import PageContainer from "@/components/layout/PageContainer";
 import DashboardCard from "@/components/ui/DashboardCard";
-import SectionHeading from "@/components/ui/SectionHeading";
 import StatBar from "@/components/ui/StatBar";
 import Button from "@/components/ui/Button";
 

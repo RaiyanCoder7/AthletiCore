@@ -25,18 +25,22 @@ export interface UserProfile {
   height?: number;
   weight?: number;
   position?: string;
+  category?: "FWD" | "MID" | "DEF" | "GK";
   team?: string;
+  teamId?: string;
+  teamName?: string;
   dominantFoot?: string;
   location?: string;
   phone?: string;
   bio?: string;
 
-  // Training preferences
+  // Training & Biometric preferences
   trainingLevel?: string;
   primaryGoal?: string;
   trainingDays?: string[];
   sessionDuration?: number;
   recoveryTracking?: boolean;
+  fatigueAlertThreshold?: number;
 
   // Notification preferences
   trainingReminders?: boolean;
@@ -45,6 +49,9 @@ export interface UserProfile {
 
   // Appearance preference
   appearance?: "Dark" | "Light" | "System";
+
+  // Dynamic index signature for custom coach/athlete preferences
+  [key: string]: any;
 }
 
 /* --------------------------------
@@ -94,12 +101,11 @@ export async function getUserProfile(
 
 /* --------------------------------
    Update User Profile
-   (Role is excluded to prevent elevation)
 -------------------------------- */
 
 export async function updateUserProfile(
   uid: string,
-  data: Omit<Partial<UserProfile>, "role" | "createdAt" | "email">
+  data: Partial<UserProfile>
 ): Promise<void> {
   const userRef = doc(db, "users", uid);
 

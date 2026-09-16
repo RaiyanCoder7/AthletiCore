@@ -21,7 +21,8 @@ const app = initializeApp(firebaseConfig);
 if (import.meta.env.DEV) {
   (self as typeof self & {
     FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean | string;
-  }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+  }).FIREBASE_APPCHECK_DEBUG_TOKEN =
+    import.meta.env.VITE_FIREBASE_APPCHECK_DEBUG_TOKEN || true;
 }
 
 // Firebase App Check

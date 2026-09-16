@@ -10,11 +10,11 @@ import {
   UserCheck,
   Loader2,
   Shield,
+  Timer,
 } from "lucide-react";
 
 import PageContainer from "@/components/layout/PageContainer";
 import DashboardCard from "@/components/ui/DashboardCard";
-import SectionHeading from "@/components/ui/SectionHeading";
 import StatBar from "@/components/ui/StatBar";
 import Button from "@/components/ui/Button";
 
@@ -73,7 +73,7 @@ export default function CoachTrainingPage() {
       unsubAthletes();
       unsubTeams();
     };
-  }, []);
+  }, [squad]);
 
   const handleCreateSession = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +81,6 @@ export default function CoachTrainingPage() {
 
     setIsSubmitting(true);
     try {
-      // Calculate eligible athletes in this specific squad
       const squadAthletes = athletes.filter(
         (a) => a.teamName === squad || a.teamId === teams.find((t) => t.name === squad)?.id
       );
@@ -139,7 +138,6 @@ export default function CoachTrainingPage() {
     });
   }, [sessions, activeFilter, selectedSquadFilter]);
 
-  // Determine eligible squad athletes for the attendance check-in modal
   const checkInAthletes = useMemo(() => {
     if (!selectedSession) return [];
     const matchedSquadAthletes = athletes.filter(
@@ -148,7 +146,6 @@ export default function CoachTrainingPage() {
         a.teamId === teams.find((t) => t.name === selectedSession.squad)?.id
     );
 
-    // Fallback to all athletes if no squad association has been assigned yet
     return matchedSquadAthletes.length > 0 ? matchedSquadAthletes : athletes;
   }, [selectedSession, athletes, teams]);
 
@@ -175,9 +172,8 @@ export default function CoachTrainingPage() {
         </Button>
       </div>
 
-      {/* Filter Controls: Squad Switcher & Status Tabs */}
+      {/* Filter Controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Squad Filter Dropdown */}
         <div className="relative min-w-[200px]">
           <select
             value={selectedSquadFilter}
@@ -198,7 +194,6 @@ export default function CoachTrainingPage() {
           />
         </div>
 
-        {/* Status Filter Tabs */}
         <div className="flex flex-wrap items-center gap-1.5">
           {["ALL", "SCHEDULED", "IN PROGRESS", "COMPLETED"].map((tab) => (
             <button
@@ -241,7 +236,6 @@ export default function CoachTrainingPage() {
             const isCompleted = session.status === "Completed";
             const inProgress = session.status === "In Progress";
 
-            // Count eligible squad roster size for accurate progress bar
             const squadPlayerCount =
               athletes.filter(
                 (a) =>
@@ -487,7 +481,6 @@ export default function CoachTrainingPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {/* Squad Selector Dropdown */}
                 <div>
                   <label className="block font-mono text-[11px] uppercase text-muted-foreground mb-1">
                     Target Squad
@@ -544,14 +537,26 @@ export default function CoachTrainingPage() {
 
                 <div>
                   <label className="block font-mono text-[11px] uppercase text-muted-foreground mb-1">
-                    Pitch Location
+                    Duration
                   </label>
-                  <input
-                    type="text"
-                    value={pitch}
-                    onChange={(e) => setPitch(e.target.value)}
-                    className="w-full rounded-xl border border-border/80 bg-muted/20 px-3 py-2 text-xs text-foreground focus:outline-none"
-                  />
+                  <div className="relative">
+                    <select
+                      value={duration}
+                      onChange={(e) => setDuration(e.target.value)}
+                      className="w-full appearance-none rounded-xl border border-border/80 bg-muted/20 py-2 pl-8 pr-4 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+                    >
+                      <option value="45 min">45 min</option>
+                      <option value="60 min">60 min</option>
+                      <option value="75 min">75 min</option>
+                      <option value="90 min">90 min</option>
+                      <option value="105 min">105 min</option>
+                      <option value="120 min">120 min</option>
+                    </select>
+                    <Timer
+                      size={13}
+                      className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -580,6 +585,18 @@ export default function CoachTrainingPage() {
                     className="w-full rounded-xl border border-border/80 bg-muted/20 px-3 py-2 text-xs text-foreground focus:outline-none"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block font-mono text-[11px] uppercase text-muted-foreground mb-1">
+                  Pitch Location
+                </label>
+                <input
+                  type="text"
+                  value={pitch}
+                  onChange={(e) => setPitch(e.target.value)}
+                  className="w-full rounded-xl border border-border/80 bg-muted/20 px-3 py-2 text-xs text-foreground focus:outline-none"
+                />
               </div>
 
               <div className="mt-5 flex justify-end gap-2 pt-2">
