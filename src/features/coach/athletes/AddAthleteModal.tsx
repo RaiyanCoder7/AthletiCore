@@ -1,7 +1,13 @@
-import { useState } from "react";
-import { X, UserPlus, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, UserPlus, Loader2, Shield } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { createAthleteRosterEntry } from "@/services/firebase/coach";
+import {
+  createAthleteRosterEntry,
+  subscribeToTeams,
+} from "@/services/firebase/coach";
+import type { TeamSquadDoc } from "@/services/firebase/coach";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db } from "@/services/firebase/firebase";
 
 type AddAthleteModalProps = {
   isOpen: boolean;
@@ -19,8 +25,21 @@ export default function AddAthleteModal({
   const [position, setPosition] = useState("Center Midfielder");
   const [category, setCategory] = useState<"FWD" | "MID" | "DEF" | "GK">("MID");
   const [age, setAge] = useState<number>(20);
+  const [teams, setTeams] = useState<TeamSquadDoc[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const unsub = subscribeToTeams((teamList) => {
+      setTeams(teamList);
+      if (teamList.length > 0 && !selectedTeamId) {
+        setSelectedTeamId(teamList[0].id || "");
+      }
+    });
+    return () => unsub();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -30,13 +49,24 @@ export default function AddAthleteModal({
     setIsSubmitting(true);
 
     try {
-      await createAthleteRosterEntry({
+      const chosenTeam = teams.find((t) => t.id === selectedTeamId);
+
+      const athleteId = await createAthleteRosterEntry({
         name: name.trim(),
         email: email.trim().toLowerCase(),
         position,
         category,
         age: Number(age) || 20,
+        teamId: selectedTeamId || undefined,
+        teamName: chosenTeam?.name || undefined,
       });
+
+      // Append athlete to the team's roster array if assigned to a squad
+      if (selectedTeamId && athleteId) {
+        await updateDoc(doc(db, "teams", selectedTeamId), {
+          athleteIds: arrayUnion(athleteId),
+        });
+      }
 
       setName("");
       setEmail("");
@@ -104,6 +134,31 @@ export default function AddAthleteModal({
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-xl border border-border/80 bg-muted/20 px-3.5 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
+          </div>
+
+          {/* Squad Assignment */}
+          <div>
+            <label className="block font-mono text-[11px] uppercase text-muted-foreground mb-1">
+              Assign to Squad
+            </label>
+            <div className="relative">
+              <select
+                value={selectedTeamId}
+                onChange={(e) => setSelectedTeamId(e.target.value)}
+                className="w-full rounded-xl border border-border/80 bg-muted/20 py-2 pl-9 pr-4 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+              >
+                <option value="">No Squad Assigned (Unattached)</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name} ({team.division})
+                  </option>
+                ))}
+              </select>
+              <Shield
+                size={14}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-primary"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -6,6 +6,7 @@ import {
   Zap,
   HeartPulse,
   Flame,
+  Shield,
 } from "lucide-react";
 import {
   AreaChart,
@@ -22,8 +23,14 @@ import DashboardCard from "@/components/ui/DashboardCard";
 import SectionHeading from "@/components/ui/SectionHeading";
 import StatBar from "@/components/ui/StatBar";
 
-import { subscribeToAthletes } from "@/services/firebase/coach";
-import type { CoachAthlete } from "@/services/firebase/coach";
+import {
+  subscribeToAthletes,
+  subscribeToTeams,
+} from "@/services/firebase/coach";
+import type {
+  CoachAthlete,
+  TeamSquadDoc,
+} from "@/services/firebase/coach";
 
 type TimeHorizon = "7D" | "30D" | "3M" | "SEASON";
 
@@ -59,34 +66,94 @@ const TIME_SERIES_DATA: Record<TimeHorizon, Array<{ label: string; conditioning:
 export default function CoachPerformancePage() {
   const [horizon, setHorizon] = useState<TimeHorizon>("7D");
   const [athletes, setAthletes] = useState<CoachAthlete[]>([]);
+  const [teams, setTeams] = useState<TeamSquadDoc[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("ALL");
 
   useEffect(() => {
-    const unsub = subscribeToAthletes((data) => setAthletes(data));
-    return () => unsub();
+    const unsubAthletes = subscribeToAthletes((data) => setAthletes(data));
+    const unsubTeams = subscribeToTeams((teamList) => setTeams(teamList));
+
+    return () => {
+      unsubAthletes();
+      unsubTeams();
+    };
   }, []);
 
-  // Compute live positional averages from Firestore athletes
+  const activeSquad = teams.find((t) => t.id === selectedTeamId);
+
+  // Filter athletes by selected squad
+  const scopedAthletes = useMemo(() => {
+    if (selectedTeamId === "ALL") return athletes;
+    return athletes.filter(
+      (a) =>
+        a.teamId === selectedTeamId ||
+        (activeSquad && a.teamName === activeSquad.name)
+    );
+  }, [athletes, selectedTeamId, activeSquad]);
+
+  // Dynamic collective metrics computed from scoped athletes
+  const squadMetrics = useMemo(() => {
+    const count = scopedAthletes.length;
+    if (count === 0) {
+      return { speed: 80, agility: 80, power: 80, endurance: 80, avgVelocity: 30.5 };
+    }
+
+    const totalSpeed = scopedAthletes.reduce((acc, a) => acc + (a.metrics?.speed ?? 80), 0);
+    const totalAgility = scopedAthletes.reduce((acc, a) => acc + (a.metrics?.agility ?? 80), 0);
+    const totalPower = scopedAthletes.reduce((acc, a) => acc + (a.metrics?.strength ?? 80), 0);
+    const totalEndurance = scopedAthletes.reduce((acc, a) => acc + (a.metrics?.endurance ?? 80), 0);
+
+    return {
+      speed: Math.round(totalSpeed / count),
+      agility: Math.round(totalAgility / count),
+      power: Math.round(totalPower / count),
+      endurance: Math.round(totalEndurance / count),
+      avgVelocity: (28 + (totalSpeed / count) * 0.05).toFixed(1),
+    };
+  }, [scopedAthletes]);
+
+  // Compute live positional averages from scoped athletes
   const categories: Array<"FWD" | "MID" | "DEF" | "GK"> = ["FWD", "MID", "DEF", "GK"];
   const positionalBreakdown = categories.map((cat) => {
-    const groupAthletes = athletes.filter((a) => a.category === cat);
+    const groupAthletes = scopedAthletes.filter((a) => a.category === cat);
     const count = groupAthletes.length;
 
     if (count === 0) {
       return {
-        group: cat === "FWD" ? "Forwards" : cat === "MID" ? "Midfielders" : cat === "DEF" ? "Defenders" : "Goalkeepers",
-        speed: 80,
-        stamina: 80,
-        power: 80,
+        group:
+          cat === "FWD"
+            ? "Forwards"
+            : cat === "MID"
+            ? "Midfielders"
+            : cat === "DEF"
+            ? "Defenders"
+            : "Goalkeepers",
+        speed: 0,
+        stamina: 0,
+        power: 0,
         count: 0,
       };
     }
 
-    const avgSpeed = Math.round(groupAthletes.reduce((acc, a) => acc + (a.metrics?.speed ?? 80), 0) / count);
-    const avgStamina = Math.round(groupAthletes.reduce((acc, a) => acc + (a.metrics?.endurance ?? 80), 0) / count);
-    const avgPower = Math.round(groupAthletes.reduce((acc, a) => acc + (a.metrics?.strength ?? 80), 0) / count);
+    const avgSpeed = Math.round(
+      groupAthletes.reduce((acc, a) => acc + (a.metrics?.speed ?? 80), 0) / count
+    );
+    const avgStamina = Math.round(
+      groupAthletes.reduce((acc, a) => acc + (a.metrics?.endurance ?? 80), 0) / count
+    );
+    const avgPower = Math.round(
+      groupAthletes.reduce((acc, a) => acc + (a.metrics?.strength ?? 80), 0) / count
+    );
 
     return {
-      group: cat === "FWD" ? "Forwards" : cat === "MID" ? "Midfielders" : cat === "DEF" ? "Defenders" : "Goalkeepers",
+      group:
+        cat === "FWD"
+          ? "Forwards"
+          : cat === "MID"
+          ? "Midfielders"
+          : cat === "DEF"
+          ? "Defenders"
+          : "Goalkeepers",
       speed: avgSpeed,
       stamina: avgStamina,
       power: avgPower,
@@ -102,28 +169,52 @@ export default function CoachPerformancePage() {
             Team Performance & Biometrics
           </h1>
           <p className="text-xs text-muted-foreground sm:text-sm">
-            Telemetry metrics computed from {athletes.length} registered squad athletes.
+            Telemetry metrics computed from {scopedAthletes.length} registered {activeSquad ? activeSquad.name : "squad"} athletes.
           </p>
         </div>
 
-        <div className="flex items-center rounded-xl border border-border/70 bg-card p-1 text-xs self-start sm:self-auto">
-          {(["7D", "30D", "3M", "SEASON"] as TimeHorizon[]).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setHorizon(tab)}
-              className={`rounded-lg px-3 py-1 font-semibold transition-all ${
-                horizon === tab
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+        {/* Squad Filter & Time Horizon Controls */}
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          <div className="relative min-w-[170px]">
+            <select
+              value={selectedTeamId}
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+              aria-label="Filter performance telemetry by squad"
+              className="w-full appearance-none rounded-xl border border-border/80 bg-card py-1.5 pl-8 pr-7 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
             >
-              {tab === "7D" ? "7 Days" : tab === "30D" ? "30 Days" : tab === "3M" ? "3 Months" : "Season"}
-            </button>
-          ))}
+              <option value="ALL">All Squads</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+            <Shield
+              size={13}
+              className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-primary"
+            />
+          </div>
+
+          <div className="flex items-center rounded-xl border border-border/70 bg-card p-1 text-xs">
+            {(["7D", "30D", "3M", "SEASON"] as TimeHorizon[]).map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setHorizon(tab)}
+                className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
+                  horizon === tab
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab === "7D" ? "7D" : tab === "30D" ? "30D" : tab === "3M" ? "3M" : "Season"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
+      {/* Aggregate Biometric Summary Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <DashboardCard accent="emerald">
           <div className="flex items-center justify-between">
@@ -131,12 +222,14 @@ export default function CoachPerformancePage() {
             <Zap size={16} className="text-emerald-500" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono">31.8 <span className="text-xs font-normal text-muted-foreground">km/h</span></span>
+            <span className="text-2xl font-bold font-mono">
+              {squadMetrics.avgVelocity} <span className="text-xs font-normal text-muted-foreground">km/h</span>
+            </span>
             <span className="inline-flex items-center text-xs font-semibold text-emerald-500">
               <TrendingUp size={12} className="mr-0.5" /> +8.4%
             </span>
           </div>
-          <StatBar percent={84} className="bg-emerald-500" />
+          <StatBar percent={squadMetrics.speed} className="bg-emerald-500" />
         </DashboardCard>
 
         <DashboardCard accent="blue">
@@ -145,12 +238,14 @@ export default function CoachPerformancePage() {
             <Activity size={16} className="text-blue-500" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono">88.2 <span className="text-xs font-normal text-muted-foreground">idx</span></span>
+            <span className="text-2xl font-bold font-mono">
+              {squadMetrics.agility} <span className="text-xs font-normal text-muted-foreground">idx</span>
+            </span>
             <span className="inline-flex items-center text-xs font-semibold text-emerald-500">
               <TrendingUp size={12} className="mr-0.5" /> +12.1%
             </span>
           </div>
-          <StatBar percent={88} className="bg-blue-500" />
+          <StatBar percent={squadMetrics.agility} className="bg-blue-500" />
         </DashboardCard>
 
         <DashboardCard accent="indigo">
@@ -159,12 +254,14 @@ export default function CoachPerformancePage() {
             <Flame size={16} className="text-indigo-500" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono">84.5 <span className="text-xs font-normal text-muted-foreground">pts</span></span>
+            <span className="text-2xl font-bold font-mono">
+              {squadMetrics.power} <span className="text-xs font-normal text-muted-foreground">pts</span>
+            </span>
             <span className="inline-flex items-center text-xs font-semibold text-emerald-500">
               <TrendingUp size={12} className="mr-0.5" /> +5.0%
             </span>
           </div>
-          <StatBar percent={84} className="bg-indigo-500" />
+          <StatBar percent={squadMetrics.power} className="bg-indigo-500" />
         </DashboardCard>
 
         <DashboardCard accent="rose">
@@ -173,19 +270,22 @@ export default function CoachPerformancePage() {
             <HeartPulse size={16} className="text-rose-500" />
           </div>
           <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl font-bold font-mono">79.0 <span className="text-xs font-normal text-muted-foreground">pts</span></span>
+            <span className="text-2xl font-bold font-mono">
+              {squadMetrics.endurance} <span className="text-xs font-normal text-muted-foreground">pts</span>
+            </span>
             <span className="inline-flex items-center text-xs font-semibold text-rose-500">
               <TrendingDown size={12} className="mr-0.5" /> -3.2%
             </span>
           </div>
-          <StatBar percent={79} className="bg-rose-500" />
+          <StatBar percent={squadMetrics.endurance} className="bg-rose-500" />
         </DashboardCard>
       </div>
 
+      {/* Conditioning vs Fatigue Curve */}
       <DashboardCard accent="emerald" hover={false}>
         <SectionHeading
           title="Conditioning vs Fatigue Index"
-          subtitle="Collective squad readiness plotted against neuromuscular fatigue"
+          subtitle={`Collective readiness for ${activeSquad ? activeSquad.name : "all registered squads"}`}
         />
 
         <div className="mt-4 h-72 w-full">
@@ -227,7 +327,7 @@ export default function CoachPerformancePage() {
       <DashboardCard accent="blue" hover={false}>
         <SectionHeading
           title="Positional Cohort Distribution"
-          subtitle="Live benchmark ratings computed across your registered athletes"
+          subtitle={`Live benchmark ratings across ${scopedAthletes.length} athletes`}
         />
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

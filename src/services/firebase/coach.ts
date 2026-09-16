@@ -73,6 +73,8 @@ export interface TeamSquadDoc {
   formation: string;
   homeGround: string;
   coachId: string;
+  inviteCode?: string;
+  athleteIds?: string[];
   nextFixture?: {
     opponent: string;
     date: string;
@@ -110,8 +112,20 @@ export function subscribeToAthletes(
           teamName: d.teamName,
           fitnessScore,
           status: d.status || status,
-          clearance: d.clearance || (status === "Critical" ? "Sidelined" : status === "Monitor" ? "Conditional" : "Full Clearance"),
-          availability: d.availability || (status === "Critical" ? "Out" : status === "Monitor" ? "Questionable" : "Available"),
+          clearance:
+            d.clearance ||
+            (status === "Critical"
+              ? "Sidelined"
+              : status === "Monitor"
+              ? "Conditional"
+              : "Full Clearance"),
+          availability:
+            d.availability ||
+            (status === "Critical"
+              ? "Out"
+              : status === "Monitor"
+              ? "Questionable"
+              : "Available"),
           age: d.age || 20,
           height: d.height ? `${d.height} cm` : "180 cm",
           weight: d.weight ? `${d.weight} kg` : "75 kg",
@@ -133,7 +147,9 @@ export function subscribeToAthletes(
   );
 }
 
-export async function getCoachAthleteDetail(athleteId: string): Promise<CoachAthlete | null> {
+export async function getCoachAthleteDetail(
+  athleteId: string
+): Promise<CoachAthlete | null> {
   const snap = await getDoc(doc(db, "users", athleteId));
   if (!snap.exists()) return null;
   const d = snap.data();
@@ -170,10 +186,16 @@ export async function getCoachAthleteDetail(athleteId: string): Promise<CoachAth
   };
 }
 
-export async function addAthleteCoachNote(athleteId: string, note: { text: string; author: string }) {
+export async function addAthleteCoachNote(
+  athleteId: string,
+  note: { text: string; author: string }
+) {
   const payload = {
     id: `note-${Date.now()}`,
-    date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    date: new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    }),
     text: note.text,
     author: note.author,
   };
@@ -218,10 +240,21 @@ export async function updateAthleteWorkload(
   const updates: Record<string, any> = {
     clearance: payload.clearance,
     workloadCapPercent: payload.workloadCapPercent,
-    status: payload.clearance === "Sidelined" ? "Critical" : payload.clearance === "Conditional" ? "Monitor" : "Optimal",
-    availability: payload.clearance === "Sidelined" ? "Out" : payload.clearance === "Conditional" ? "Questionable" : "Available",
+    status:
+      payload.clearance === "Sidelined"
+        ? "Critical"
+        : payload.clearance === "Conditional"
+        ? "Monitor"
+        : "Optimal",
+    availability:
+      payload.clearance === "Sidelined"
+        ? "Out"
+        : payload.clearance === "Conditional"
+        ? "Questionable"
+        : "Available",
   };
-  if (typeof payload.fitnessScore === "number") updates.fitnessScore = payload.fitnessScore;
+  if (typeof payload.fitnessScore === "number")
+    updates.fitnessScore = payload.fitnessScore;
 
   await updateDoc(doc(db, "users", athleteId), updates);
 
@@ -234,8 +267,18 @@ export async function updateAthleteWorkload(
 }
 
 /* --------------------------------------------------------------------------
-   TEAMS
+   TEAMS & INVITE CODES
 -------------------------------------------------------------------------- */
+export function generateTeamCode(teamName: string): string {
+  const prefix = teamName
+    .replace(/[^a-zA-Z]/g, "")
+    .slice(0, 3)
+    .toUpperCase()
+    .padEnd(3, "X");
+  const randomNum = Math.floor(100 + Math.random() * 900);
+  return `${prefix}-${randomNum}`;
+}
+
 export function subscribeToTeams(
   callback: (teams: TeamSquadDoc[]) => void,
   onError?: (err: Error) => void
@@ -253,14 +296,49 @@ export function subscribeToTeams(
   );
 }
 
-export async function createTeamSquad(team: Omit<TeamSquadDoc, "id" | "coachId" | "createdAt">) {
+export async function createTeamSquad(
+  team: Omit<TeamSquadDoc, "id" | "coachId" | "createdAt">
+) {
   const coachId = auth.currentUser?.uid || "coach-system";
+  const inviteCode = team.inviteCode || generateTeamCode(team.name);
+
   const docRef = await addDoc(collection(db, "teams"), {
     ...team,
     coachId,
+    inviteCode,
+    athleteIds: team.athleteIds || [],
     createdAt: serverTimestamp(),
   });
   return docRef.id;
+}
+
+export async function joinTeamWithCode(athleteId: string, inviteCode: string) {
+  const code = inviteCode.trim().toUpperCase();
+
+  const teamsRef = collection(db, "teams");
+  const q = query(teamsRef, where("inviteCode", "==", code));
+  const snap = await getDocs(q);
+
+  if (snap.empty) {
+    throw new Error("Invalid team invite code. Please check with your coach.");
+  }
+
+  const teamDoc = snap.docs[0];
+  const teamData = teamDoc.data();
+  const teamId = teamDoc.id;
+
+  // Add athlete ID to the squad
+  await updateDoc(doc(db, "teams", teamId), {
+    athleteIds: arrayUnion(athleteId),
+  });
+
+  // Assign team to athlete profile
+  await updateDoc(doc(db, "users", athleteId), {
+    teamId: teamId,
+    teamName: teamData.name || "Squad",
+  });
+
+  return { teamId, teamName: teamData.name };
 }
 
 /* --------------------------------------------------------------------------
@@ -279,11 +357,16 @@ export function subscribeToTrainingSessions(
       }));
       callback(items);
     },
-    (err) => (onError ? onError(err) : console.error("subscribeToTrainingSessions error:", err))
+    (err) =>
+      onError
+        ? onError(err)
+        : console.error("subscribeToTrainingSessions error:", err)
   );
 }
 
-export async function createTrainingSessionDoc(session: Omit<CoachTrainingDoc, "id" | "coachId" | "createdAt">) {
+export async function createTrainingSessionDoc(
+  session: Omit<CoachTrainingDoc, "id" | "coachId" | "createdAt">
+) {
   const coachId = auth.currentUser?.uid || "coach-system";
   const docRef = await addDoc(collection(db, "training_sessions"), {
     ...session,

@@ -8,6 +8,9 @@ import {
   ArrowRight,
   X,
   Loader2,
+  Key,
+  Copy,
+  Check,
 } from "lucide-react";
 
 import PageContainer from "@/components/layout/PageContainer";
@@ -25,6 +28,7 @@ export default function CoachTeamsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const [teamName, setTeamName] = useState("");
   const [division, setDivision] = useState("");
@@ -39,6 +43,12 @@ export default function CoachTeamsPage() {
     return () => unsub();
   }, []);
 
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
   const handleCreateTeam = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!teamName.trim()) return;
@@ -52,6 +62,7 @@ export default function CoachTeamsPage() {
         avgReadiness: 85,
         formation,
         homeGround: homeGround.trim() || "Pitch A - Main Stadium",
+        athleteIds: [],
         nextFixture: {
           opponent: "TBD",
           date: "Upcoming Schedule Pending",
@@ -101,96 +112,133 @@ export default function CoachTeamsPage() {
         <div className="rounded-2xl border border-dashed border-border/80 p-12 text-center">
           <Shield size={32} className="mx-auto text-muted-foreground mb-3" />
           <h3 className="text-sm font-semibold text-foreground">No Squads Registered Yet</h3>
-          <p className="text-xs text-muted-foreground mt-1">Create your first squad to assign athletes and track formations.</p>
+          <p className="text-xs text-muted-foreground mt-1">Create your first squad to generate invite codes and link athletes.</p>
           <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)} className="mt-4">
             + Create First Squad
           </Button>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {teams.map((team) => (
-            <DashboardCard
-              key={team.id}
-              accent="emerald"
-              hover
-              className="flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Shield size={18} className="text-primary" />
-                      <h3 className="text-base font-bold text-foreground">{team.name}</h3>
+          {teams.map((team) => {
+            const squadSize = team.athleteIds ? team.athleteIds.length : team.athleteCount;
+
+            return (
+              <DashboardCard
+                key={team.id}
+                accent="emerald"
+                hover
+                className="flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Shield size={18} className="text-primary" />
+                        <h3 className="text-base font-bold text-foreground">{team.name}</h3>
+                      </div>
+                      <span className="mt-1 inline-block rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
+                        {team.division}
+                      </span>
                     </div>
-                    <span className="mt-1 inline-block rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
-                      {team.division}
-                    </span>
+
+                    <div className="rounded-xl border border-border/70 bg-card px-2.5 py-1 text-center font-mono">
+                      <span className="text-[10px] uppercase text-muted-foreground block">Squad</span>
+                      <span className="text-sm font-bold text-foreground">{squadSize}</span>
+                    </div>
                   </div>
 
-                  <div className="rounded-xl border border-border/70 bg-card px-2.5 py-1 text-center font-mono">
-                    <span className="text-[10px] uppercase text-muted-foreground block">Squad</span>
-                    <span className="text-sm font-bold text-foreground">{team.athleteCount}</span>
+                  {/* Invite Code Bar */}
+                  {team.inviteCode && (
+                    <div className="mt-3 flex items-center justify-between rounded-xl border border-dashed border-primary/30 bg-primary/5 px-3 py-2">
+                      <div className="flex items-center gap-1.5">
+                        <Key size={13} className="text-primary" />
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Invite Code:
+                        </span>
+                        <span className="font-mono text-xs font-bold text-primary tracking-widest">
+                          {team.inviteCode}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyCode(team.inviteCode!)}
+                        className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold text-primary transition hover:bg-primary/10"
+                        title="Copy code for athletes"
+                      >
+                        {copiedCode === team.inviteCode ? (
+                          <>
+                            <Check size={11} className="text-emerald-500" />
+                            <span className="text-emerald-500">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={11} />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="mt-4 space-y-2.5 text-xs">
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>Tactical Shape</span>
+                      <span className="font-mono font-semibold text-foreground">{team.formation}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span>Facility</span>
+                      <span className="font-semibold text-foreground flex items-center gap-1">
+                        <MapPin size={11} className="text-primary" />
+                        {team.homeGround}
+                      </span>
+                    </div>
+
+                    <div className="pt-2">
+                      <div className="flex items-center justify-between text-muted-foreground mb-1">
+                        <span>Squad Readiness</span>
+                        <span className="font-mono font-bold text-foreground">{team.avgReadiness}%</span>
+                      </div>
+                      <StatBar
+                        percent={team.avgReadiness}
+                        className={team.avgReadiness >= 80 ? "bg-emerald-500" : "bg-amber-500"}
+                      />
+                    </div>
                   </div>
+
+                  {team.nextFixture && (
+                    <div className="mt-5 rounded-xl border border-border/60 bg-muted/20 p-3">
+                      <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase font-bold text-muted-foreground">
+                        <Calendar size={12} className="text-primary" />
+                        <span>{team.nextFixture.competition}</span>
+                      </div>
+                      <p className="mt-1 font-semibold text-xs text-foreground">vs {team.nextFixture.opponent}</p>
+                      <p className="font-mono text-[11px] text-muted-foreground">{team.nextFixture.date}</p>
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-5 space-y-2.5 text-xs">
-                  <div className="flex items-center justify-between text-muted-foreground">
-                    <span>Tactical Shape</span>
-                    <span className="font-mono font-semibold text-foreground">{team.formation}</span>
-                  </div>
+                <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/coach/athletes")}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                  >
+                    <span>Squad Lineup</span>
+                    <ArrowRight size={13} />
+                  </button>
 
-                  <div className="flex items-center justify-between text-muted-foreground">
-                    <span>Facility</span>
-                    <span className="font-semibold text-foreground flex items-center gap-1">
-                      <MapPin size={11} className="text-primary" />
-                      {team.homeGround}
-                    </span>
-                  </div>
-
-                  <div className="pt-2">
-                    <div className="flex items-center justify-between text-muted-foreground mb-1">
-                      <span>Squad Readiness</span>
-                      <span className="font-mono font-bold text-foreground">{team.avgReadiness}%</span>
-                    </div>
-                    <StatBar
-                      percent={team.avgReadiness}
-                      className={team.avgReadiness >= 80 ? "bg-emerald-500" : "bg-amber-500"}
-                    />
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/coach/training")}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Schedule Drills
+                  </button>
                 </div>
-
-                {team.nextFixture && (
-                  <div className="mt-5 rounded-xl border border-border/60 bg-muted/20 p-3">
-                    <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase font-bold text-muted-foreground">
-                      <Calendar size={12} className="text-primary" />
-                      <span>{team.nextFixture.competition}</span>
-                    </div>
-                    <p className="mt-1 font-semibold text-xs text-foreground">vs {team.nextFixture.opponent}</p>
-                    <p className="font-mono text-[11px] text-muted-foreground">{team.nextFixture.date}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => navigate("/coach/athletes")}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                >
-                  <span>Squad Lineup</span>
-                  <ArrowRight size={13} />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => navigate("/coach/training")}
-                  className="text-xs text-muted-foreground hover:text-foreground"
-                >
-                  Schedule Drills
-                </button>
-              </div>
-            </DashboardCard>
-          ))}
+              </DashboardCard>
+            );
+          })}
         </div>
       )}
 

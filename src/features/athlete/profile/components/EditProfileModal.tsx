@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Lock } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import { auth } from "@/services/firebase/firebase";
@@ -59,11 +59,11 @@ export default function EditProfileModal({
         if (profile) {
           setForm({
             name: String(profile.name ?? ""),
-            age: String(profile.age ?? ""),
-            height: String(profile.height ?? ""),
-            weight: String(profile.weight ?? ""),
+            age: profile.age ? String(profile.age) : "",
+            height: profile.height ? String(profile.height) : "",
+            weight: profile.weight ? String(profile.weight) : "",
             position: String(profile.position ?? ""),
-            team: String(profile.team ?? ""),
+            team: String(profile.teamName ?? profile.team ?? ""),
             dominantFoot: String(profile.dominantFoot ?? ""),
             location: String(profile.location ?? ""),
           });
@@ -98,18 +98,29 @@ export default function EditProfileModal({
       return;
     }
 
+    // Determine category mapping for the coach roster
+    let category: "FWD" | "MID" | "DEF" | "GK" = "MID";
+    if (form.position === "Striker" || form.position === "Winger") {
+      category = "FWD";
+    } else if (form.position === "Defender") {
+      category = "DEF";
+    } else if (form.position === "Goalkeeper") {
+      category = "GK";
+    }
+
     try {
       setLoading(true);
       setError("");
 
       await updateUserProfile(user.uid, {
         name: form.name.trim(),
-        age: Number(form.age),
-        height: Number(form.height),
-        weight: Number(form.weight),
-        position: form.position,
+        age: form.age ? Number(form.age) : 20,
+        height: form.height ? Number(form.height) : 180,
+        weight: form.weight ? Number(form.weight) : 75,
+        position: form.position || "Midfielder",
+        category,
         team: form.team.trim(),
-        dominantFoot: form.dominantFoot,
+        dominantFoot: form.dominantFoot || "Right",
         location: form.location.trim(),
       });
 
@@ -135,7 +146,7 @@ export default function EditProfileModal({
             </h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              Update your athlete information
+              Update your athlete biometrics and information
             </p>
           </div>
 
@@ -250,17 +261,22 @@ export default function EditProfileModal({
               </select>
             </div>
 
-            {/* Team */}
+            {/* Squad / Team */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-foreground">
-                Team
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-foreground">
+                  Current Squad
+                </label>
+                <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <Lock size={11} /> Join via Code
+                </span>
+              </div>
 
               <input
                 name="team"
                 value={form.team}
                 onChange={handleChange}
-                required
+                placeholder="Use 'Join Squad' on header"
                 className="w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground outline-none transition focus:border-primary"
               />
             </div>

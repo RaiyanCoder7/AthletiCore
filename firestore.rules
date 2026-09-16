@@ -3,53 +3,86 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isCoach() {
+      return isAuthenticated() &&
+        (request.auth.token.role == 'coach' ||
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'coach');
+    }
+
+    // -------------------------------------------------------------
+    // Users Collection
+    // -------------------------------------------------------------
     match /users/{userId} {
+      // Any authenticated user can create their own profile upon registration
+      allow create: if isAuthenticated() && request.auth.uid == userId;
 
-      allow read, create, update, delete:
-        if request.auth != null
-        && request.auth.uid == userId;
+      // Users can read/write their own profile; Coaches can read all athletes and update clearance/notes
+      allow read: if isAuthenticated();
+      allow update: if isOwner(userId) || isCoach();
+      allow delete: if isOwner(userId);
 
+      // Subcollections under users (nested athlete metrics/sessions)
       match /trainingSessions/{sessionId} {
-        allow read, create, update, delete:
-          if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write: if isOwner(userId) || isCoach();
       }
 
       match /performanceTests/{testId} {
-        allow read, create, update, delete:
-          if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write: if isOwner(userId) || isCoach();
       }
 
       match /goals/{goalId} {
-        allow read, create, update, delete:
-          if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write: if isOwner(userId) || isCoach();
       }
 
       match /calendarEvents/{eventId} {
-        allow read, create, update, delete:
-          if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write: if isOwner(userId) || isCoach();
       }
 
       match /recoveryEntries/{entryId} {
-        allow read, create, update, delete:
-          if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write: if isOwner(userId) || isCoach();
       }
 
       match /achievements/{achievementId} {
-        allow read, create, update, delete:
-          if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write: if isOwner(userId) || isCoach();
       }
 
       match /matches/{matchId} {
-        allow read, create, update, delete:
-          if request.auth != null
-          && request.auth.uid == userId;
+        allow read, write: if isOwner(userId) || isCoach();
       }
+    }
+
+    // -------------------------------------------------------------
+    // Root-level Training Sessions (Used by Coach Training Planner)
+    // -------------------------------------------------------------
+    match /training_sessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isCoach();
+    }
+
+    // -------------------------------------------------------------
+    // Teams Collection
+    // -------------------------------------------------------------
+    match /teams/{teamId} {
+      // Any authenticated user (athletes & coaches) can read teams to query by inviteCode
+      allow read: if isAuthenticated();
+      allow create, delete: if isCoach();
+
+      // Coaches can perform full updates; Athletes can ONLY update to add themselves to athleteIds
+      allow update: if isCoach() || (
+        isAuthenticated() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['athleteIds']) &&
+        request.resource.data.athleteIds.hasAll(resource.data.athleteIds) &&
+        request.resource.data.athleteIds.hasAny([request.auth.uid])
+      );
     }
   }
 }

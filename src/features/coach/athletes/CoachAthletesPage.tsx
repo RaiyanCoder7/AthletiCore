@@ -7,6 +7,8 @@ import {
   Activity,
   ChevronRight,
   ShieldAlert,
+  Shield,
+  Key,
 } from "lucide-react";
 
 import PageContainer from "@/components/layout/PageContainer";
@@ -15,13 +17,18 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import StatBar from "@/components/ui/StatBar";
 import Button from "@/components/ui/Button";
 
-import { subscribeToAthletes } from "@/services/firebase/coach";
-import type { CoachAthlete } from "@/services/firebase/coach";
+import {
+  subscribeToAthletes,
+  subscribeToTeams,
+} from "@/services/firebase/coach";
+import type { CoachAthlete, TeamSquadDoc } from "@/services/firebase/coach";
 import AddAthleteModal from "./AddAthleteModal";
 
 export default function CoachAthletesPage() {
   const navigate = useNavigate();
   const [athletes, setAthletes] = useState<CoachAthlete[]>([]);
+  const [teams, setTeams] = useState<TeamSquadDoc[]>([]);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("ALL");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -29,29 +36,47 @@ export default function CoachAthletesPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = subscribeToAthletes((data) => {
+    const unsubAthletes = subscribeToAthletes((data) => {
       setAthletes(data);
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    const unsubTeams = subscribeToTeams((teamList) => {
+      setTeams(teamList);
+    });
+
+    return () => {
+      unsubAthletes();
+      unsubTeams();
+    };
   }, []);
+
+  const activeSquad = teams.find((t) => t.id === selectedTeamId);
 
   const filteredAthletes = useMemo(() => {
     return athletes.filter((athlete) => {
+      // Squad filter match
+      const matchesSquad =
+        selectedTeamId === "ALL" ||
+        athlete.teamId === selectedTeamId ||
+        (activeSquad && athlete.teamName === activeSquad.name);
+
+      // Search match
       const matchesSearch =
         athlete.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (athlete.position || "").toLowerCase().includes(searchTerm.toLowerCase());
 
+      // Status match
       const matchesStatus =
         statusFilter === "ALL" || athlete.status.toUpperCase() === statusFilter;
 
+      // Pitch category match
       const matchesCategory =
         categoryFilter === "ALL" || athlete.category === categoryFilter;
 
-      return matchesSearch && matchesStatus && matchesCategory;
+      return matchesSquad && matchesSearch && matchesStatus && matchesCategory;
     });
-  }, [athletes, searchTerm, statusFilter, categoryFilter]);
+  }, [athletes, selectedTeamId, activeSquad, searchTerm, statusFilter, categoryFilter]);
 
   return (
     <PageContainer>
@@ -76,22 +101,47 @@ export default function CoachAthletesPage() {
         </Button>
       </div>
 
-      {/* Search & Category Filter Controls */}
+      {/* Squad Selector, Search & Filters Bar */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search
-            size={16}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-          />
-          <input
-            type="text"
-            placeholder="Search by name or position..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-xl border border-border/80 bg-card py-2 pl-10 pr-4 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
-          />
+        <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2.5 max-w-2xl">
+          {/* Squad Scope Switcher */}
+          <div className="relative min-w-[190px]">
+            <select
+              value={selectedTeamId}
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+              aria-label="Filter by squad"
+              className="w-full appearance-none rounded-xl border border-border/80 bg-card py-2 pl-9 pr-8 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+            >
+              <option value="ALL">All Squads ({athletes.length})</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+            <Shield
+              size={15}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-primary"
+            />
+          </div>
+
+          {/* Search Box */}
+          <div className="relative flex-1">
+            <Search
+              size={15}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              type="text"
+              placeholder="Search by player name or pitch role..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-xl border border-border/80 bg-card py-2 pl-9 pr-4 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+            />
+          </div>
         </div>
 
+        {/* Status & Positional Filter Toggles */}
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center rounded-xl border border-border/70 bg-card p-1 text-xs">
             {["ALL", "CRITICAL", "MONITOR", "OPTIMAL"].map((status) => (
@@ -132,7 +182,7 @@ export default function CoachAthletesPage() {
       {/* Roster Table */}
       <DashboardCard accent="emerald" hover={false}>
         <SectionHeading
-          title="Squad Database"
+          title={activeSquad ? `${activeSquad.name} Roster` : "Squad Database"}
           subtitle={`Showing ${filteredAthletes.length} of ${athletes.length} registered athletes`}
         />
 
@@ -157,8 +207,19 @@ export default function CoachAthletesPage() {
                 </tr>
               ) : filteredAthletes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                    No athlete records found matching your filters.
+                  <td colSpan={6} className="py-10 text-center">
+                    <p className="text-sm font-semibold text-foreground">No athletes in this view</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {selectedTeamId !== "ALL" && activeSquad?.inviteCode
+                        ? `Share team invite code ${activeSquad.inviteCode} with athletes so they can link up.`
+                        : "No athlete records found matching your filters."}
+                    </p>
+                    {selectedTeamId !== "ALL" && activeSquad?.inviteCode && (
+                      <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-dashed border-primary/40 bg-primary/5 px-3 py-1.5 font-mono text-xs font-bold text-primary">
+                        <Key size={13} />
+                        <span>Code: {activeSquad.inviteCode}</span>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (

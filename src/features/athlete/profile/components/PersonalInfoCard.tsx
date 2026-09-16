@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { User } from "lucide-react";
+import { User, ShieldCheck, AlertCircle } from "lucide-react";
 
 import DashboardCard from "@/components/ui/DashboardCard";
 import SectionHeading from "@/components/ui/SectionHeading";
@@ -13,6 +13,7 @@ interface PersonalInfo {
   weight?: number;
   position?: string;
   team?: string;
+  teamName?: string;
   dominantFoot?: string;
 }
 
@@ -26,20 +27,28 @@ export default function PersonalInfoCard({
   const [profile, setProfile] = useState<PersonalInfo | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     const loadProfile = async () => {
       const user = auth.currentUser;
-
       if (!user) return;
 
-      const data = await getUserProfile(user.uid);
-
-      if (data) {
-        setProfile(data as PersonalInfo);
+      try {
+        const data = await getUserProfile(user.uid);
+        if (data && isMounted) {
+          setProfile(data as PersonalInfo);
+        }
+      } catch (err) {
+        console.error("Failed to load personal info profile:", err);
       }
     };
 
     loadProfile();
+    return () => {
+      isMounted = false;
+    };
   }, [profileVersion]);
+
+  const squadName = profile?.teamName || profile?.team || null;
 
   const personalInfo = [
     {
@@ -59,8 +68,9 @@ export default function PersonalInfoCard({
       value: profile?.position || "Not set",
     },
     {
-      label: "Team",
-      value: profile?.team || "Not set",
+      label: "Team / Squad",
+      value: squadName || "Not set",
+      isSquad: true,
     },
     {
       label: "Dominant Foot",
@@ -72,7 +82,7 @@ export default function PersonalInfoCard({
     <DashboardCard hover accent="blue">
       <SectionHeading
         title="Personal Information"
-        subtitle="Basic athlete information"
+        subtitle="Basic athlete biometrics & affiliation"
         action={
           <div className="rounded-xl bg-primary/10 p-3 text-primary">
             <User size={20} />
@@ -89,19 +99,29 @@ export default function PersonalInfoCard({
               key={item.label}
               className="flex items-center justify-between border-b border-border pb-3 last:border-none"
             >
-              <span className="text-muted-foreground">
-                {item.label}
-              </span>
+              <span className="text-sm text-muted-foreground">{item.label}</span>
 
-              <span
-                className={
-                  isUnset
-                    ? "italic text-muted-foreground"
-                    : "font-semibold text-foreground"
-                }
-              >
-                {item.value}
-              </span>
+              {item.isSquad ? (
+                isUnset ? (
+                  <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 font-mono text-xs font-medium text-amber-500">
+                    <AlertCircle size={11} /> Unlinked
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-xs font-medium text-emerald-500">
+                    <ShieldCheck size={12} /> {item.value}
+                  </span>
+                )
+              ) : (
+                <span
+                  className={
+                    isUnset
+                      ? "text-sm italic text-muted-foreground"
+                      : "text-sm font-semibold text-foreground"
+                  }
+                >
+                  {item.value}
+                </span>
+              )}
             </div>
           );
         })}
