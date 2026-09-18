@@ -1,33 +1,45 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { auth } from "@/services/firebase/firebase";
-import { getUserProfile } from "@/services/firebase/users";
+import { getUserRole } from "@/services/firebase/users";
+import type { UserRole } from "@/services/firebase/users";
 
 export default function ProtectedRoute({
   allowedRoles,
 }: {
-  allowedRoles?: string[];
+  allowedRoles?: UserRole[];
 }) {
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<UserRole | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      setLoading(true);
+
       if (!user) {
         setIsAuthenticated(false);
+        setRole(null);
         setLoading(false);
         return;
       }
 
-      setIsAuthenticated(true);
-
       try {
-        const profile = await getUserProfile(user.uid);
-        setRole(profile?.role?.toLowerCase() || "athlete");
+        const userRole = await getUserRole(user.uid);
+
+        if (!userRole) {
+          // Never silently treat a missing/invalid profile as an athlete.
+          setIsAuthenticated(true);
+          setRole(null);
+          return;
+        }
+
+        setIsAuthenticated(true);
+        setRole(userRole);
       } catch (err) {
         console.error("Failed checking role in route:", err);
-        setRole("athlete");
+        setIsAuthenticated(true);
+        setRole(null);
       } finally {
         setLoading(false);
       }
@@ -50,9 +62,20 @@ export default function ProtectedRoute({
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles && role && !allowedRoles.map(r => r.toLowerCase()).includes(role)) {
-    // If coach tries to go to athlete route, send to /coach. If athlete, send to /athlete.
-    return <Navigate to={role === "coach" ? "/coach" : "/athlete"} replace />;
+  // Authenticated account without a valid application role/profile.
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    const dashboard =
+      role === "coach"
+        ? "/coach"
+        : role === "manager"
+        ? "/manager"
+        : "/athlete";
+
+    return <Navigate to={dashboard} replace />;
   }
 
   return <Outlet />;

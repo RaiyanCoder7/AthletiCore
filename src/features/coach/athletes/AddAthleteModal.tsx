@@ -2,12 +2,10 @@ import { useState, useEffect } from "react";
 import { X, UserPlus, Loader2, Shield } from "lucide-react";
 import Button from "@/components/ui/Button";
 import {
-  createAthleteRosterEntry,
+  createAthleteInvitation,
   subscribeToTeams,
 } from "@/services/firebase/coach";
 import type { TeamSquadDoc } from "@/services/firebase/coach";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
-import { db } from "@/services/firebase/firebase";
 
 type AddAthleteModalProps = {
   isOpen: boolean;
@@ -49,24 +47,11 @@ export default function AddAthleteModal({
     setIsSubmitting(true);
 
     try {
-      const chosenTeam = teams.find((t) => t.id === selectedTeamId);
-
-      const athleteId = await createAthleteRosterEntry({
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        position,
-        category,
-        age: Number(age) || 20,
-        teamId: selectedTeamId || undefined,
-        teamName: chosenTeam?.name || undefined,
-      });
-
-      // Append athlete to the team's roster array if assigned to a squad
-      if (selectedTeamId && athleteId) {
-        await updateDoc(doc(db, "teams", selectedTeamId), {
-          athleteIds: arrayUnion(athleteId),
-        });
+      if (!selectedTeamId) {
+        throw new Error("Select a squad before sending an invitation.");
       }
+
+      await createAthleteInvitation(selectedTeamId, email);
 
       setName("");
       setEmail("");
@@ -89,7 +74,7 @@ export default function AddAthleteModal({
               <UserPlus size={16} />
             </div>
             <h3 className="text-base font-bold text-foreground">
-              Add Squad Athlete
+              Invite Athlete
             </h3>
           </div>
           <button
@@ -110,11 +95,10 @@ export default function AddAthleteModal({
         <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
           <div>
             <label className="block font-mono text-[11px] uppercase text-muted-foreground mb-1">
-              Full Name
+              Athlete Name (optional)
             </label>
             <input
               type="text"
-              required
               placeholder="e.g. Liam Sterling"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -233,10 +217,10 @@ export default function AddAthleteModal({
               {isSubmitting ? (
                 <>
                   <Loader2 size={13} className="animate-spin" />
-                  <span>Enrolling...</span>
+                  <span>Sending...</span>
                 </>
               ) : (
-                <span>Confirm Roster Addition</span>
+                <span>Send Squad Invitation</span>
               )}
             </Button>
           </div>

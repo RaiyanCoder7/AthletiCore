@@ -51,6 +51,7 @@ export interface UserProfile {
   appearance?: "Dark" | "Light" | "System";
 
   // Dynamic index signature for custom coach/athlete preferences
+  coachIds?: string[];
   [key: string]: any;
 }
 
@@ -107,7 +108,31 @@ export async function updateUserProfile(
   uid: string,
   data: Partial<UserProfile>
 ): Promise<void> {
-  const userRef = doc(db, "users", uid);
+  // Authorization/relationship fields are server-controlled by Firestore.
+  const safeData = { ...data } as Record<string, unknown>;
 
-  await updateDoc(userRef, data);
+  delete safeData.role;
+  delete safeData.coachIds;
+  delete safeData.teamId;
+  delete safeData.teamName;
+  delete safeData.email;
+
+  const userRef = doc(db, "users", uid);
+  await updateDoc(userRef, safeData);
+}
+
+export async function getUserRole(
+  uid: string
+): Promise<UserRole | null> {
+  const profile = await getUserProfile(uid);
+
+  if (
+    profile?.role === "athlete" ||
+    profile?.role === "coach" ||
+    profile?.role === "manager"
+  ) {
+    return profile.role;
+  }
+
+  return null;
 }

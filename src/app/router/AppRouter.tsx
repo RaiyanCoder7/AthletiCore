@@ -24,6 +24,8 @@ import AthleteDetailPage from "@/features/coach/athletes/AthleteDetailPage";
 import CoachTeamsPage from "@/features/coach/teams/CoachTeamsPage";
 import CoachTrainingPage from "@/features/coach/training/CoachTrainingPage";
 import CoachPerformancePage from "@/features/coach/performance/CoachPerformancePage";
+import TeamHubPage from "@/features/Teams/TeamHubPage";
+import ManagerDashboardPage from "@/features/manager/ManagerDashboardPage";
 
 export default function AppRouter() {
   return (
@@ -71,7 +73,16 @@ export default function AppRouter() {
               />
             </Route>
 
-            {/* 3. Shared Cross-Role Routes */}
+            <Route element={<ProtectedRoute allowedRoles={["coach"]} />}>
+              <Route path="/coach/teams/:teamId" element={<TeamHubPage />} />
+            </Route>
+
+            {/* 3. Manager Routes */}
+            <Route element={<ProtectedRoute allowedRoles={["manager"]} />}>
+              <Route path="/manager" element={<ManagerDashboardPage />} />
+            </Route>
+
+            {/* 4. Shared Cross-Role Routes */}
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/settings" element={<SettingsPage />} />

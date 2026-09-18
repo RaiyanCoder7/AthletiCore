@@ -235,7 +235,7 @@ export default function RegisterPage() {
               <span className="text-2xl sm:text-3xl">⚡</span>
             </div>
             <p className="text-sm text-neutral-400">
-              Join the performance combine and select your identity tier
+              Create your athlete account. Coach and manager access is provisioned separately.
             </p>
           </div>
 
@@ -253,7 +253,7 @@ export default function RegisterPage() {
             {/* Role Switcher */}
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-400">
-                Select Persona Role
+                Account Role
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {(Object.keys(ROLE_CONFIGS) as UserRole[]).map((r) => {
@@ -266,10 +266,13 @@ export default function RegisterPage() {
                       key={r}
                       type="button"
                       onClick={() => setRole(r)}
-                      disabled={loading}
+                      disabled={loading || r !== "athlete"}
+                      title={r === "athlete" ? "Create an athlete account" : "Coach and manager accounts are provisioned by AthletiCore"}
                       className={`flex items-center justify-center gap-2 rounded-2xl border py-2.5 text-xs font-bold transition-all ${
                         isSelected
                           ? "border-[#22C55E] bg-[#22C55E]/15 text-[#22C55E] shadow-sm shadow-[#22C55E]/20"
+                          : r !== "athlete"
+                          ? "cursor-not-allowed border-white/5 bg-[#0B1017]/50 text-neutral-600"
                           : "border-white/10 bg-[#0B1017] text-neutral-400 hover:border-white/20 hover:text-white"
                       }`}
                     >

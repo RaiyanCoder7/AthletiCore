@@ -11,6 +11,7 @@ import {
   Key,
   Copy,
   Check,
+  LayoutDashboard,
 } from "lucide-react";
 
 import PageContainer from "@/components/layout/PageContainer";
@@ -99,7 +100,7 @@ export default function CoachTeamsPage() {
           className="gap-1.5 self-start sm:self-auto"
         >
           <Plus size={15} />
-          <span>+ Create Squad</span>
+          <span>Create Squad</span>
         </Button>
       </div>
 
@@ -111,7 +112,9 @@ export default function CoachTeamsPage() {
         <div className="rounded-2xl border border-dashed border-border/80 p-12 text-center">
           <Shield size={32} className="mx-auto text-muted-foreground mb-3" />
           <h3 className="text-sm font-semibold text-foreground">No Squads Registered Yet</h3>
-          <p className="text-xs text-muted-foreground mt-1">Create your first squad to generate invite codes and link athletes.</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Create your first squad to generate invite codes and link athletes.
+          </p>
           <Button variant="primary" size="sm" onClick={() => setIsModalOpen(true)} className="mt-4">
             + Create First Squad
           </Button>
@@ -217,23 +220,26 @@ export default function CoachTeamsPage() {
                   )}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/coach/athletes")}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between gap-2">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => navigate(`/coach/teams/${team.id}`)}
+                    className="gap-1.5 text-xs flex-1 justify-center"
                   >
-                    <span>Squad Lineup</span>
+                    <LayoutDashboard size={13} />
+                    <span>Squad Hub</span>
                     <ArrowRight size={13} />
-                  </button>
+                  </Button>
 
-                  <button
-                    type="button"
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => navigate("/coach/training")}
-                    className="text-xs text-muted-foreground hover:text-foreground"
+                    className="text-xs"
                   >
-                    Schedule Drills
-                  </button>
+                    Drills
+                  </Button>
                 </div>
               </DashboardCard>
             );

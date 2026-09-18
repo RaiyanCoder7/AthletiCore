@@ -107,14 +107,28 @@ export function subscribeToAthletes(
   callback: (athletes: CoachAthlete[]) => void,
   onError?: (err: Error) => void
 ) {
-  const q = query(collection(db, "users"), where("role", "==", "athlete"));
+  const coachId = auth.currentUser?.uid;
+
+  if (!coachId) {
+    const error = new Error("You must be signed in as a coach.");
+    onError?.(error);
+    return () => {};
+  }
+
+  // IMPORTANT: access is scoped to athletes explicitly connected to this coach.
+  // Firestore rules must enforce the same relationship server-side.
+  const q = query(
+    collection(db, "users"),
+    where("role", "==", "athlete"),
+    where("coachIds", "array-contains", coachId)
+  );
 
   return onSnapshot(
     q,
     (snap) => {
       const athletes: CoachAthlete[] = snap.docs.map((docSnap) => {
         const d = docSnap.data();
-        const fitnessScore = d.fitnessScore ?? d.readinessScore ?? 85;
+        const fitnessScore = Number(d.fitnessScore ?? d.readinessScore ?? 0);
         let status: "Critical" | "Monitor" | "Optimal" = "Optimal";
         if (fitnessScore < 65) status = "Critical";
         else if (fitnessScore < 75) status = "Monitor";
@@ -143,30 +157,37 @@ export function subscribeToAthletes(
               : status === "Monitor"
               ? "Questionable"
               : "Available"),
-          age: d.age || 20,
-          height: d.height ? `${d.height} cm` : "180 cm",
-          weight: d.weight ? `${d.weight} kg` : "75 kg",
-          restingHR: d.restingHR ? `${d.restingHR} bpm` : "56 bpm",
-          maxVelocity: d.maxVelocity ? `${d.maxVelocity} km/h` : "31.2 km/h",
+          age: d.age,
+          height: d.height != null ? `${d.height} cm` : undefined,
+          weight: d.weight != null ? `${d.weight} kg` : undefined,
+          restingHR: d.restingHR != null ? `${d.restingHR} bpm` : undefined,
+          maxVelocity: d.maxVelocity != null ? `${d.maxVelocity} km/h` : undefined,
           metrics: {
-            speed: d.metrics?.speed ?? 82,
-            strength: d.metrics?.strength ?? 80,
-            endurance: d.metrics?.endurance ?? 84,
-            agility: d.metrics?.agility ?? 86,
+            speed: Number(d.metrics?.speed ?? 0),
+            strength: Number(d.metrics?.strength ?? 0),
+            endurance: Number(d.metrics?.endurance ?? 0),
+            agility: Number(d.metrics?.agility ?? 0),
           },
           notes: d.notes || [],
-          lastActive: d.lastActive || "Recently",
+          lastActive: d.lastActive,
         };
       });
+
       callback(athletes);
     },
-    (err) => (onError ? onError(err) : console.error("subscribeToAthletes error:", err))
+    (err) => {
+      onError?.(err);
+      if (!onError) console.error("subscribeToAthletes error:", err);
+    }
   );
 }
 
 export async function getCoachAthleteDetail(
   athleteId: string
 ): Promise<CoachAthlete | null> {
+  const coachId = auth.currentUser?.uid;
+  if (!coachId) throw new Error("You must be signed in as a coach.");
+
   const snap = await getDoc(doc(db, "users", athleteId));
   if (!snap.exists()) return null;
   const d = snap.data();
@@ -281,19 +302,37 @@ export async function createAthleteRosterEntry(athleteData: {
   teamId?: string;
   teamName?: string;
 }) {
-  const docRef = await addDoc(collection(db, "users"), {
-    ...athleteData,
-    role: "athlete",
-    fitnessScore: 85,
-    status: "Optimal",
-    clearance: "Full Clearance",
-    availability: "Available",
-    metrics: { speed: 80, strength: 80, endurance: 80, agility: 80 },
-    notes: [],
-    createdAt: serverTimestamp(),
-    lastActive: "Just added",
-  });
-  return docRef.id;
+  throw new Error(
+    "Roster accounts cannot be created from the coach client. Ask the athlete to register and join the squad with the team's invite code."
+  );
+}
+
+export async function createAthleteInvitation(
+  teamId: string,
+  email: string
+) {
+  const coachId = auth.currentUser?.uid;
+  if (!coachId) throw new Error("You must be signed in as a coach.");
+
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail) throw new Error("Athlete email is required.");
+
+  const teamSnap = await getDoc(doc(db, "teams", teamId));
+  if (!teamSnap.exists() || teamSnap.data().coachId !== coachId) {
+    throw new Error("You do not have permission to invite athletes to this squad.");
+  }
+
+  const invitationRef = await addDoc(
+    collection(db, "teams", teamId, "invitations"),
+    {
+      email: normalizedEmail,
+      status: "pending",
+      invitedBy: coachId,
+      createdAt: serverTimestamp(),
+    }
+  );
+
+  return invitationRef.id;
 }
 
 export async function updateAthleteWorkload(
@@ -352,8 +391,18 @@ export function subscribeToTeams(
   callback: (teams: TeamSquadDoc[]) => void,
   onError?: (err: Error) => void
 ) {
+  const coachId = auth.currentUser?.uid;
+
+  if (!coachId) {
+    const error = new Error("You must be signed in as a coach.");
+    onError?.(error);
+    return () => {};
+  }
+
+  const q = query(collection(db, "teams"), where("coachId", "==", coachId));
+
   return onSnapshot(
-    collection(db, "teams"),
+    q,
     (snap) => {
       const teams = snap.docs.map((d) => ({
         id: d.id,
@@ -361,14 +410,18 @@ export function subscribeToTeams(
       }));
       callback(teams);
     },
-    (err) => (onError ? onError(err) : console.error("subscribeToTeams error:", err))
+    (err) => {
+      onError?.(err);
+      if (!onError) console.error("subscribeToTeams error:", err);
+    }
   );
 }
 
 export async function createTeamSquad(
   team: Omit<TeamSquadDoc, "id" | "coachId" | "createdAt">
 ) {
-  const coachId = auth.currentUser?.uid || "coach-system";
+  const coachId = auth.currentUser?.uid;
+  if (!coachId) throw new Error("You must be signed in as a coach.");
   const inviteCode = team.inviteCode || generateTeamCode(team.name);
 
   const docRef = await addDoc(collection(db, "teams"), {
@@ -382,6 +435,11 @@ export async function createTeamSquad(
 }
 
 export async function joinTeamWithCode(athleteId: string, inviteCode: string) {
+  const currentUid = auth.currentUser?.uid;
+  if (!currentUid || currentUid !== athleteId) {
+    throw new Error("You can only join a squad for your own account.");
+  }
+
   const code = inviteCode.trim().toUpperCase();
 
   const teamsRef = collection(db, "teams");
@@ -400,9 +458,15 @@ export async function joinTeamWithCode(athleteId: string, inviteCode: string) {
     athleteIds: arrayUnion(athleteId),
   });
 
+  const coachId = teamData.coachId;
+  if (!coachId) {
+    throw new Error("This squad is missing a coach assignment.");
+  }
+
   await updateDoc(doc(db, "users", athleteId), {
     teamId: teamId,
     teamName: teamData.name || "Squad",
+    coachIds: arrayUnion(coachId),
   });
 
   return { teamId, teamName: teamData.name };
@@ -415,8 +479,21 @@ export function subscribeToTrainingSessions(
   callback: (sessions: CoachTrainingDoc[]) => void,
   onError?: (err: Error) => void
 ) {
-  return onSnapshot(
+  const coachId = auth.currentUser?.uid;
+
+  if (!coachId) {
+    const error = new Error("You must be signed in as a coach.");
+    onError?.(error);
+    return () => {};
+  }
+
+  const q = query(
     collection(db, "training_sessions"),
+    where("coachId", "==", coachId)
+  );
+
+  return onSnapshot(
+    q,
     (snap) => {
       const items: CoachTrainingDoc[] = snap.docs.map((d) => ({
         id: d.id,
@@ -424,17 +501,18 @@ export function subscribeToTrainingSessions(
       }));
       callback(items);
     },
-    (err) =>
-      onError
-        ? onError(err)
-        : console.error("subscribeToTrainingSessions error:", err)
+    (err) => {
+      onError?.(err);
+      if (!onError) console.error("subscribeToTrainingSessions error:", err);
+    }
   );
 }
 
 export async function createTrainingSessionDoc(
   session: Omit<CoachTrainingDoc, "id" | "coachId" | "createdAt">
 ) {
-  const coachId = auth.currentUser?.uid || "coach-system";
+  const coachId = auth.currentUser?.uid;
+  if (!coachId) throw new Error("You must be signed in as a coach.");
   const docRef = await addDoc(collection(db, "training_sessions"), {
     ...session,
     coachId,

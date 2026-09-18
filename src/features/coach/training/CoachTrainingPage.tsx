@@ -73,7 +73,7 @@ export default function CoachTrainingPage() {
       unsubAthletes();
       unsubTeams();
     };
-  }, [squad]);
+  }, []);
 
   const handleCreateSession = async (e: React.FormEvent) => {
     e.preventDefault();
